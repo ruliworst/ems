@@ -17,7 +17,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={montserrat.className}>
-      <body>
+      <body className="flex">
         <Sidebar />
         {children}
       </body>
