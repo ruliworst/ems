@@ -1,13 +1,16 @@
-import { container } from "tsyringe";
 import "reflect-metadata";
-import DeviceService from "@/services/DeviceService";
+import "../../../config/container";
+import { container } from "tsyringe";
+import DeviceService from "@/application/services/DeviceService";
 import { NextResponse } from "next/server";
+import { DeviceDTO } from "@/dtos/device.dto";
 
 export async function GET(request: Request) {
   const deviceService = container.resolve(DeviceService);
 
   try {
-    const devices = await deviceService.getAllDevices();
+    const devices: DeviceDTO[] = await deviceService.getAll();
+
     return NextResponse.json(devices, { status: 200 })
   } catch (error) {
     return NextResponse.json({ error: "Failed to fetch devices." }, { status: 500 })
