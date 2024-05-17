@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "npx prisma generate && next build",
     "start": "next start",
-    "test": "jest",
+    "test": "jest --coverage",
     "lint": "next lint",
     "prisma": "npx prisma generate && npx prisma migrate dev --name"
   },
