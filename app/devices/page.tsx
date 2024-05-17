@@ -1,3 +1,6 @@
+"use client";
+
+import "reflect-metadata";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -6,17 +9,33 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
-import { Device } from "@prisma/client";
+} from "@/components/ui/table";
+import { useEffect, useState } from "react";
+import { DeviceDTO } from "@/dtos/device.dto";
 
 // TODO: Restyle the top layout.
 
-// TODO: Implement the use of a service to get the devices from database. Use skeleton.
-const devices: Device[] = [
-
-]
-
+// TODO: Use skeleton.
 export default function DevicesView() {
+  const [devices, setDevices] = useState<DeviceDTO[]>([]);
+
+  useEffect(() => {
+    async function fetchDevices() {
+      try {
+        const response = await fetch("/api/devices");
+        if (!response.ok) {
+          throw new Error("Failed to fetch devices");
+        }
+        const devices = await response.json();
+        setDevices(devices);
+      } catch (err: any) {
+        console.error(err.message);
+      }
+    }
+
+    fetchDevices();
+  }, []);
+
   return (
     <div className="bg-gray-100 p-6 w-10/12">
       <header className="flex justify-between items-center mb-6">
@@ -49,12 +68,12 @@ export default function DevicesView() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {devices.map((device) => (
-              <TableRow key={device.id}>
+            {devices.map((device, index) => (
+              <TableRow key={index}>
                 <TableCell>{device.name}</TableCell>
                 <TableCell>{device.ratedPower}</TableCell>
-                <TableCell>{device.installationDate.toDateString()}</TableCell>
-                <TableCell>{device.lastMaintenance?.toDateString()}</TableCell>
+                <TableCell>{device.installationDate}</TableCell>
+                <TableCell>{device.lastMaintenance}</TableCell>
                 <TableCell>{device.status}</TableCell>
                 <TableCell><i className="fa-solid fa-eye"></i></TableCell>
               </TableRow>
