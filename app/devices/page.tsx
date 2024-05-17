@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { DeviceDTO } from "@/dtos/device.dto";
 import { DeviceApiService } from "@/adapters/services/DeviceApiService";
+import { CreateDeviceDialog } from "@/components/CreateDeviceDialog";
 
 // TODO: Restyle the top layout.
 
@@ -49,10 +50,7 @@ export default function DevicesView() {
         </div>
       </header>
       <div className="bg-white rounded-lg shadow p-6">
-        <Button>
-          <i className="fa-solid fa-plus pr-3"></i>
-          Add device
-        </Button>
+        <CreateDeviceDialog />
         <Table>
           <TableHeader>
             <TableRow>
