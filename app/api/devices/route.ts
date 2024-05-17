@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import "../../../config/container";
+import "@/config/container";
 import { container } from "tsyringe";
 import DeviceService from "@/application/services/DeviceService";
 import { NextResponse } from "next/server";
