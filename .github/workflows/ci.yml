@@ -27,23 +27,24 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    - name: Generate Prisma Client
-      run: npx prisma generate
-
     - name: Build project
       run: npm run build
 
-    - name: Run tests
-      run: npm test
-
-  sonarcloud:
-    name: 'Sonar cloud scan'
+  test_and_sonarcloud:
+    name: 'Test and Sonar cloud scan'
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
       with:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Run tests
+      run: npm test
+
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       with:
@@ -51,6 +52,7 @@ jobs:
           -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+          -Dsonar.typescript.lcov.reportPaths=./coverage/lcov.info
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
