@@ -21,13 +21,16 @@ export default function DevicesView() {
   const [devices, setDevices] = useState<DeviceDTO[]>([]);
 
   useEffect(() => {
-    try {
-      DeviceApiService
-        .fetchAll()
-        .then(devices => setDevices(devices));
-    } catch (err: any) {
-      console.error(err.message);
+    async function loadDevices() {
+      try {
+        const devices = await DeviceApiService.fetchAll()
+        setDevices(devices);
+      } catch (err: any) {
+        console.error(err.message);
+      }
     }
+
+    loadDevices();
   }, []);
 
   return (

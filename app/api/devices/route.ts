@@ -5,7 +5,7 @@ import DeviceService from "@/application/services/DeviceService";
 import { NextResponse } from "next/server";
 import { DeviceDTO } from "@/dtos/device.dto";
 
-export async function GET(request: Request) {
+export async function GET() {
   const deviceService = container.resolve(DeviceService);
 
   try {
