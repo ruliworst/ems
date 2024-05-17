@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import "../../config/container";
+import "@/config/container";
 import { container } from "tsyringe";
 import prisma from "../../jest.setup";
 import { Prisma, Status } from "@prisma/client";

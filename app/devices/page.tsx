@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
 import { DeviceDTO } from "@/dtos/device.dto";
+import { DeviceApiService } from "@/adapters/services/DeviceApiService";
 
 // TODO: Restyle the top layout.
 
@@ -20,20 +21,13 @@ export default function DevicesView() {
   const [devices, setDevices] = useState<DeviceDTO[]>([]);
 
   useEffect(() => {
-    async function fetchDevices() {
-      try {
-        const response = await fetch("/api/devices");
-        if (!response.ok) {
-          throw new Error("Failed to fetch devices");
-        }
-        const devices = await response.json();
-        setDevices(devices);
-      } catch (err: any) {
-        console.error(err.message);
-      }
+    try {
+      DeviceApiService
+        .fetchAll()
+        .then(devices => setDevices(devices));
+    } catch (err: any) {
+      console.error(err.message);
     }
-
-    fetchDevices();
   }, []);
 
   return (
