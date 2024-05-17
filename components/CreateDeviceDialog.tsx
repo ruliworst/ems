@@ -36,7 +36,7 @@ export function CreateDeviceDialog() {
         <DialogHeader>
           <DialogTitle>Create device</DialogTitle>
           <DialogDescription>
-            Create a new device. Click new when you're done.
+            Create a new device. Click new when you are done.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
