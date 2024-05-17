@@ -13,6 +13,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json(devices, { status: 200 })
   } catch (error) {
+    console.error('Error fetching devices:', error);
     return NextResponse.json({ error: "Failed to fetch devices." }, { status: 500 })
   }
 }
