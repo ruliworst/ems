@@ -11,25 +11,6 @@ env:
   POSTGRES_PRISMA_URL: ${{ secrets.POSTGRES_PRISMA_URL }}
 
 jobs:
-  build_and_test:
-    name: 'Build and test project'
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-
-    - name: Install dependencies
-      run: npm install
-
-    - name: Build project
-      run: npm run build
-
   test_and_sonarcloud:
     name: 'Test and Sonar cloud scan'
     runs-on: ubuntu-latest
@@ -39,8 +20,16 @@ jobs:
         # Disabling shallow clone is recommended for improving relevancy of reporting
         fetch-depth: 0
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
     - name: Install dependencies
       run: npm install
+
+    - name: Generate Prisma Client
+      run: npx prisma generate
 
     - name: Run tests
       run: npm test
