@@ -1,5 +1,10 @@
 "use client";
 
+import * as React from "react";
+import { useState } from "react";
+import { format } from "date-fns";
+import { Calendar as CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,78 +23,113 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import * as React from "react";
-import { format } from "date-fns";
-import { Calendar as CalendarIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { Textarea } from "./ui/textarea";
+import { Textarea } from "@/components/ui/textarea";
+import { DeviceApiService } from "@/adapters/services/DeviceApiService";
+import { DeviceDTO } from "@/dtos/device.dto";
+import { Toaster } from "@/components/ui/toaster"
+import { useToast } from "@/components/ui/use-toast";
 
 export function CreateDeviceDialog() {
-  const [date, setDate] = React.useState<Date>();
+  const { toast } = useToast()
+  const [opened, setOpened] = useState<boolean>(false);
+  const [date, setDate] = useState<Date | undefined>();
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const data = {
+      name: formData.get("name"),
+      installationDate: date,
+      ratedPower: formData.get("ratedPower"),
+      observations: formData.get("observations"),
+    };
+    console.log("Form Data:", data);
+
+    const deviceDTO: DeviceDTO = {
+      name: data.name!.toString(),
+      installationDate: data.installationDate!.toDateString(),
+      ratedPower: Number(data.ratedPower!),
+      observations: data.observations?.toString(),
+    };
+
+    await DeviceApiService.create(deviceDTO)
+      .then(device => {
+        console.log("Created device:", device)
+        setOpened(false);
+        toast({
+          title: `${device.name} created`,
+          description: `${new Date().toLocaleString()}`
+        })
+      });
+  };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button><i className="fa-solid fa-plus pr-3"></i>Create device</Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] sm:max-h-[600px]">
-        <DialogHeader>
-          <DialogTitle>Create device</DialogTitle>
-          <DialogDescription>
-            Create a new device. Click new when you are done.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              Name
-            </Label>
-            <Input id="name" className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="installationDate" className="text-right">
-              Installation date
-            </Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-[280px] justify-start text-left font-normal",
-                    !date && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {date ? format(date, "PPP") : <span>Pick a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" id="installationDate">
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="ratedPower" className="text-right">
-              Rated power (kWh)
-            </Label>
-            <Input id="ratedPower" className="col-span-3" type="number" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="observations" className="text-right">
-              Observations
-            </Label>
-            <Textarea id="observations" className="col-span-3 max-h-[200px]" />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="submit">New</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={opened} onOpenChange={setOpened}>
+        <DialogTrigger asChild>
+          <Button><i className="fa-solid fa-plus pr-3"></i>Create device</Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px] sm:max-h-[600px]">
+          <DialogHeader>
+            <DialogTitle>Create device</DialogTitle>
+            <DialogDescription>
+              Create a new device. Click new when you are done.
+            </DialogDescription>
+          </DialogHeader>
+          <form id="createDeviceForm" onSubmit={handleSubmit}>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="name" className="text-right">Name</Label>
+                <Input id="name" name="name" className="col-span-3" required />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="installationDate" className="text-right">
+                  Installation date
+                </Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant={"outline"}
+                      className={cn(
+                        "col-span-3 justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" id="installationDate">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="ratedPower" className="text-right">
+                  Rated power (kWh)
+                </Label>
+                <Input id="ratedPower" name="ratedPower" className="col-span-3" type="number" required />
+              </div>
+              <div className="grid grid-cols-4 items-center gap-4">
+                <Label htmlFor="observations" className="text-right">
+                  Observations
+                </Label>
+                <Textarea id="observations" name="observations" className="col-span-3 max-h-[200px]" />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button form="createDeviceForm" type="submit">New</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+      <Toaster />
+    </>
   );
 }
