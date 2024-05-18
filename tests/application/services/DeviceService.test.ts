@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import prisma from "../../jest.setup";
+import prisma from "../../../jest.setup";
 import DeviceService from "@/application/services/DeviceService";
 import { Device, Prisma, Status } from "@prisma/client";
 import { DeviceDTO } from "@/dtos/device.dto";
@@ -43,6 +43,30 @@ describe("DeviceService", () => {
     // Assert.
     expect(devices).toContainEqual(devicesToCreate[0]);
     expect(devices).toContainEqual(devicesToCreate[1]);
+  });
+
+  it("should create a new device", async () => {
+    // Arrange.
+    const deviceDTO: DeviceDTO = {
+      name: "Device 1",
+      ratedPower: 100,
+      installationDate: new Date().toISOString(),
+      status: Status.IDLE,
+      observations: "Observation 1",
+      lastMaintenance: new Date().toISOString(),
+    };
+
+    // Act.
+    const createdDeviceDTO = await deviceService.create(deviceDTO);
+
+    // Assert.
+    expect(createdDeviceDTO).toMatchObject(deviceDTO);
+    expect(createdDeviceDTO).toHaveProperty("name", deviceDTO.name);
+    expect(createdDeviceDTO).toHaveProperty("ratedPower", deviceDTO.ratedPower);
+    expect(createdDeviceDTO).toHaveProperty("installationDate", deviceDTO.installationDate);
+    expect(createdDeviceDTO).toHaveProperty("status", deviceDTO.status);
+    expect(createdDeviceDTO).toHaveProperty("observations", deviceDTO.observations);
+    expect(createdDeviceDTO).toHaveProperty("lastMaintenance", deviceDTO.lastMaintenance);
   });
 
   describe("toDeviceCreateInputMany", () => {
