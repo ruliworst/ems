@@ -17,7 +17,7 @@ describe("DeviceRepository", () => {
     // Arrange.
     const devicesToCreate: Prisma.DeviceCreateInput[] = [
       {
-        name: "Device 1",
+        name: "MKR4353-223MD",
         ratedPower: 100,
         installationDate: new Date(),
         status: Status.IDLE,
@@ -25,7 +25,7 @@ describe("DeviceRepository", () => {
         lastMaintenance: new Date()
       },
       {
-        name: "Device 2",
+        name: "MKR32432-223MD",
         ratedPower: 200,
         installationDate: new Date(),
         status: Status.RUNNING,
@@ -47,7 +47,7 @@ describe("DeviceRepository", () => {
   it("should create a new device", async () => {
     // Arrange.
     const deviceToCreate: Prisma.DeviceCreateInput = {
-      name: "Device 1",
+      name: "MK342858-223MD",
       ratedPower: 100,
       installationDate: new Date(),
       status: Status.IDLE,

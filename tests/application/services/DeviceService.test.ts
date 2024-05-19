@@ -17,7 +17,7 @@ describe("DeviceService", () => {
     // Arrange.
     const devicesToCreate: DeviceDTO[] = [
       {
-        name: "Device 1",
+        name: "MJDSFJ-1283-S",
         ratedPower: 100,
         installationDate: new Date().toDateString(),
         status: Status.IDLE,
@@ -25,7 +25,7 @@ describe("DeviceService", () => {
         lastMaintenance: new Date().toDateString()
       },
       {
-        name: "Device 2",
+        name: "3224MDS-223MD",
         ratedPower: 200,
         installationDate: new Date().toDateString(),
         status: Status.RUNNING,
@@ -48,7 +48,7 @@ describe("DeviceService", () => {
   it("should create a new device", async () => {
     // Arrange.
     const deviceDTO: DeviceDTO = {
-      name: "Device 1",
+      name: "MSKO34",
       ratedPower: 100,
       installationDate: new Date().toISOString(),
       status: Status.IDLE,
@@ -73,7 +73,7 @@ describe("DeviceService", () => {
     it("should convert an array of DeviceDTOs to an array of Prisma.DeviceCreateInput", () => {
       const deviceDTOs: DeviceDTO[] = [
         {
-          name: "Device 1",
+          name: "MASKSK32-12",
           ratedPower: 100,
           installationDate: "2024-05-01T10:00:00.000Z",
           lastMaintenance: "2024-05-10T10:00:00.000Z",
@@ -81,7 +81,7 @@ describe("DeviceService", () => {
           status: Status.RUNNING,
         },
         {
-          name: "Device 2",
+          name: "MLSLS-234",
           ratedPower: 200,
           installationDate: "2024-06-01T10:00:00.000Z",
           lastMaintenance: "2024-06-10T10:00:00.000Z",
@@ -92,7 +92,7 @@ describe("DeviceService", () => {
 
       const expected: Prisma.DeviceCreateInput[] = [
         {
-          name: "Device 1",
+          name: "MASKSK32-12",
           ratedPower: 100,
           installationDate: new Date("2024-05-01T10:00:00.000Z"),
           lastMaintenance: new Date("2024-05-10T10:00:00.000Z"),
@@ -100,7 +100,7 @@ describe("DeviceService", () => {
           status: Status.RUNNING,
         },
         {
-          name: "Device 2",
+          name: "MLSLS-234",
           ratedPower: 200,
           installationDate: new Date("2024-06-01T10:00:00.000Z"),
           lastMaintenance: new Date("2024-06-10T10:00:00.000Z"),
@@ -119,7 +119,7 @@ describe("DeviceService", () => {
       const devices: Device[] = [
         {
           id: "1",
-          name: "Device 1",
+          name: "MASKSK23",
           ratedPower: 100,
           installationDate: new Date("2024-05-01T10:00:00.000Z"),
           lastMaintenance: new Date("2024-05-10T10:00:00.000Z"),
@@ -128,7 +128,7 @@ describe("DeviceService", () => {
         },
         {
           id: "2",
-          name: "Device 2",
+          name: "mSKOP32",
           ratedPower: 200,
           installationDate: new Date("2024-06-01T10:00:00.000Z"),
           lastMaintenance: new Date("2024-06-10T10:00:00.000Z"),
@@ -139,7 +139,7 @@ describe("DeviceService", () => {
 
       const expected: DeviceDTO[] = [
         {
-          name: "Device 1",
+          name: "MASKSK23",
           ratedPower: 100,
           installationDate: "2024-05-01T10:00:00.000Z",
           lastMaintenance: "2024-05-10T10:00:00.000Z",
@@ -147,7 +147,7 @@ describe("DeviceService", () => {
           status: Status.RUNNING,
         },
         {
-          name: "Device 2",
+          name: "mSKOP32",
           ratedPower: 200,
           installationDate: "2024-06-01T10:00:00.000Z",
           lastMaintenance: "2024-06-10T10:00:00.000Z",
