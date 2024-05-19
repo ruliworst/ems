@@ -8,4 +8,18 @@ export class DeviceApiService {
     }
     return response.json();
   }
+
+  static async create(device: DeviceDTO): Promise<DeviceDTO> {
+    const response = await fetch('/api/devices', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(device),
+    });
+    if (!response.ok) {
+      throw new Error('Failed to create device');
+    }
+    return response.json();
+  }
 }

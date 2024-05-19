@@ -22,6 +22,17 @@ class DeviceService {
     }));
   }
 
+  async create(deviceDTO: DeviceDTO): Promise<DeviceDTO> {
+    const deviceToCreate = this.toDeviceCreateInput(deviceDTO);
+    try {
+      const device: Device = await this.deviceRepository.create(deviceToCreate);
+      return this.toDeviceDTO(device);
+    } catch (error) {
+      console.error("Error creating a device:", error);
+      throw error;
+    }
+  }
+
   toDeviceCreateInputMany(deviceDTOs: DeviceDTO[]): Prisma.DeviceCreateInput[] {
     return deviceDTOs.map(deviceDTO => this.toDeviceCreateInput(deviceDTO));
   }

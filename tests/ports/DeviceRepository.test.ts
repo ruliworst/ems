@@ -43,4 +43,28 @@ describe("DeviceRepository", () => {
     expect(devices).toContainEqual({ id: expect.any(String), ...devicesToCreate[0] });
     expect(devices).toContainEqual({ id: expect.any(String), ...devicesToCreate[1] });
   });
+
+  it("should create a new device", async () => {
+    // Arrange.
+    const deviceToCreate: Prisma.DeviceCreateInput = {
+      name: "Device 1",
+      ratedPower: 100,
+      installationDate: new Date(),
+      status: Status.IDLE,
+      observations: "Observation 1",
+      lastMaintenance: new Date(),
+    };
+
+    // Act.
+    const createdDevice = await deviceRepository.create(deviceToCreate);
+
+    // Assert.
+    expect(createdDevice).toMatchObject(deviceToCreate);
+    expect(createdDevice).toHaveProperty("id");
+    expect(typeof createdDevice.id).toBe("string");
+
+    const foundDevice = await prisma.device.findUnique({ where: { id: createdDevice.id } });
+    expect(foundDevice).not.toBeNull();
+    expect(foundDevice).toMatchObject(deviceToCreate);
+  });
 });
