@@ -4,4 +4,5 @@ export interface DeviceRepository {
   getAll(): Promise<Device[]>;
   getByName(name: string): Promise<Device | null>;
   create(device: Prisma.DeviceCreateInput): Promise<Device>;
+  delete(name: string): Promise<Device | null>;
 }
