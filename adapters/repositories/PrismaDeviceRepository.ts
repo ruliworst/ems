@@ -10,6 +10,17 @@ export default class PrismaDeviceRepository implements DeviceRepository {
     this.prisma = new PrismaClient();
   }
 
+  async delete(name: string): Promise<Device | null> {
+    try {
+      await this.connect();
+      return await this.prisma.device.delete({ where: { name } });
+    } catch (error) {
+      return null;
+    } finally {
+      this.disconnect();
+    }
+  }
+
   async getAll(): Promise<Device[]> {
     try {
       await this.connect();

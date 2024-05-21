@@ -30,4 +30,17 @@ export class DeviceApiService {
     }
     return response.json();
   }
+
+  static async delete(name: string): Promise<DeviceDTO> {
+    const response = await fetch(`/api/devices/${name}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to delete device with name ${name}`);
+    }
+    return response.json();
+  }
 }

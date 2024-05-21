@@ -37,6 +37,19 @@ class DeviceService {
     };
   }
 
+  async delete(name: string): Promise<DeviceDTO | null> {
+    try {
+      const device: Device | null = await this.deviceRepository.delete(name);
+      if (!device) {
+        throw new Error("The device could not be deleted.");
+      }
+      return this.toDeviceDTO(device);
+    } catch (error) {
+      console.error("Error deleting a device:", error);
+      return null;
+    }
+  }
+
   async create(deviceDTO: DeviceDTO): Promise<DeviceDTO> {
     const deviceToCreate = this.toDeviceCreateInput(deviceDTO);
     try {

@@ -191,4 +191,36 @@ describe("DeviceService", () => {
       expect(fetchedDevice).toBeNull();
     });
   });
+
+  describe("delete", () => {
+    it("should delete a device successfully", async () => {
+      // Arrange.
+      const deviceDTO: DeviceDTO = {
+        name: "DeviceToDelete",
+        ratedPower: 100,
+        installationDate: new Date().toDateString(),
+        status: Status.IDLE,
+        observations: "Observation to delete",
+        lastMaintenance: new Date().toDateString(),
+      };
+
+      await deviceService.create(deviceDTO);
+
+      // Act.
+      const deletedDeviceDTO = await deviceService.delete(deviceDTO.name);
+
+      // Assert.
+      expect(deletedDeviceDTO).toMatchObject(deviceDTO);
+      const fetchedDevice = await prisma.device.findUnique({ where: { name: deviceDTO.name } });
+      expect(fetchedDevice).toBeNull();
+    });
+
+    it("should throw an error when deleting a device that does not exist", async () => {
+      // Act.
+      const deletedDevice = await deviceService.delete("NonExistentDevice");
+
+      // Assert.
+      expect(deletedDevice).toBeNull();
+    });
+  });
 });

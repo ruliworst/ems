@@ -159,4 +159,53 @@ describe("DeviceApiService", () => {
     await expect(DeviceApiService.fetchByName(deviceName)).rejects.toThrow(`Failed to fetch device with name ${deviceName}`);
     expect(fetch).toHaveBeenCalledWith(`/api/devices/${deviceName}`);
   });
+
+  it('should delete a device successfully', async () => {
+    // Arrange.
+    const deviceName = 'KASDM-32929';
+
+    const deletedDevice: DeviceDTO = {
+      name: 'KASDM-32929',
+      ratedPower: 100,
+      installationDate: "Sat Jun 01 2024",
+      lastMaintenance: "Mon Jun 10 2024",
+      observations: 'First device, performing well.',
+      status: 'RUNNING',
+    };
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => deletedDevice,
+    });
+
+    // Act.
+    const result = await DeviceApiService.delete(deviceName);
+
+    // Assert.
+    expect(result).toEqual(deletedDevice);
+    expect(fetch).toHaveBeenCalledWith(`/api/devices/${deviceName}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  });
+
+  it('should throw an error when deleting a device fails', async () => {
+    // Arrange.
+    const deviceName = 'NotDefinedName';
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+    });
+
+    // Act & Assert.
+    await expect(DeviceApiService.delete(deviceName)).rejects.toThrow('Failed to delete device');
+    expect(fetch).toHaveBeenCalledWith(`/api/devices/${deviceName}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+  });
 });
