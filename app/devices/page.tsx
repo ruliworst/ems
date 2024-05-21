@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { DeviceDTO } from "@/dtos/device.dto";
 import { DeviceApiService } from "@/adapters/services/DeviceApiService";
+import CreateDeviceDialog from "@/components/CreateDeviceDialog";
 
 // TODO: Restyle the top layout.
 
@@ -33,6 +34,10 @@ export default function DevicesView() {
     loadDevices();
   }, []);
 
+  const handleDeviceCreated = (newDevice: DeviceDTO) => {
+    setDevices((prevDevices) => [...prevDevices, newDevice]);
+  };
+
   return (
     <div className="bg-gray-100 p-6 w-10/12">
       <header className="flex justify-between items-center mb-6">
@@ -49,10 +54,7 @@ export default function DevicesView() {
         </div>
       </header>
       <div className="bg-white rounded-lg shadow p-6">
-        <Button>
-          <i className="fa-solid fa-plus pr-3"></i>
-          Add device
-        </Button>
+        <CreateDeviceDialog onDeviceCreated={handleDeviceCreated} />
         <Table>
           <TableHeader>
             <TableRow>
@@ -65,14 +67,18 @@ export default function DevicesView() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {devices.map((device, index) => (
-              <TableRow key={index}>
+            {devices.map(device => (
+              <TableRow key={device.name}>
                 <TableCell>{device.name}</TableCell>
                 <TableCell>{device.ratedPower}</TableCell>
                 <TableCell>{device.installationDate}</TableCell>
                 <TableCell>{device.lastMaintenance}</TableCell>
                 <TableCell>{device.status}</TableCell>
-                <TableCell><i className="fa-solid fa-eye"></i></TableCell>
+                <TableCell>
+                  <a href={`/devices/${device.name}`}>
+                    <Button variant="secondary" className="hover:bg-gray-300"><i className="fa-solid fa-eye text-md"></i></Button>
+                  </a>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

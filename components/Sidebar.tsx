@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-const Sidebar = () => {
+export default function Sidebar() {
   return (
     <section className="h-screen bg-gray-900 text-gray-300 flex flex-col justify-between w-2/12">
       <div>
@@ -61,5 +61,3 @@ const Sidebar = () => {
     </section>
   );
 };
-
-export default Sidebar;

@@ -6,5 +6,5 @@ export type DeviceDTO = {
   installationDate: string;
   lastMaintenance?: string | null;
   observations?: string | null;
-  status: Status;
+  status?: Status;
 };
