@@ -56,8 +56,8 @@ class DeviceService {
     return {
       name: device.name,
       ratedPower: device.ratedPower,
-      installationDate: device.installationDate.toISOString(),
-      lastMaintenance: device.lastMaintenance?.toISOString(),
+      installationDate: device.installationDate.toDateString(),
+      lastMaintenance: device.lastMaintenance?.toDateString(),
       observations: device.observations,
       status: device.status
     };
