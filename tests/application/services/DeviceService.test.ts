@@ -17,7 +17,7 @@ describe("DeviceService", () => {
     // Arrange.
     const devicesToCreate: DeviceDTO[] = [
       {
-        name: "Device 1",
+        name: "MJDSFJ-1283-S",
         ratedPower: 100,
         installationDate: new Date().toDateString(),
         status: Status.IDLE,
@@ -25,7 +25,7 @@ describe("DeviceService", () => {
         lastMaintenance: new Date().toDateString()
       },
       {
-        name: "Device 2",
+        name: "3224MDS-223MD",
         ratedPower: 200,
         installationDate: new Date().toDateString(),
         status: Status.RUNNING,
@@ -48,7 +48,7 @@ describe("DeviceService", () => {
   it("should create a new device", async () => {
     // Arrange.
     const deviceDTO: DeviceDTO = {
-      name: "Device 1",
+      name: "MSKO34",
       ratedPower: 100,
       installationDate: new Date().toDateString(),
       status: Status.IDLE,
@@ -73,7 +73,7 @@ describe("DeviceService", () => {
     it("should convert an array of DeviceDTOs to an array of Prisma.DeviceCreateInput", () => {
       const deviceDTOs: DeviceDTO[] = [
         {
-          name: "Device 1",
+          name: "MASKSK32-12",
           ratedPower: 100,
           installationDate: "Wed May 01 2024",
           lastMaintenance: "Fri May 10 2024",
@@ -81,7 +81,7 @@ describe("DeviceService", () => {
           status: Status.RUNNING,
         },
         {
-          name: "Device 2",
+          name: "MLSLS-234",
           ratedPower: 200,
           installationDate: "Sat Jun 01 2024",
           lastMaintenance: "Mon Jun 10 2024",
@@ -92,7 +92,7 @@ describe("DeviceService", () => {
 
       const expected: Prisma.DeviceCreateInput[] = [
         {
-          name: "Device 1",
+          name: "MASKSK32-12",
           ratedPower: 100,
           installationDate: new Date("Wed May 01 2024"),
           lastMaintenance: new Date("Fri May 10 2024"),
@@ -100,7 +100,7 @@ describe("DeviceService", () => {
           status: Status.RUNNING,
         },
         {
-          name: "Device 2",
+          name: "MLSLS-234",
           ratedPower: 200,
           installationDate: new Date("Sat Jun 01 2024"),
           lastMaintenance: new Date("Mon Jun 10 2024"),
@@ -119,7 +119,7 @@ describe("DeviceService", () => {
       const devices: Device[] = [
         {
           id: "1",
-          name: "Device 1",
+          name: "MASKSK23",
           ratedPower: 100,
           installationDate: new Date("Wed May 01 2024"),
           lastMaintenance: new Date("Fri May 10 2024"),
@@ -128,7 +128,7 @@ describe("DeviceService", () => {
         },
         {
           id: "2",
-          name: "Device 2",
+          name: "mSKOP32",
           ratedPower: 200,
           installationDate: new Date("Sat Jun 01 2024"),
           lastMaintenance: new Date("Mon Jun 10 2024"),
@@ -139,7 +139,7 @@ describe("DeviceService", () => {
 
       const expected: DeviceDTO[] = [
         {
-          name: "Device 1",
+          name: "MASKSK23",
           ratedPower: 100,
           installationDate: "Wed May 01 2024",
           lastMaintenance: "Fri May 10 2024",
@@ -147,7 +147,7 @@ describe("DeviceService", () => {
           status: Status.RUNNING,
         },
         {
-          name: "Device 2",
+          name: "mSKOP32",
           ratedPower: 200,
           installationDate: "Sat Jun 01 2024",
           lastMaintenance: "Mon Jun 10 2024",
@@ -158,6 +158,37 @@ describe("DeviceService", () => {
 
       const result = deviceService.toDeviceDtoMany(devices);
       expect(result).toEqual(expected);
+    });
+  });
+
+  describe("getByName", () => {
+    it("should fetch a device by name successfully", async () => {
+      // Arrange.
+      const deviceDTO: DeviceDTO = {
+        name: "KASOOWEL-231",
+        ratedPower: 100,
+        installationDate: new Date().toDateString(),
+        status: Status.IDLE,
+        observations: "Observation 1",
+        lastMaintenance: new Date().toDateString(),
+      };
+
+      // Act.
+      await deviceService.create(deviceDTO);
+
+      // Act.
+      const fetchedDevice = await deviceService.getByName(deviceDTO.name);
+
+      // Assert.
+      expect(fetchedDevice).toMatchObject(deviceDTO);
+    });
+
+    it("should return null if the device is not found", async () => {
+      // Act.
+      const fetchedDevice = await deviceService.getByName("NonExistentDevice");
+
+      // Assert.
+      expect(fetchedDevice).toBeNull();
     });
   });
 });

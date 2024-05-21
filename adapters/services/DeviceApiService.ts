@@ -9,6 +9,14 @@ export class DeviceApiService {
     return response.json();
   }
 
+  static async fetchByName(name: string): Promise<DeviceDTO> {
+    const response = await fetch(`/api/devices/${name}`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch device with name ${name}`);
+    }
+    return response.json();
+  }
+
   static async create(device: DeviceDTO): Promise<DeviceDTO> {
     const response = await fetch('/api/devices', {
       method: "POST",

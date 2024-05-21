@@ -17,7 +17,7 @@ describe("DeviceRepository", () => {
     // Arrange.
     const devicesToCreate: Prisma.DeviceCreateInput[] = [
       {
-        name: "Device 1",
+        name: "MKR4353-223MD",
         ratedPower: 100,
         installationDate: new Date(),
         status: Status.IDLE,
@@ -25,7 +25,7 @@ describe("DeviceRepository", () => {
         lastMaintenance: new Date()
       },
       {
-        name: "Device 2",
+        name: "MKR32432-223MD",
         ratedPower: 200,
         installationDate: new Date(),
         status: Status.RUNNING,
@@ -47,7 +47,7 @@ describe("DeviceRepository", () => {
   it("should create a new device", async () => {
     // Arrange.
     const deviceToCreate: Prisma.DeviceCreateInput = {
-      name: "Device 1",
+      name: "MK342858-223MD",
       ratedPower: 100,
       installationDate: new Date(),
       status: Status.IDLE,
@@ -66,5 +66,33 @@ describe("DeviceRepository", () => {
     const foundDevice = await prisma.device.findUnique({ where: { id: createdDevice.id } });
     expect(foundDevice).not.toBeNull();
     expect(foundDevice).toMatchObject(deviceToCreate);
+  });
+
+  it("should fetch a device by name successfully", async () => {
+    // Arrange.
+    const deviceToCreate: Prisma.DeviceCreateInput = {
+      name: "MKF32-223MD",
+      ratedPower: 100,
+      installationDate: new Date(),
+      status: Status.RUNNING,
+      observations: "Observation 3",
+      lastMaintenance: new Date(),
+    };
+
+    await prisma.device.create({ data: deviceToCreate });
+
+    // Act.
+    const fetchedDevice = await deviceRepository.getByName(deviceToCreate.name);
+
+    // Assert.
+    expect(fetchedDevice).toMatchObject(deviceToCreate);
+  });
+
+  it("should return null if the device is not found", async () => {
+    // Act.
+    const fetchedDevice = await deviceRepository.getByName("NonExistentDevice");
+
+    // Assert.
+    expect(fetchedDevice).toBeNull();
   });
 });

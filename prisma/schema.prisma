@@ -34,7 +34,7 @@ model Supervisor {
 
 model Device {
   id                            String                          @id @default(uuid())
-  name                          String
+  name                          String                          @unique
   ratedPower                    Float
   installationDate              DateTime
   lastMaintenance               DateTime?
