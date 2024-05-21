@@ -29,7 +29,7 @@ import { DeviceDTO } from "@/dtos/device.dto";
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast";
 
-export function CreateDeviceDialog() {
+export function CreateDeviceDialog({ onDeviceCreated }: { onDeviceCreated: (device: DeviceDTO) => void }) {
   const { toast } = useToast()
   const [opened, setOpened] = useState<boolean>(false);
   const [date, setDate] = useState<Date | undefined>();
@@ -43,7 +43,6 @@ export function CreateDeviceDialog() {
       ratedPower: formData.get("ratedPower"),
       observations: formData.get("observations"),
     };
-    console.log("Form Data:", data);
 
     const deviceDTO: DeviceDTO = {
       name: data.name!.toString(),
@@ -54,12 +53,12 @@ export function CreateDeviceDialog() {
 
     await DeviceApiService.create(deviceDTO)
       .then(device => {
-        console.log("Created device:", device)
         setOpened(false);
         toast({
           title: `${device.name} created`,
           description: `${new Date().toLocaleString()}`
-        })
+        });
+        onDeviceCreated(device);
       });
   };
 

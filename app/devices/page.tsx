@@ -34,6 +34,10 @@ export default function DevicesView() {
     loadDevices();
   }, []);
 
+  const handleDeviceCreated = (newDevice: DeviceDTO) => {
+    setDevices((prevDevices) => [...prevDevices, newDevice]);
+  };
+
   return (
     <div className="bg-gray-100 p-6 w-10/12">
       <header className="flex justify-between items-center mb-6">
@@ -50,7 +54,7 @@ export default function DevicesView() {
         </div>
       </header>
       <div className="bg-white rounded-lg shadow p-6">
-        <CreateDeviceDialog />
+        <CreateDeviceDialog onDeviceCreated={handleDeviceCreated} />
         <Table>
           <TableHeader>
             <TableRow>

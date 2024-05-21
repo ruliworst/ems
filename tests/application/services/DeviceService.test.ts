@@ -50,10 +50,10 @@ describe("DeviceService", () => {
     const deviceDTO: DeviceDTO = {
       name: "MSKO34",
       ratedPower: 100,
-      installationDate: new Date().toISOString(),
+      installationDate: new Date().toDateString(),
       status: Status.IDLE,
       observations: "Observation 1",
-      lastMaintenance: new Date().toISOString(),
+      lastMaintenance: new Date().toDateString(),
     };
 
     // Act.
@@ -75,16 +75,16 @@ describe("DeviceService", () => {
         {
           name: "MASKSK32-12",
           ratedPower: 100,
-          installationDate: "2024-05-01T10:00:00.000Z",
-          lastMaintenance: "2024-05-10T10:00:00.000Z",
+          installationDate: "Wed May 01 2024",
+          lastMaintenance: "Fri May 10 2024",
           observations: "First device, performing well.",
           status: Status.RUNNING,
         },
         {
           name: "MLSLS-234",
           ratedPower: 200,
-          installationDate: "2024-06-01T10:00:00.000Z",
-          lastMaintenance: "2024-06-10T10:00:00.000Z",
+          installationDate: "Sat Jun 01 2024",
+          lastMaintenance: "Mon Jun 10 2024",
           observations: "Second device, requires maintenance.",
           status: Status.IDLE,
         }
@@ -94,16 +94,16 @@ describe("DeviceService", () => {
         {
           name: "MASKSK32-12",
           ratedPower: 100,
-          installationDate: new Date("2024-05-01T10:00:00.000Z"),
-          lastMaintenance: new Date("2024-05-10T10:00:00.000Z"),
+          installationDate: new Date("Wed May 01 2024"),
+          lastMaintenance: new Date("Fri May 10 2024"),
           observations: "First device, performing well.",
           status: Status.RUNNING,
         },
         {
           name: "MLSLS-234",
           ratedPower: 200,
-          installationDate: new Date("2024-06-01T10:00:00.000Z"),
-          lastMaintenance: new Date("2024-06-10T10:00:00.000Z"),
+          installationDate: new Date("Sat Jun 01 2024"),
+          lastMaintenance: new Date("Mon Jun 10 2024"),
           observations: "Second device, requires maintenance.",
           status: Status.IDLE,
         }
@@ -121,8 +121,8 @@ describe("DeviceService", () => {
           id: "1",
           name: "MASKSK23",
           ratedPower: 100,
-          installationDate: new Date("2024-05-01T10:00:00.000Z"),
-          lastMaintenance: new Date("2024-05-10T10:00:00.000Z"),
+          installationDate: new Date("Wed May 01 2024"),
+          lastMaintenance: new Date("Fri May 10 2024"),
           observations: "First device, performing well.",
           status: Status.RUNNING,
         },
@@ -130,8 +130,8 @@ describe("DeviceService", () => {
           id: "2",
           name: "mSKOP32",
           ratedPower: 200,
-          installationDate: new Date("2024-06-01T10:00:00.000Z"),
-          lastMaintenance: new Date("2024-06-10T10:00:00.000Z"),
+          installationDate: new Date("Sat Jun 01 2024"),
+          lastMaintenance: new Date("Mon Jun 10 2024"),
           observations: "Second device, requires maintenance.",
           status: Status.IDLE,
         }
@@ -141,16 +141,16 @@ describe("DeviceService", () => {
         {
           name: "MASKSK23",
           ratedPower: 100,
-          installationDate: "2024-05-01T10:00:00.000Z",
-          lastMaintenance: "2024-05-10T10:00:00.000Z",
+          installationDate: "Wed May 01 2024",
+          lastMaintenance: "Fri May 10 2024",
           observations: "First device, performing well.",
           status: Status.RUNNING,
         },
         {
           name: "mSKOP32",
           ratedPower: 200,
-          installationDate: "2024-06-01T10:00:00.000Z",
-          lastMaintenance: "2024-06-10T10:00:00.000Z",
+          installationDate: "Sat Jun 01 2024",
+          lastMaintenance: "Mon Jun 10 2024",
           observations: "Second device, requires maintenance.",
           status: Status.IDLE,
         }
