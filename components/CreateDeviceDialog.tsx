@@ -29,7 +29,7 @@ import { DeviceDTO } from "@/dtos/device.dto";
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast";
 
-export function CreateDeviceDialog({ onDeviceCreated }: { onDeviceCreated: (device: DeviceDTO) => void }) {
+export default function CreateDeviceDialog({ onDeviceCreated }: { onDeviceCreated: (device: DeviceDTO) => void }) {
   const { toast } = useToast()
   const [opened, setOpened] = useState<boolean>(false);
   const [date, setDate] = useState<Date | undefined>();

@@ -3,29 +3,29 @@ import { DeviceDTO } from "@/dtos/device.dto";
 
 global.fetch = jest.fn();
 
-describe('DeviceApiService', () => {
+describe("DeviceApiService", () => {
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should fetch devices successfully', async () => {
+  it("should fetch devices successfully", async () => {
     // Arrange.
     const mockDevices: DeviceDTO[] = [
       {
-        name: 'Device 1',
+        name: "MKASL323",
         ratedPower: 100,
-        installationDate: '2024-05-01T10:00:00.000Z',
-        lastMaintenance: '2024-05-10T10:00:00.000Z',
-        observations: 'First device, performing well.',
-        status: 'RUNNING',
+        installationDate: "Sat Jun 01 2024",
+        lastMaintenance: "Mon Jun 10 2024",
+        observations: "First device, performing well.",
+        status: "RUNNING",
       },
       {
-        name: 'Device 2',
+        name: "MKASL32334",
         ratedPower: 200,
-        installationDate: '2024-06-01T10:00:00.000Z',
-        lastMaintenance: '2024-06-10T10:00:00.000Z',
-        observations: 'Second device, requires maintenance.',
-        status: 'IDLE',
+        installationDate: "Sat Jun 01 2024",
+        lastMaintenance: "Mon Jun 10 2024",
+        observations: "Second device, requires maintenance.",
+        status: "IDLE",
       },
     ];
 
@@ -39,40 +39,40 @@ describe('DeviceApiService', () => {
 
     // Assert.
     expect(devices).toEqual(mockDevices);
-    expect(fetch).toHaveBeenCalledWith('/api/devices');
+    expect(fetch).toHaveBeenCalledWith("/api/devices");
   });
 
-  it('should throw an error when fetching devices fails', async () => {
+  it("should throw an error when fetching devices fails", async () => {
     // Arrange.
     (fetch as jest.Mock).mockResolvedValue({
       ok: false,
     });
 
     // Act & Assert.
-    await expect(DeviceApiService.fetchAll()).rejects.toThrow('Failed to fetch devices');
-    expect(fetch).toHaveBeenCalledWith('/api/devices');
+    await expect(DeviceApiService.fetchAll()).rejects.toThrow("Failed to fetch devices");
+    expect(fetch).toHaveBeenCalledWith("/api/devices");
   });
 
-  it('should throw an error when fetching devices fails', async () => {
+  it("should throw an error when fetching devices fails", async () => {
     // Arrange.
     (fetch as jest.Mock).mockResolvedValue({
       ok: false,
     });
 
     // Act & Assert.
-    await expect(DeviceApiService.fetchAll()).rejects.toThrow('Failed to fetch devices');
-    expect(fetch).toHaveBeenCalledWith('/api/devices');
+    await expect(DeviceApiService.fetchAll()).rejects.toThrow("Failed to fetch devices");
+    expect(fetch).toHaveBeenCalledWith("/api/devices");
   });
 
-  it('should create a device successfully', async () => {
+  it("should create a device successfully", async () => {
     // Arrange.
     const deviceToCreate: DeviceDTO = {
-      name: 'Device 1',
+      name: "MAKSLSL3223",
       ratedPower: 100,
-      installationDate: '2024-05-01T10:00:00.000Z',
-      lastMaintenance: '2024-05-10T10:00:00.000Z',
-      observations: 'First device, performing well.',
-      status: 'RUNNING',
+      installationDate: "Sat Jun 01 2024",
+      lastMaintenance: "Mon Jun 10 2024",
+      observations: "First device, performing well.",
+      status: "RUNNING",
     };
 
     const createdDevice: DeviceDTO = { ...deviceToCreate };
@@ -87,24 +87,24 @@ describe('DeviceApiService', () => {
 
     // Assert.
     expect(result).toEqual(createdDevice);
-    expect(fetch).toHaveBeenCalledWith('/api/devices', {
-      method: 'POST',
+    expect(fetch).toHaveBeenCalledWith("/api/devices", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(deviceToCreate),
     });
   });
 
-  it('should throw an error when creating a device fails', async () => {
+  it("should throw an error when creating a device fails", async () => {
     // Arrange.
     const deviceToCreate: DeviceDTO = {
-      name: 'Device 1',
+      name: "OQPWPE-32",
       ratedPower: 100,
-      installationDate: '2024-05-01T10:00:00.000Z',
-      lastMaintenance: '2024-05-10T10:00:00.000Z',
-      observations: 'First device, performing well.',
-      status: 'RUNNING',
+      installationDate: "Sat Jun 01 2024",
+      lastMaintenance: "Mon Jun 10 2024",
+      observations: "First device, performing well.",
+      status: "RUNNING",
     };
 
     (fetch as jest.Mock).mockResolvedValue({
@@ -112,13 +112,51 @@ describe('DeviceApiService', () => {
     });
 
     // Act & Assert.
-    await expect(DeviceApiService.create(deviceToCreate)).rejects.toThrow('Failed to create device');
-    expect(fetch).toHaveBeenCalledWith('/api/devices', {
-      method: 'POST',
+    await expect(DeviceApiService.create(deviceToCreate)).rejects.toThrow("Failed to create device");
+    expect(fetch).toHaveBeenCalledWith("/api/devices", {
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(deviceToCreate),
     });
+  });
+
+  it("should fetch a device by name successfully", async () => {
+    // Arrange.
+    const deviceName = "MAKS-DLS-23";
+    const mockDevice: DeviceDTO = {
+      name: "MAKS-DLS-23",
+      ratedPower: 100,
+      installationDate: "Sat Jun 01 2024",
+      lastMaintenance: "Mon Jun 10 2024",
+      observations: "First device, performing well.",
+      status: "RUNNING",
+    };
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => mockDevice,
+    });
+
+    // Act.
+    const device = await DeviceApiService.fetchByName(deviceName);
+
+    // Assert.
+    expect(device).toEqual(mockDevice);
+    expect(fetch).toHaveBeenCalledWith(`/api/devices/${deviceName}`);
+  });
+
+  it("should throw an error when fetching a device by name fails", async () => {
+    // Arrange.
+    const deviceName = "NonExistentDevice";
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+    });
+
+    // Act & Assert.
+    await expect(DeviceApiService.fetchByName(deviceName)).rejects.toThrow(`Failed to fetch device with name ${deviceName}`);
+    expect(fetch).toHaveBeenCalledWith(`/api/devices/${deviceName}`);
   });
 });

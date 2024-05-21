@@ -22,6 +22,21 @@ class DeviceService {
     }));
   }
 
+  async getByName(name: string): Promise<DeviceDTO | null> {
+    const device = await this.deviceRepository.getByName(name);
+
+    if (!device) return null;
+
+    return {
+      name: device.name,
+      ratedPower: device.ratedPower,
+      installationDate: device.installationDate.toDateString(),
+      lastMaintenance: device.lastMaintenance?.toDateString(),
+      observations: device.observations,
+      status: device.status
+    };
+  }
+
   async create(deviceDTO: DeviceDTO): Promise<DeviceDTO> {
     const deviceToCreate = this.toDeviceCreateInput(deviceDTO);
     try {

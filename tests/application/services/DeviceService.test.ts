@@ -160,4 +160,35 @@ describe("DeviceService", () => {
       expect(result).toEqual(expected);
     });
   });
+
+  describe("getByName", () => {
+    it("should fetch a device by name successfully", async () => {
+      // Arrange.
+      const deviceDTO: DeviceDTO = {
+        name: "KASOOWEL-231",
+        ratedPower: 100,
+        installationDate: new Date().toDateString(),
+        status: Status.IDLE,
+        observations: "Observation 1",
+        lastMaintenance: new Date().toDateString(),
+      };
+
+      // Act.
+      await deviceService.create(deviceDTO);
+
+      // Act.
+      const fetchedDevice = await deviceService.getByName(deviceDTO.name);
+
+      // Assert.
+      expect(fetchedDevice).toMatchObject(deviceDTO);
+    });
+
+    it("should return null if the device is not found", async () => {
+      // Act.
+      const fetchedDevice = await deviceService.getByName("NonExistentDevice");
+
+      // Assert.
+      expect(fetchedDevice).toBeNull();
+    });
+  });
 });

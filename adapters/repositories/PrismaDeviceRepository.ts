@@ -19,6 +19,15 @@ export default class PrismaDeviceRepository implements DeviceRepository {
     }
   }
 
+  async getByName(name: string): Promise<Device | null> {
+    try {
+      await this.connect();
+      return this.prisma.device.findUnique({ where: { name } });
+    } finally {
+      this.disconnect();
+    }
+  }
+
   async create(device: Prisma.DeviceCreateInput): Promise<Device> {
     try {
       await this.connect();
