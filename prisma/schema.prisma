@@ -164,7 +164,6 @@ model MaintenanceDeviceTask {
   startDate    DateTime
   endDate      DateTime?
   frequency    Frequency
-  threshold    Float
   Device       Device?     @relation(fields: [deviceId], references: [id])
   deviceId     String?
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
