@@ -1,10 +1,10 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import prisma from "../../../jest.setup";
+import prisma from "../../../../jest.setup";
 import DeviceService from "@/application/services/DeviceService";
 import { Device, Prisma, Status } from "@prisma/client";
-import { DeviceDTO } from "@/dtos/device.dto";
+import { DeviceDTO } from "@/dtos/devices/device.dto";
 
 describe("DeviceService", () => {
   let deviceService: DeviceService;

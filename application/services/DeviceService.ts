@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { Device, Prisma } from "@prisma/client";
-import { DeviceDTO } from "@/dtos/device.dto";
-import type { DeviceRepository } from "@/ports/DeviceRepository";
+import { DeviceDTO } from "@/dtos/devices/device.dto";
+import type { DeviceRepository } from "@/ports/devices/DeviceRepository";
 
 @injectable()
 class DeviceService {

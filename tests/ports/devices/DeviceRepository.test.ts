@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import prisma from "../../jest.setup";
+import prisma from "../../../jest.setup";
 import { Prisma, Status } from "@prisma/client";
-import { DeviceRepository } from "@/ports/DeviceRepository";
+import { DeviceRepository } from "@/ports/devices/DeviceRepository";
 
 
 describe("DeviceRepository", () => {
