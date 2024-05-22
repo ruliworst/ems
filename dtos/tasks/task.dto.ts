@@ -1,6 +1,11 @@
+import { Frequency } from "@prisma/client";
+
 type BaseTask = {
   startDate: string,
   endDate?: string | null
+  frequency: Frequency
+  deviceId: string
+  operatorId: string
 };
 
 type GenerateReportTask = BaseTask & {
