@@ -2,7 +2,7 @@ import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
 import prisma from "../../../../jest.setup";
-import DeviceService from "@/application/services/DeviceService";
+import DeviceService from "@/application/services/devices/DeviceService";
 import { Device, Prisma, Status } from "@prisma/client";
 import { DeviceDTO } from "@/dtos/devices/device.dto";
 

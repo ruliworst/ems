@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import DeviceService from "@/application/services/DeviceService";
+import DeviceService from "@/application/services/devices/DeviceService";
 import { NextRequest, NextResponse } from "next/server";
 import { DeviceDTO } from "@/dtos/devices/device.dto";
 

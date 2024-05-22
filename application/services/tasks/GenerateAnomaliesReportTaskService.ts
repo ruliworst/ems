@@ -3,9 +3,9 @@ import type { GenerateAnomaliesReportTaskRepository } from "@/ports/tasks/Genera
 import { GenerateAnomaliesReportTaskDTO } from "@/dtos/tasks/task.dto";
 
 @injectable()
-class DeviceService {
+class GenerateAnomaliesReportTaskService {
   constructor(
-    @inject("DeviceRepository") private tasksRepository: GenerateAnomaliesReportTaskRepository
+    @inject("GenerateAnomaliesReportTaskRepository") private tasksRepository: GenerateAnomaliesReportTaskRepository
   ) { }
 
   async getAll(): Promise<GenerateAnomaliesReportTaskDTO[]> {
@@ -22,4 +22,4 @@ class DeviceService {
   }
 }
 
-export default DeviceService;
+export default GenerateAnomaliesReportTaskService;
