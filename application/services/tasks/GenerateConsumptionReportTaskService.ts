@@ -16,7 +16,10 @@ class GenerateConsumptionReportTaskService {
       endDate: task.endDate?.toDateString(),
       startReportDate: task.startReportDate.toDateString(),
       endReportDate: task.endReportDate.toDateString(),
-      title: task.title
+      title: task.title,
+      frequency: task.frequency,
+      deviceId: task.deviceId!,
+      operatorId: task.operatorId || task.supervisorId || ""
     }));
   }
 }

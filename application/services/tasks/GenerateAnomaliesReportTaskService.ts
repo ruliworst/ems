@@ -17,7 +17,10 @@ class GenerateAnomaliesReportTaskService {
       startReportDate: task.startReportDate.toDateString(),
       endReportDate: task.endReportDate.toDateString(),
       title: task.title,
-      threshold: task.threshold
+      threshold: task.threshold,
+      frequency: task.frequency,
+      deviceId: task.deviceId!,
+      operatorId: task.operatorId || task.supervisorId || ""
     }));
   }
 }

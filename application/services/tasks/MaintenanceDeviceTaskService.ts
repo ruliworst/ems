@@ -14,6 +14,9 @@ class MaintenanceDeviceTaskService {
     return tasks.map<MaintenanceDeviceTaskDTO>(task => ({
       startDate: task.startDate.toDateString(),
       endDate: task.endDate?.toDateString(),
+      frequency: task.frequency,
+      deviceId: task.deviceId!,
+      operatorId: task.operatorId || task.supervisorId || ""
     }));
   }
 }

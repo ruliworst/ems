@@ -14,7 +14,10 @@ class MonitorizeConsumptionTaskService {
     return tasks.map<MonitorizeConsumptionTaskDTO>(task => ({
       startDate: task.startDate.toDateString(),
       endDate: task.endDate?.toDateString(),
-      threshold: task.threshold
+      threshold: task.threshold,
+      frequency: task.frequency,
+      deviceId: task.deviceId!,
+      operatorId: task.operatorId || task.supervisorId || ""
     }));
   }
 }
