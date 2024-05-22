@@ -1,73 +1,127 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import prisma from "../../../../jest.setup";
+import { DeviceRepository } from "@/ports/devices/DeviceRepository";
 import DeviceService from "@/application/services/devices/DeviceService";
-import { Device, Prisma, Status } from "@prisma/client";
 import { DeviceDTO } from "@/dtos/devices/device.dto";
+import { Device, Prisma, Status } from "@prisma/client";
 
 describe("DeviceService", () => {
   let deviceService: DeviceService;
+  let deviceRepository: jest.Mocked<DeviceRepository>;
 
-  beforeAll(() => {
+  const mockDevices: Device[] = [
+    {
+      id: "1",
+      name: "Device 1",
+      ratedPower: 100,
+      installationDate: new Date("2024-05-01T10:00:00.000Z"),
+      status: Status.IDLE,
+      observations: "Observation 1",
+      lastMaintenance: new Date("2024-05-01T10:00:00.000Z")
+    },
+    {
+      id: "2",
+      name: "Device 2",
+      ratedPower: 200,
+      installationDate: new Date("2024-05-01T10:00:00.000Z"),
+      status: Status.RUNNING,
+      observations: "Observation 2",
+      lastMaintenance: new Date("2024-05-01T10:00:00.000Z")
+    }
+  ];
+
+  const mockDeviceDTOs: DeviceDTO[] = [
+    {
+      name: "Device 1",
+      ratedPower: 100,
+      installationDate: "Wed May 01 2024",
+      status: Status.IDLE,
+      observations: "Observation 1",
+      lastMaintenance: "Wed May 01 2024"
+    },
+    {
+      name: "Device 2",
+      ratedPower: 200,
+      installationDate: "Wed May 01 2024",
+      status: Status.RUNNING,
+      observations: "Observation 2",
+      lastMaintenance: "Wed May 01 2024"
+    }
+  ];
+
+  beforeEach(() => {
+    deviceRepository = {
+      getAll: jest.fn().mockResolvedValue(mockDevices),
+      create: jest.fn().mockResolvedValue(mockDevices[0]),
+      getByName: jest.fn().mockImplementation((name: string) =>
+        mockDevices.find(device => device.name === name) || null),
+      delete: jest.fn().mockImplementation((name: string) => {
+        const index = mockDevices.findIndex(device => device.name === name);
+        if (index === -1) return null;
+        return mockDevices.splice(index, 1)[0];
+      })
+    } as unknown as jest.Mocked<DeviceRepository>;
+
+    container.registerInstance("DeviceRepository", deviceRepository);
     deviceService = container.resolve(DeviceService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it("should fetch all devices", async () => {
-    // Arrange.
-    const devicesToCreate: DeviceDTO[] = [
-      {
-        name: "MJDSFJ-1283-S",
-        ratedPower: 100,
-        installationDate: new Date().toDateString(),
-        status: Status.IDLE,
-        observations: "Observation 1",
-        lastMaintenance: new Date().toDateString()
-      },
-      {
-        name: "3224MDS-223MD",
-        ratedPower: 200,
-        installationDate: new Date().toDateString(),
-        status: Status.RUNNING,
-        observations: "Observation 2",
-        lastMaintenance: new Date().toDateString()
-      }
-    ];
-
-    const deviceCreateInputObjects: Prisma.DeviceCreateInput[] = deviceService.toDeviceCreateInputMany(devicesToCreate);
-    await prisma.device.createMany({ data: deviceCreateInputObjects });
-
-    // Act.
-    const devices: DeviceDTO[] = await deviceService.getAll();
-
-    // Assert.
-    expect(devices).toContainEqual(devicesToCreate[0]);
-    expect(devices).toContainEqual(devicesToCreate[1]);
+    const devices = await deviceService.getAll();
+    expect(devices).toEqual(mockDeviceDTOs);
+    expect(deviceRepository.getAll).toHaveBeenCalledTimes(1);
   });
 
   it("should create a new device", async () => {
-    // Arrange.
     const deviceDTO: DeviceDTO = {
-      name: "MSKO34",
+      name: "Device 1",
       ratedPower: 100,
-      installationDate: new Date().toDateString(),
+      installationDate: "Wed May 01 2024",
       status: Status.IDLE,
       observations: "Observation 1",
-      lastMaintenance: new Date().toDateString(),
+      lastMaintenance: "Wed May 01 2024"
     };
 
-    // Act.
     const createdDeviceDTO = await deviceService.create(deviceDTO);
-
-    // Assert.
     expect(createdDeviceDTO).toMatchObject(deviceDTO);
-    expect(createdDeviceDTO).toHaveProperty("name", deviceDTO.name);
-    expect(createdDeviceDTO).toHaveProperty("ratedPower", deviceDTO.ratedPower);
-    expect(createdDeviceDTO).toHaveProperty("installationDate", deviceDTO.installationDate);
-    expect(createdDeviceDTO).toHaveProperty("status", deviceDTO.status);
-    expect(createdDeviceDTO).toHaveProperty("observations", deviceDTO.observations);
-    expect(createdDeviceDTO).toHaveProperty("lastMaintenance", deviceDTO.lastMaintenance);
   });
+
+  describe("delete", () => {
+    it("should delete a device successfully", async () => {
+      const deviceName = "Device 1";
+      const deletedDeviceDTO = await deviceService.delete(deviceName);
+      expect(deletedDeviceDTO).toMatchObject({ name: deviceName });
+      const fetchedDevice = await deviceService.getByName(deviceName);
+      expect(fetchedDevice).toBeNull();
+    });
+
+    it("should throw an error when deleting a device that does not exist", async () => {
+      const deviceName = "NonExistentDevice";
+      const deletedDevice = await deviceService.delete(deviceName);
+      expect(deletedDevice).toBeNull();
+    });
+  });
+
+  describe("getByName", () => {
+    it("should fetch a device by name successfully", async () => {
+      const deviceName = "Device 2";
+      const expectedDevice = mockDeviceDTOs[1];
+      const fetchedDevice = await deviceService.getByName(deviceName);
+      expect(fetchedDevice).toMatchObject(expectedDevice!);
+    });
+
+    it("should return null if the device is not found", async () => {
+      const deviceName = "NonExistentDevice";
+      const fetchedDevice = await deviceService.getByName(deviceName);
+      expect(fetchedDevice).toBeNull();
+    });
+  });
+
 
   describe("toDeviceCreateInputMany", () => {
     it("should convert an array of DeviceDTOs to an array of Prisma.DeviceCreateInput", () => {
@@ -158,69 +212,6 @@ describe("DeviceService", () => {
 
       const result = deviceService.toDeviceDtoMany(devices);
       expect(result).toEqual(expected);
-    });
-  });
-
-  describe("getByName", () => {
-    it("should fetch a device by name successfully", async () => {
-      // Arrange.
-      const deviceDTO: DeviceDTO = {
-        name: "KASOOWEL-231",
-        ratedPower: 100,
-        installationDate: new Date().toDateString(),
-        status: Status.IDLE,
-        observations: "Observation 1",
-        lastMaintenance: new Date().toDateString(),
-      };
-
-      // Act.
-      await deviceService.create(deviceDTO);
-
-      // Act.
-      const fetchedDevice = await deviceService.getByName(deviceDTO.name);
-
-      // Assert.
-      expect(fetchedDevice).toMatchObject(deviceDTO);
-    });
-
-    it("should return null if the device is not found", async () => {
-      // Act.
-      const fetchedDevice = await deviceService.getByName("NonExistentDevice");
-
-      // Assert.
-      expect(fetchedDevice).toBeNull();
-    });
-  });
-
-  describe("delete", () => {
-    it("should delete a device successfully", async () => {
-      // Arrange.
-      const deviceDTO: DeviceDTO = {
-        name: "DeviceToDelete",
-        ratedPower: 100,
-        installationDate: new Date().toDateString(),
-        status: Status.IDLE,
-        observations: "Observation to delete",
-        lastMaintenance: new Date().toDateString(),
-      };
-
-      await deviceService.create(deviceDTO);
-
-      // Act.
-      const deletedDeviceDTO = await deviceService.delete(deviceDTO.name);
-
-      // Assert.
-      expect(deletedDeviceDTO).toMatchObject(deviceDTO);
-      const fetchedDevice = await prisma.device.findUnique({ where: { name: deviceDTO.name } });
-      expect(fetchedDevice).toBeNull();
-    });
-
-    it("should throw an error when deleting a device that does not exist", async () => {
-      // Act.
-      const deletedDevice = await deviceService.delete("NonExistentDevice");
-
-      // Assert.
-      expect(deletedDevice).toBeNull();
     });
   });
 });
