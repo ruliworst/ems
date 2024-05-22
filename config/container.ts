@@ -12,6 +12,7 @@ import GenerateAnomaliesReportTaskService from "@/application/services/tasks/Gen
 import GenerateConsumptionReportTaskService from "@/application/services/tasks/GenerateConsumptionReportTaskService";
 import MaintenanceDeviceTaskService from "@/application/services/tasks/MaintenanceDeviceTaskService";
 import MonitorizeConsumptionTaskService from "@/application/services/tasks/MonitorizeConsumptionTaskService";
+import BaseTaskService from "@/application/services/tasks/BaseTaskService";
 
 // Register repositories.
 container.registerSingleton<DeviceRepository>("DeviceRepository", PrismaDeviceRepository);
@@ -30,3 +31,4 @@ container.registerSingleton(GenerateAnomaliesReportTaskService);
 container.registerSingleton(GenerateConsumptionReportTaskService);
 container.registerSingleton(MaintenanceDeviceTaskService);
 container.registerSingleton(MonitorizeConsumptionTaskService);
+container.registerSingleton(BaseTaskService);

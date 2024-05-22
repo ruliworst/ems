@@ -1,6 +1,7 @@
 import { injectable, inject } from "tsyringe";
+import "@/config/container";
 import type { MonitorizeConsumptionTaskRepository } from "@/ports/tasks/MonitorizeConsumptionTaskRepository";
-import { MonitorizeConsumptionTaskDTO } from "@/dtos/tasks/task.dto";
+import { MonitorizeConsumptionTaskDTO, TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
 
 @injectable()
 class MonitorizeConsumptionTaskService {
@@ -19,7 +20,16 @@ class MonitorizeConsumptionTaskService {
       deviceId: task.deviceId!,
       operatorId: task.operatorId || task.supervisorId || ""
     }));
-  }
+  };
+
+  toTaskDTO(task: MonitorizeConsumptionTaskDTO): TaskDTO {
+    return {
+      startDate: task.startDate,
+      endDate: task.endDate,
+      frequency: task.frequency,
+      type: TaskType.MONITORIZE_CONSUMPTION
+    };
+  };
 }
 
 export default MonitorizeConsumptionTaskService;

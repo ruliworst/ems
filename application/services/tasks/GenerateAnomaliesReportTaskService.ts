@@ -1,6 +1,7 @@
 import { injectable, inject } from "tsyringe";
+import "@/config/container";
 import type { GenerateAnomaliesReportTaskRepository } from "@/ports/tasks/GenerateAnomaliesReportTaskRepository";
-import { GenerateAnomaliesReportTaskDTO } from "@/dtos/tasks/task.dto";
+import { GenerateAnomaliesReportTaskDTO, TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
 
 @injectable()
 class GenerateAnomaliesReportTaskService {
@@ -22,7 +23,16 @@ class GenerateAnomaliesReportTaskService {
       deviceId: task.deviceId!,
       operatorId: task.operatorId || task.supervisorId || ""
     }));
-  }
+  };
+
+  toTaskDTO(task: GenerateAnomaliesReportTaskDTO): TaskDTO {
+    return {
+      startDate: task.startDate,
+      endDate: task.endDate,
+      frequency: task.frequency,
+      type: TaskType.GENERATE_ANOMALIES_REPORT
+    };
+  };
 }
 
 export default GenerateAnomaliesReportTaskService;

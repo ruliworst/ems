@@ -1,6 +1,7 @@
 import { injectable, inject } from "tsyringe";
+import "@/config/container";
 import type { GenerateConsumptionReportTaskRepository } from "@/ports/tasks/GenerateConsumptionReportTaskRepository";
-import { GenerateConsumptionReportTaskDTO } from "@/dtos/tasks/task.dto";
+import { GenerateConsumptionReportTaskDTO, TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
 
 @injectable()
 class GenerateConsumptionReportTaskService {
@@ -21,7 +22,16 @@ class GenerateConsumptionReportTaskService {
       deviceId: task.deviceId!,
       operatorId: task.operatorId || task.supervisorId || ""
     }));
-  }
+  };
+
+  toTaskDTO(task: GenerateConsumptionReportTaskDTO): TaskDTO {
+    return {
+      startDate: task.startDate,
+      endDate: task.endDate,
+      frequency: task.frequency,
+      type: TaskType.GENERATE_CONSUMPTION_REPORT
+    };
+  };
 }
 
 export default GenerateConsumptionReportTaskService;

@@ -1,5 +1,6 @@
 import { Frequency } from "@prisma/client";
 
+
 type BaseTask = {
   startDate: string,
   endDate?: string | null
@@ -25,3 +26,17 @@ export type GenerateAnomaliesReportTaskDTO = GenerateReportTask & {
 export type GenerateConsumptionReportTaskDTO = GenerateReportTask;
 
 export type MaintenanceDeviceTaskDTO = BaseTask;
+
+export enum TaskType {
+  GENERATE_CONSUMPTION_REPORT,
+  GENERATE_ANOMALIES_REPORT,
+  MONITORIZE_CONSUMPTION,
+  MAINTENANCE_DEVICE
+}
+
+export type TaskDTO = {
+  startDate: string,
+  endDate?: string | null
+  frequency: Frequency
+  type: TaskType
+}
