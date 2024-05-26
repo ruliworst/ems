@@ -1,5 +1,6 @@
 import { Status } from "@prisma/client";
 
+// TODO: Move to here the calculation of currentPower.
 export type DeviceDTO = {
   name: string;
   ratedPower: number;

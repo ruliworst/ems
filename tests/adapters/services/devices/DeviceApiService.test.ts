@@ -1,5 +1,5 @@
-import { DeviceApiService } from "@/adapters/services/DeviceApiService";
-import { DeviceDTO } from "@/dtos/device.dto";
+import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
+import { DeviceDTO } from "@/dtos/devices/device.dto";
 
 global.fetch = jest.fn();
 

@@ -1,7 +1,7 @@
 import "@/config/container";
 import { NextRequest, NextResponse } from 'next/server';
 import { container } from 'tsyringe';
-import DeviceService from '@/application/services/DeviceService';
+import DeviceService from '@/application/services/devices/DeviceService';
 
 const deviceService = container.resolve(DeviceService);
 

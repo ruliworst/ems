@@ -11,21 +11,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { DeviceDTO } from "@/dtos/devices/device.dto";
-import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
-import CreateDeviceDialog from "@/components/CreateDeviceDialog";
+import { TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
+import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
+import { v4 as uuidv4 } from "uuid";
 
 // TODO: Restyle the top layout.
 
 // TODO: Use skeleton.
-export default function DevicesView() {
-  const [devices, setDevices] = useState<DeviceDTO[]>([]);
+export default function TasksView() {
+  const [tasks, setTasks] = useState<TaskDTO[]>([]);
 
   useEffect(() => {
     async function loadDevices() {
       try {
-        const devices = await DeviceApiService.fetchAll()
-        setDevices(devices);
+        const allTasks = await TaskApiService.fetchAll();
+        setTasks(allTasks);
       } catch (err: any) {
         console.error(err.message);
       }
@@ -34,14 +34,24 @@ export default function DevicesView() {
     loadDevices();
   }, []);
 
-  const handleDeviceCreated = (newDevice: DeviceDTO) => {
-    setDevices((prevDevices) => [...prevDevices, newDevice]);
-  };
+  function getTypeAsString(type: TaskType): string {
+    if (type == TaskType.GENERATE_ANOMALIES_REPORT) {
+      return "Anomalies report";
+    } else if (type == TaskType.GENERATE_CONSUMPTION_REPORT) {
+      return "Consumption report";
+    } else if (type == TaskType.MAINTENANCE_DEVICE) {
+      return "Maintenance device";
+    } else if (type == TaskType.MONITORIZE_CONSUMPTION) {
+      return "Monitorize consumption";
+    } else {
+      return "Not valid type";
+    };
+  }
 
   return (
     <div className="bg-gray-100 p-6 w-10/12">
       <header className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Devices</h1>
+        <h1 className="text-2xl font-bold">Tasks</h1>
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <span className="text-black">Dereck Wilson</span>
@@ -54,28 +64,26 @@ export default function DevicesView() {
         </div>
       </header>
       <div className="bg-white rounded-lg shadow p-6">
-        <CreateDeviceDialog onDeviceCreated={handleDeviceCreated} />
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="w-3/12">Name</TableHead>
-              <TableHead>Rated power</TableHead>
-              <TableHead>Installation date</TableHead>
-              <TableHead>Last maintenance</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Start date</TableHead>
+              <TableHead>End date</TableHead>
+              <TableHead>Frequency</TableHead>
               <TableHead></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {devices.map(device => (
-              <TableRow key={device.name}>
-                <TableCell>{device.name}</TableCell>
-                <TableCell>{device.ratedPower}</TableCell>
-                <TableCell>{device.installationDate}</TableCell>
-                <TableCell>{device.lastMaintenance}</TableCell>
-                <TableCell>{device.status}</TableCell>
+            {tasks.map(task => (
+              // TODO: Remove the random uuid by a controlled value.
+              <TableRow key={uuidv4()}>
+                <TableCell>{getTypeAsString(task.type)}</TableCell>
+                <TableCell>{task.startDate}</TableCell>
+                <TableCell>{task.endDate}</TableCell>
+                <TableCell>{task.frequency}</TableCell>
                 <TableCell>
-                  <a href={`/devices/${device.name}`}>
+                  <a href={`/tasks`}>
                     <Button variant="secondary" className="hover:bg-gray-300"><i className="fa-solid fa-eye text-md"></i></Button>
                   </a>
                 </TableCell>

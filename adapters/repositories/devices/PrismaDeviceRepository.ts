@@ -1,4 +1,4 @@
-import { DeviceRepository } from "@/ports/DeviceRepository";
+import { DeviceRepository } from "@/ports/devices/DeviceRepository";
 import { PrismaClient, Device, Prisma } from "@prisma/client";
 import { injectable } from "tsyringe";
 

@@ -9,9 +9,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DeviceDTO } from "@/dtos/device.dto";
+import { DeviceDTO } from "@/dtos/devices/device.dto";
 import { Status } from "@prisma/client";
-import { DeviceApiService } from "@/adapters/services/DeviceApiService";
+import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";

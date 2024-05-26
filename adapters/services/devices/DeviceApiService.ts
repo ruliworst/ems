@@ -1,4 +1,4 @@
-import { DeviceDTO } from "@/dtos/device.dto";
+import { DeviceDTO } from "@/dtos/devices/device.dto";
 
 export class DeviceApiService {
   static async fetchAll(): Promise<DeviceDTO[]> {

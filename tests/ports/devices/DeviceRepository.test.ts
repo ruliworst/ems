@@ -1,42 +1,40 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import prisma from "../../jest.setup";
-import { Prisma, Status } from "@prisma/client";
-import { DeviceRepository } from "@/ports/DeviceRepository";
+import { Prisma, PrismaClient, Status } from "@prisma/client";
+import { DeviceRepository } from "@/ports/devices/DeviceRepository";
 
 
 describe("DeviceRepository", () => {
   let deviceRepository: DeviceRepository;
+  let prisma: PrismaClient = new PrismaClient();
 
-  beforeAll(() => {
+  const devicesToCreate: Prisma.DeviceCreateInput[] = [
+    {
+      name: "MKR4353-223MD",
+      ratedPower: 100,
+      installationDate: new Date(),
+      status: Status.IDLE,
+      observations: "Observation 1",
+      lastMaintenance: new Date()
+    },
+    {
+      name: "MKR32432-223MD",
+      ratedPower: 200,
+      installationDate: new Date(),
+      status: Status.RUNNING,
+      observations: "Observation 2",
+      lastMaintenance: new Date()
+    }
+  ];
+
+  beforeAll(async () => {
     deviceRepository = container.resolve("DeviceRepository");
+    await prisma.device.createMany({ data: devicesToCreate });
   });
 
   describe("read", () => {
     it("should fetch all devices", async () => {
-      // Arrange.
-      const devicesToCreate: Prisma.DeviceCreateInput[] = [
-        {
-          name: "MKR4353-223MD",
-          ratedPower: 100,
-          installationDate: new Date(),
-          status: Status.IDLE,
-          observations: "Observation 1",
-          lastMaintenance: new Date()
-        },
-        {
-          name: "MKR32432-223MD",
-          ratedPower: 200,
-          installationDate: new Date(),
-          status: Status.RUNNING,
-          observations: "Observation 2",
-          lastMaintenance: new Date()
-        }
-      ];
-
-      await prisma.device.createMany({ data: devicesToCreate });
-
       // Act.
       const devices = await deviceRepository.getAll();
 

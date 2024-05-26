@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import { Device, Prisma } from "@prisma/client";
-import { DeviceDTO } from "@/dtos/device.dto";
-import type { DeviceRepository } from "@/ports/DeviceRepository";
+import { DeviceDTO } from "@/dtos/devices/device.dto";
+import type { DeviceRepository } from "@/ports/devices/DeviceRepository";
 
 @injectable()
 class DeviceService {
@@ -11,30 +11,13 @@ class DeviceService {
 
   async getAll(): Promise<DeviceDTO[]> {
     const devices = await this.deviceRepository.getAll();
-
-    return devices.map<DeviceDTO>(device => ({
-      name: device.name,
-      ratedPower: device.ratedPower,
-      installationDate: device.installationDate.toDateString(),
-      lastMaintenance: device.lastMaintenance?.toDateString(),
-      observations: device.observations,
-      status: device.status
-    }));
+    return this.toDeviceDtoMany(devices);
   }
 
   async getByName(name: string): Promise<DeviceDTO | null> {
     const device = await this.deviceRepository.getByName(name);
-
     if (!device) return null;
-
-    return {
-      name: device.name,
-      ratedPower: device.ratedPower,
-      installationDate: device.installationDate.toDateString(),
-      lastMaintenance: device.lastMaintenance?.toDateString(),
-      observations: device.observations,
-      status: device.status
-    };
+    return this.toDeviceDTO(device);
   }
 
   async delete(name: string): Promise<DeviceDTO | null> {
