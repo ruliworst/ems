@@ -13,6 +13,7 @@ import {
 import { useEffect, useState } from "react";
 import { TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
 import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
+import { v4 as uuidv4 } from "uuid";
 
 // TODO: Restyle the top layout.
 
@@ -76,7 +77,7 @@ export default function TasksView() {
           <TableBody>
             {tasks.map(task => (
               // TODO: Remove the random uuid by a controlled value.
-              <TableRow>
+              <TableRow key={uuidv4()}>
                 <TableCell>{getTypeAsString(task.type)}</TableCell>
                 <TableCell>{task.startDate}</TableCell>
                 <TableCell>{task.endDate}</TableCell>
