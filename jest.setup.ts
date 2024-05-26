@@ -1,4 +1,5 @@
 import { PrismaClient, Status } from "@prisma/client";
+import { v4 as uuidv4 } from 'uuid';
 
 const prisma = new PrismaClient();
 
@@ -22,7 +23,7 @@ module.exports = async () => {
       firstSurname: "Doe",
       secondSurname: "Smith",
       email: "bob.doe@example.com",
-      password: "password",
+      password: uuidv4(),
       phoneNumber: "123456789",
     },
   ];
