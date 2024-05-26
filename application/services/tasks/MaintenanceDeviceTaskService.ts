@@ -2,6 +2,7 @@ import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import type { MaintenanceDeviceTaskRepository } from "@/ports/tasks/MaintenanceDeviceTaskRepository";
 import { MaintenanceDeviceTaskDTO, TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
+import { MaintenanceDeviceTask } from "@prisma/client";
 
 @injectable()
 class MaintenanceDeviceTaskService {
@@ -10,7 +11,7 @@ class MaintenanceDeviceTaskService {
   ) { }
 
   async getAll(): Promise<MaintenanceDeviceTaskDTO[]> {
-    const tasks = await this.tasksRepository.getAll();
+    const tasks: MaintenanceDeviceTask[] = await this.tasksRepository.getAll();
 
     return tasks.map<MaintenanceDeviceTaskDTO>(task => ({
       startDate: task.startDate.toDateString(),

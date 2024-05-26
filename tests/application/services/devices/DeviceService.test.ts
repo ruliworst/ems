@@ -5,6 +5,7 @@ import { DeviceRepository } from "@/ports/devices/DeviceRepository";
 import DeviceService from "@/application/services/devices/DeviceService";
 import { DeviceDTO } from "@/dtos/devices/device.dto";
 import { Device, Prisma, Status } from "@prisma/client";
+import { v4 as uuidv4 } from 'uuid';
 
 describe("DeviceService", () => {
   let deviceService: DeviceService;
@@ -12,7 +13,7 @@ describe("DeviceService", () => {
 
   const mockDevices: Device[] = [
     {
-      id: "1",
+      id: uuidv4(),
       name: "Device 1",
       ratedPower: 100,
       installationDate: new Date("2024-05-01T10:00:00.000Z"),
@@ -21,7 +22,7 @@ describe("DeviceService", () => {
       lastMaintenance: new Date("2024-05-01T10:00:00.000Z")
     },
     {
-      id: "2",
+      id: uuidv4(),
       name: "Device 2",
       ratedPower: 200,
       installationDate: new Date("2024-05-01T10:00:00.000Z"),
@@ -172,7 +173,7 @@ describe("DeviceService", () => {
     it("should convert an array of Devices to an array of DeviceDTOs", () => {
       const devices: Device[] = [
         {
-          id: "1",
+          id: uuidv4(),
           name: "MASKSK23",
           ratedPower: 100,
           installationDate: new Date("Wed May 01 2024"),
@@ -181,7 +182,7 @@ describe("DeviceService", () => {
           status: Status.RUNNING,
         },
         {
-          id: "2",
+          id: uuidv4(),
           name: "mSKOP32",
           ratedPower: 200,
           installationDate: new Date("Sat Jun 01 2024"),

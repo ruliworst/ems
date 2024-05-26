@@ -1,13 +1,14 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import prisma from "../../../jest.setup";
-import { Prisma, Status } from "@prisma/client";
+import { Prisma, PrismaClient, Status } from "@prisma/client";
 import { DeviceRepository } from "@/ports/devices/DeviceRepository";
 
 
 describe("DeviceRepository", () => {
   let deviceRepository: DeviceRepository;
+  let prisma: PrismaClient = new PrismaClient();
+
   const devicesToCreate: Prisma.DeviceCreateInput[] = [
     {
       name: "MKR4353-223MD",

@@ -5,4 +5,6 @@ module.exports = {
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
   },
+  globalSetup: './jest.setup.ts',
+  globalTeardown: './jest.teardown.ts',
 };
