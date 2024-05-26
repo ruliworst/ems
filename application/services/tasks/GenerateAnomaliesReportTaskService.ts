@@ -2,6 +2,7 @@ import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import type { GenerateAnomaliesReportTaskRepository } from "@/ports/tasks/GenerateAnomaliesReportTaskRepository";
 import { GenerateAnomaliesReportTaskDTO, TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
+import { GenerateAnomaliesReportTask } from "@prisma/client";
 
 @injectable()
 class GenerateAnomaliesReportTaskService {
@@ -10,7 +11,7 @@ class GenerateAnomaliesReportTaskService {
   ) { }
 
   async getAll(): Promise<GenerateAnomaliesReportTaskDTO[]> {
-    const tasks = await this.tasksRepository.getAll();
+    const tasks: GenerateAnomaliesReportTask[] = await this.tasksRepository.getAll();
 
     return tasks.map<GenerateAnomaliesReportTaskDTO>(task => ({
       startDate: task.startDate.toDateString(),

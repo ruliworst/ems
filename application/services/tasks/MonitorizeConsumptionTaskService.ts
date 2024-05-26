@@ -2,6 +2,7 @@ import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import type { MonitorizeConsumptionTaskRepository } from "@/ports/tasks/MonitorizeConsumptionTaskRepository";
 import { MonitorizeConsumptionTaskDTO, TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
+import { MonitorizeConsumptionTask } from "@prisma/client";
 
 @injectable()
 class MonitorizeConsumptionTaskService {
@@ -10,7 +11,7 @@ class MonitorizeConsumptionTaskService {
   ) { }
 
   async getAll(): Promise<MonitorizeConsumptionTaskDTO[]> {
-    const tasks = await this.tasksRepository.getAll();
+    const tasks: MonitorizeConsumptionTask[] = await this.tasksRepository.getAll();
 
     return tasks.map<MonitorizeConsumptionTaskDTO>(task => ({
       startDate: task.startDate.toDateString(),

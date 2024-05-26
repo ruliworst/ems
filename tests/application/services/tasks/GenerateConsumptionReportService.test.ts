@@ -5,6 +5,7 @@ import { GenerateConsumptionReportTaskRepository } from "@/ports/tasks/GenerateC
 import GenerateConsumptionReportTaskService from "@/application/services/tasks/GenerateConsumptionReportTaskService";
 import { GenerateConsumptionReportTaskDTO } from "@/dtos/tasks/task.dto";
 import { Frequency, GenerateConsumptionReportTask } from "@prisma/client";
+import { v4 as uuidv4 } from 'uuid';
 
 describe("GenerateConsumptionReportTaskService", () => {
   let tasksRepository: jest.Mocked<GenerateConsumptionReportTaskRepository>;
@@ -12,27 +13,27 @@ describe("GenerateConsumptionReportTaskService", () => {
 
   const mockTasks: GenerateConsumptionReportTask[] = [
     {
-      id: "1",
+      id: uuidv4(),
       startDate: new Date("2024-05-01T10:00:00.000Z"),
       endDate: new Date("2024-05-10T10:00:00.000Z"),
       startReportDate: new Date("2024-05-01T10:00:00.000Z"),
       endReportDate: new Date("2024-05-10T10:00:00.000Z"),
       title: "Report 1",
       frequency: Frequency.DAILY,
-      deviceId: "1234",
-      operatorId: "1234",
+      deviceId: "1",
+      operatorId: "2",
       supervisorId: null
     },
     {
-      id: "2",
+      id: uuidv4(),
       startDate: new Date("2024-06-01T10:00:00.000Z"),
       endDate: new Date("2024-06-10T10:00:00.000Z"),
       startReportDate: new Date("2024-06-01T10:00:00.000Z"),
       endReportDate: new Date("2024-06-10T10:00:00.000Z"),
       title: "Report 2",
       frequency: Frequency.DAILY,
-      deviceId: "1234",
-      operatorId: "1234",
+      deviceId: "1",
+      operatorId: "2",
       supervisorId: null
     }
   ];
@@ -45,8 +46,8 @@ describe("GenerateConsumptionReportTaskService", () => {
       endReportDate: "Fri May 10 2024",
       title: "Report 1",
       frequency: Frequency.DAILY,
-      deviceId: "1234",
-      operatorId: "1234",
+      deviceId: "1",
+      operatorId: "2",
     },
     {
       startDate: "Sat Jun 01 2024",
@@ -55,8 +56,8 @@ describe("GenerateConsumptionReportTaskService", () => {
       endReportDate: "Mon Jun 10 2024",
       title: "Report 2",
       frequency: Frequency.DAILY,
-      deviceId: "1234",
-      operatorId: "1234",
+      deviceId: "1",
+      operatorId: "2",
     }
   ];
 
