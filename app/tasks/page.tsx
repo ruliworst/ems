@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
 import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
 import { v4 as uuidv4 } from "uuid";
+import CreateTaskDialog from "@/components/CreateTaskDialog";
 
 // TODO: Restyle the top layout.
 
@@ -48,6 +49,10 @@ export default function TasksView() {
     };
   }
 
+  const handleDeviceCreated = (newTask: TaskDTO) => {
+    setTasks((prevTasks) => [...prevTasks, newTask]);
+  };
+
   return (
     <div className="bg-gray-100 p-6 w-10/12">
       <header className="flex justify-between items-center mb-6">
@@ -64,6 +69,7 @@ export default function TasksView() {
         </div>
       </header>
       <div className="bg-white rounded-lg shadow p-6">
+        <CreateTaskDialog onTaskCreated={handleDeviceCreated} />
         <Table>
           <TableHeader>
             <TableRow>
