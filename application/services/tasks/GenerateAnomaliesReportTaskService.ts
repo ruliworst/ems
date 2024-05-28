@@ -1,8 +1,9 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import type { GenerateAnomaliesReportTaskRepository } from "@/ports/tasks/GenerateAnomaliesReportTaskRepository";
-import { GenerateAnomaliesReportTaskDTO, TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
-import { GenerateAnomaliesReportTask } from "@prisma/client";
+import { CreateTaskDTO } from "@/dtos/tasks/task.dto";
+import { GenerateAnomaliesReportTask, Prisma } from "@prisma/client";
+import { GenerateAnomaliesReportTaskEntity } from "@/domain/model/GenerateAnomaliesReportTask";
 
 @injectable()
 class GenerateAnomaliesReportTaskService {
@@ -10,29 +11,33 @@ class GenerateAnomaliesReportTaskService {
     @inject("GenerateAnomaliesReportTaskRepository") private tasksRepository: GenerateAnomaliesReportTaskRepository
   ) { }
 
-  async getAll(): Promise<GenerateAnomaliesReportTaskDTO[]> {
+  // TODO: Include Device and Operator/Supervisor relationships.
+  async getAll(): Promise<GenerateAnomaliesReportTaskEntity[]> {
     const tasks: GenerateAnomaliesReportTask[] = await this.tasksRepository.getAll();
 
-    return tasks.map<GenerateAnomaliesReportTaskDTO>(task => ({
-      startDate: task.startDate.toDateString(),
-      endDate: task.endDate?.toDateString(),
-      startReportDate: task.startReportDate.toDateString(),
-      endReportDate: task.endReportDate.toDateString(),
+    return tasks.map<GenerateAnomaliesReportTaskEntity>(task => new GenerateAnomaliesReportTaskEntity({
+      id: task.id,
+      startDate: task.startDate,
+      endDate: task.endDate,
+      startReportDate: task.startReportDate,
+      endReportDate: task.endReportDate,
       title: task.title,
       threshold: task.threshold,
       frequency: task.frequency,
-      deviceId: task.deviceId!,
-      operatorId: task.operatorId || task.supervisorId || ""
+      deviceId: task.deviceId,
+      operatorId: task.operatorId || null,
+      supervisorId: task.supervisorId || null
     }));
   };
 
-  toTaskDTO(task: GenerateAnomaliesReportTaskDTO): TaskDTO {
-    return {
-      startDate: task.startDate,
-      endDate: task.endDate,
-      frequency: task.frequency,
-      type: TaskType.GENERATE_ANOMALIES_REPORT
-    };
+  async create(createTaskDTO: CreateTaskDTO): Promise<GenerateAnomaliesReportTaskEntity> {
+    try {
+      const task: GenerateAnomaliesReportTask = await this.tasksRepository.create(createTaskDTO);
+      return new GenerateAnomaliesReportTaskEntity(task);
+    } catch (error) {
+      console.error("Error creating a task:", error);
+      throw error;
+    }
   };
 }
 

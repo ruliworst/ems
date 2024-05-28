@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
+import { TaskType, TaskViewDTO } from "@/dtos/tasks/task.dto";
 import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
 import { v4 as uuidv4 } from "uuid";
 import CreateTaskDialog from "@/components/CreateTaskDialog";
@@ -20,7 +20,7 @@ import CreateTaskDialog from "@/components/CreateTaskDialog";
 
 // TODO: Use skeleton.
 export default function TasksView() {
-  const [tasks, setTasks] = useState<TaskDTO[]>([]);
+  const [tasks, setTasks] = useState<TaskViewDTO[]>([]);
 
   useEffect(() => {
     async function loadDevices() {
@@ -49,7 +49,7 @@ export default function TasksView() {
     };
   }
 
-  const handleDeviceCreated = (newTask: TaskDTO) => {
+  const handleTaskCreated = (newTask: TaskViewDTO) => {
     setTasks((prevTasks) => [...prevTasks, newTask]);
   };
 
@@ -69,7 +69,7 @@ export default function TasksView() {
         </div>
       </header>
       <div className="bg-white rounded-lg shadow p-6">
-        <CreateTaskDialog onTaskCreated={handleDeviceCreated} />
+        <CreateTaskDialog onTaskCreated={handleTaskCreated} />
         <Table>
           <TableHeader>
             <TableRow>

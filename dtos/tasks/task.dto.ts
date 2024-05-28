@@ -34,9 +34,23 @@ export enum TaskType {
   MAINTENANCE_DEVICE
 }
 
-export type TaskDTO = {
-  startDate: string,
+export type TaskViewDTO = {
+  startDate: string
   endDate?: string | null
   frequency: Frequency
   type: TaskType
+}
+
+export type CreateTaskDTO = {
+  startDate: string
+  endDate: string | null
+  frequency: Frequency
+  type: TaskType
+  threshold: number | null
+  startReportDate: string | null
+  endReportDate: string | null
+  title: string | null
+  deviceId: string
+  operatorId: string | null
+  supervisorId: string | null
 }

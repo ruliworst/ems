@@ -50,6 +50,12 @@ export default function CreateTaskForm({ type }: CreateTaskFormProps) {
   return (
     <form id="createTaskForm">
       <div className="grid gap-4 py-4">
+        <div className={cn(
+          "grid grid-cols-3 items-center gap-4",
+          (type !== TaskType.GENERATE_CONSUMPTION_REPORT && type !== TaskType.GENERATE_ANOMALIES_REPORT) && "hidden")}>
+          <Label htmlFor="title" className="text-right">Title</Label>
+          <Input id="title" name="title" className="col-span-2" />
+        </div>
         <div className="grid grid-cols-3 items-center gap-4">
           <Label htmlFor="startDate" className="text-right">
             Start date

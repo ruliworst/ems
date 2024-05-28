@@ -1,5 +1,6 @@
+import { CreateTaskDTO } from "@/dtos/tasks/task.dto";
 import { GenerateAnomaliesReportTaskRepository } from "@/ports/tasks/GenerateAnomaliesReportTaskRepository";
-import { PrismaClient, GenerateAnomaliesReportTask } from "@prisma/client";
+import { PrismaClient, GenerateAnomaliesReportTask, $Enums } from "@prisma/client";
 import { injectable } from "tsyringe";
 
 @injectable()
@@ -14,6 +15,48 @@ export default class PrismaGenerateAnomaliesReportTaskRepository implements Gene
     try {
       await this.connect();
       return this.prisma.generateAnomaliesReportTask.findMany();
+    } finally {
+      this.disconnect();
+    }
+  }
+
+  async create(createTaskDTO: CreateTaskDTO): Promise<GenerateAnomaliesReportTask> {
+    if (createTaskDTO.startReportDate === undefined ||
+      createTaskDTO.endReportDate === undefined ||
+      createTaskDTO.title === undefined ||
+      createTaskDTO.threshold === undefined) {
+      throw new Error("Some values are not valid.");
+    }
+
+    const {
+      startDate,
+      endDate,
+      startReportDate,
+      endReportDate,
+      title,
+      threshold,
+      frequency,
+      deviceId,
+      operatorId,
+      supervisorId
+    } = createTaskDTO;
+
+    try {
+      await this.connect();
+      return await this.prisma.generateAnomaliesReportTask.create({
+        data: {
+          startDate,
+          endDate,
+          startReportDate: startReportDate!,
+          endReportDate: endReportDate!,
+          title: title!,
+          threshold: threshold!,
+          frequency,
+          deviceId,
+          operatorId,
+          supervisorId
+        }
+      });
     } finally {
       this.disconnect();
     }

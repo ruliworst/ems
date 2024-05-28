@@ -1,3 +1,4 @@
+import { CreateTaskDTO } from "@/dtos/tasks/task.dto";
 import { MaintenanceDeviceTaskRepository } from "@/ports/tasks/MaintenanceDeviceTaskRepository";
 import { PrismaClient, MaintenanceDeviceTask } from "@prisma/client";
 import { injectable } from "tsyringe";
@@ -8,6 +9,33 @@ export default class PrismaMaintenanceDeviceTaskRepository implements Maintenanc
 
   constructor() {
     this.prisma = new PrismaClient();
+  }
+
+  async create(createTaskDTO: CreateTaskDTO): Promise<MaintenanceDeviceTask> {
+    const {
+      startDate,
+      endDate,
+      frequency,
+      deviceId,
+      operatorId,
+      supervisorId
+    } = createTaskDTO;
+
+    try {
+      await this.connect();
+      return await this.prisma.maintenanceDeviceTask.create({
+        data: {
+          startDate,
+          endDate,
+          frequency,
+          deviceId,
+          operatorId,
+          supervisorId
+        }
+      });
+    } finally {
+      this.disconnect();
+    }
   }
 
   async getAll(): Promise<MaintenanceDeviceTask[]> {

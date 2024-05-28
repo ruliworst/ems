@@ -1,5 +1,5 @@
 import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
-import { TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
+import { TaskType, TaskViewDTO } from "@/dtos/tasks/task.dto";
 import { Frequency } from "@prisma/client";
 
 global.fetch = jest.fn();
@@ -11,7 +11,7 @@ describe('TaskApiService', () => {
 
   it('should fetch all tasks successfully', async () => {
     // Arrange
-    const mockTasks: TaskDTO[] = [
+    const mockTasks: TaskViewDTO[] = [
       {
         startDate: '2024-05-01T10:00:00.000Z',
         endDate: '2024-05-10T10:00:00.000Z',

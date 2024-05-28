@@ -1,8 +1,9 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import type { MonitorizeConsumptionTaskRepository } from "@/ports/tasks/MonitorizeConsumptionTaskRepository";
-import { MonitorizeConsumptionTaskDTO, TaskDTO, TaskType } from "@/dtos/tasks/task.dto";
 import { MonitorizeConsumptionTask } from "@prisma/client";
+import { MonitorizeConsumptionTaskEntity } from "@/domain/model/MonitorizeConsumptionTask";
+import { CreateTaskDTO } from "@/dtos/tasks/task.dto";
 
 @injectable()
 class MonitorizeConsumptionTaskService {
@@ -10,26 +11,29 @@ class MonitorizeConsumptionTaskService {
     @inject("MonitorizeConsumptionTaskRepository") private tasksRepository: MonitorizeConsumptionTaskRepository
   ) { }
 
-  async getAll(): Promise<MonitorizeConsumptionTaskDTO[]> {
+  async getAll(): Promise<MonitorizeConsumptionTaskEntity[]> {
     const tasks: MonitorizeConsumptionTask[] = await this.tasksRepository.getAll();
 
-    return tasks.map<MonitorizeConsumptionTaskDTO>(task => ({
-      startDate: task.startDate.toDateString(),
-      endDate: task.endDate?.toDateString(),
+    return tasks.map<MonitorizeConsumptionTaskEntity>(task => new MonitorizeConsumptionTaskEntity({
+      id: task.id,
+      startDate: task.startDate,
+      endDate: task.endDate,
       threshold: task.threshold,
       frequency: task.frequency,
-      deviceId: task.deviceId!,
-      operatorId: task.operatorId || task.supervisorId || ""
+      deviceId: task.deviceId,
+      operatorId: task.operatorId || null,
+      supervisorId: task.supervisorId || null
     }));
   };
 
-  toTaskDTO(task: MonitorizeConsumptionTaskDTO): TaskDTO {
-    return {
-      startDate: task.startDate,
-      endDate: task.endDate,
-      frequency: task.frequency,
-      type: TaskType.MONITORIZE_CONSUMPTION
-    };
+  async create(createTaskDTO: CreateTaskDTO): Promise<MonitorizeConsumptionTaskEntity> {
+    try {
+      const task: MonitorizeConsumptionTask = await this.tasksRepository.create(createTaskDTO);
+      return new MonitorizeConsumptionTaskEntity(task);
+    } catch (error) {
+      console.error("Error creating a task:", error);
+      throw error;
+    }
   };
 }
 
