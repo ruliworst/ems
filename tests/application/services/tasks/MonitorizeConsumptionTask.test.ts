@@ -3,7 +3,7 @@ import "@/config/container";
 import { container } from "tsyringe";
 import { MonitorizeConsumptionTaskRepository } from "@/ports/tasks/MonitorizeConsumptionTaskRepository";
 import MonitorizeConsumptionTaskService from "@/application/services/tasks/MonitorizeConsumptionTaskService";
-import { CreateTaskDTO, MonitorizeConsumptionTaskDTO, TaskType } from "@/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskType } from "@/dtos/tasks/task.dto";
 import { Frequency, MonitorizeConsumptionTask } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
 import { MonitorizeConsumptionTaskEntity } from "@/domain/model/MonitorizeConsumptionTask";

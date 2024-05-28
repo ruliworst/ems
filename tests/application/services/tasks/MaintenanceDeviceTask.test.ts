@@ -3,7 +3,7 @@ import "@/config/container";
 import { container } from "tsyringe";
 import { MaintenanceDeviceTaskRepository } from "@/ports/tasks/MaintenanceDeviceTaskRepository";
 import MaintenanceDeviceTaskService from "@/application/services/tasks/MaintenanceDeviceTaskService";
-import { CreateTaskDTO, MaintenanceDeviceTaskDTO, TaskType } from "@/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskType } from "@/dtos/tasks/task.dto";
 import { Frequency, MaintenanceDeviceTask } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
 import { MaintenanceDeviceTaskEntity } from "@/domain/model/MaintenanceDeviceTask";

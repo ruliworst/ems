@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import type { GenerateConsumptionReportTaskRepository } from "@/ports/tasks/GenerateConsumptionReportTaskRepository";
-import { CreateTaskDTO, GenerateConsumptionReportTaskDTO } from "@/dtos/tasks/task.dto";
+import { CreateTaskDTO } from "@/dtos/tasks/task.dto";
 import { GenerateConsumptionReportTask } from "@prisma/client";
 import { GenerateConsumptionReportTaskEntity } from "@/domain/model/GenerateConsumptionReportTask";
 
