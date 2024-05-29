@@ -23,7 +23,6 @@ export type CreateTaskDTO = {
   startReportDate: string | null
   endReportDate: string | null
   title: string | null
-  deviceId: string
-  operatorId: string | null
-  supervisorId: string | null
+  deviceName: string
+  operatorEmail: string | null
 }

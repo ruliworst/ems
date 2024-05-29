@@ -77,10 +77,9 @@ describe("GenerateConsumptionReportTaskService", () => {
     title: "Report 1",
     threshold: null,
     frequency: Frequency.DAILY,
-    deviceId: "1",
-    operatorId: "2",
+    deviceName: "Device-Monitorize",
+    operatorEmail: "bob.doe@example.com",
     type: TaskType.GENERATE_CONSUMPTION_REPORT,
-    supervisorId: null
   };
 
   const id = uuidv4();
@@ -92,6 +91,9 @@ describe("GenerateConsumptionReportTaskService", () => {
     startReportDate: new Date(createTaskDTO.startReportDate!),
     endReportDate: new Date(createTaskDTO.endReportDate!),
     title: createTaskDTO.title!,
+    deviceId: "1",
+    operatorId: "2",
+    supervisorId: null
   };
 
   beforeEach(() => {

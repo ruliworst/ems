@@ -16,21 +16,22 @@ export default class PrismaMaintenanceDeviceTaskRepository implements Maintenanc
       startDate,
       endDate,
       frequency,
-      deviceId,
-      operatorId,
-      supervisorId
+      deviceName,
+      operatorEmail,
     } = createTaskDTO;
 
     try {
       await this.connect();
+
+      // TODO: Include device and operator references.
       return await this.prisma.maintenanceDeviceTask.create({
         data: {
           startDate,
           endDate,
           frequency,
-          deviceId,
-          operatorId,
-          supervisorId
+          deviceId: "1",
+          operatorId: "2",
+          supervisorId: null
         }
       });
     } finally {

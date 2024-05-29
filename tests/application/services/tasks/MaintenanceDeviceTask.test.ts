@@ -65,10 +65,9 @@ describe("MaintenanceDeviceTaskService", () => {
     title: null,
     threshold: null,
     frequency: Frequency.DAILY,
-    deviceId: "1",
-    operatorId: "2",
-    type: TaskType.MAINTENANCE_DEVICE,
-    supervisorId: null
+    deviceName: "Device-Monitorize",
+    operatorEmail: "bob.doe@example.com",
+    type: TaskType.MAINTENANCE_DEVICE
   };
 
   const id = uuidv4();
@@ -77,6 +76,9 @@ describe("MaintenanceDeviceTaskService", () => {
     id: id,
     startDate: new Date(createTaskDTO.startDate),
     endDate: new Date(createTaskDTO.endDate!),
+    deviceId: "1",
+    operatorId: "2",
+    supervisorId: null
   };
 
   beforeEach(() => {

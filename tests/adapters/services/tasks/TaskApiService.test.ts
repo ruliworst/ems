@@ -1,5 +1,5 @@
 import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
-import { TaskType, TaskViewDTO } from "@/dtos/tasks/task.dto";
+import { TaskType, CreateTaskDTO, TaskViewDTO } from "@/dtos/tasks/task.dto";
 import { Frequency } from "@prisma/client";
 
 global.fetch = jest.fn();
@@ -48,5 +48,76 @@ describe('TaskApiService', () => {
     // Act & Assert
     await expect(TaskApiService.fetchAll()).rejects.toThrow('Failed to fetch tasks');
     expect(fetch).toHaveBeenCalledWith('/api/tasks');
+  });
+
+  it('should create a task successfully', async () => {
+    // Arrange
+    const mockTask: CreateTaskDTO = {
+      startDate: '2024-07-01T10:00:00.000Z',
+      endDate: '2024-07-10T10:00:00.000Z',
+      type: TaskType.MAINTENANCE_DEVICE,
+      frequency: Frequency.WEEKLY,
+      threshold: null,
+      startReportDate: null,
+      endReportDate: null,
+      title: null,
+      deviceName: "Device-Monitorize",
+      operatorEmail: "bob.doe@example.com"
+    };
+
+    const mockTaskView: TaskViewDTO = {
+      startDate: '2024-07-01T10:00:00.000Z',
+      endDate: '2024-07-10T10:00:00.000Z',
+      type: TaskType.MAINTENANCE_DEVICE,
+      frequency: Frequency.WEEKLY,
+    };
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => mockTaskView,
+    });
+
+    // Act
+    const createdTask = await TaskApiService.create(mockTask);
+
+    // Assert
+    expect(createdTask).toEqual(mockTaskView);
+    expect(fetch).toHaveBeenCalledWith('/api/tasks', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(mockTask),
+    });
+  });
+
+  it('should throw an error when task creation fails', async () => {
+    // Arrange
+    const mockTask: CreateTaskDTO = {
+      startDate: '2024-07-01T10:00:00.000Z',
+      endDate: '2024-07-10T10:00:00.000Z',
+      type: TaskType.MAINTENANCE_DEVICE,
+      frequency: Frequency.WEEKLY,
+      threshold: null,
+      startReportDate: null,
+      endReportDate: null,
+      title: null,
+      deviceName: "Device-Monitorize",
+      operatorEmail: "bob.doe@example.com"
+    };
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+    });
+
+    // Act & Assert
+    await expect(TaskApiService.create(mockTask)).rejects.toThrow('Failed to create task');
+    expect(fetch).toHaveBeenCalledWith('/api/tasks', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(mockTask),
+    });
   });
 });

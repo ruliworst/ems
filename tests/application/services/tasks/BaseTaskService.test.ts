@@ -144,10 +144,9 @@ describe("BaseTaskService", () => {
       title: "Report 1",
       threshold: 5,
       frequency: Frequency.DAILY,
-      deviceId: "1",
-      operatorId: "2",
+      deviceName: "Device-Monitorize",
+      operatorEmail: "bob.doe@example.com",
       type: TaskType.GENERATE_ANOMALIES_REPORT,
-      supervisorId: null
     };
 
     const id = uuidv4();
@@ -159,7 +158,10 @@ describe("BaseTaskService", () => {
       startReportDate: new Date(createTaskDTO.startReportDate!),
       endReportDate: new Date(createTaskDTO.endReportDate!),
       title: createTaskDTO.title!,
-      threshold: createTaskDTO.threshold!
+      threshold: createTaskDTO.threshold!,
+      deviceId: "1",
+      operatorId: "2",
+      supervisorId: null
     };
 
     const generateAnomaliesReportTaskRepository = {
@@ -192,9 +194,8 @@ describe("BaseTaskService", () => {
       title: "New Consumption Report",
       threshold: null,
       frequency: Frequency.DAILY,
-      deviceId: "1",
-      operatorId: "2",
-      supervisorId: null
+      deviceName: "Device-Monitorize",
+      operatorEmail: "bob.doe@example.com",
     };
 
     const id = uuidv4();
@@ -206,7 +207,10 @@ describe("BaseTaskService", () => {
       startReportDate: new Date(createTaskDTO.startReportDate!),
       endReportDate: new Date(createTaskDTO.endReportDate!),
       title: createTaskDTO.title!,
-      threshold: createTaskDTO.threshold!
+      threshold: createTaskDTO.threshold!,
+      deviceId: "1",
+      operatorId: "2",
+      supervisorId: null
     };
 
     const anomaliesReportTaskRepository = {
@@ -237,10 +241,9 @@ describe("BaseTaskService", () => {
       title: null,
       threshold: null,
       frequency: Frequency.DAILY,
-      deviceId: "1",
-      operatorId: "2",
+      deviceName: "Device-Monitorize",
+      operatorEmail: "bob.doe@example.com",
       type: TaskType.MAINTENANCE_DEVICE,
-      supervisorId: null
     };
 
     const id = uuidv4();
@@ -249,6 +252,9 @@ describe("BaseTaskService", () => {
       id: id,
       startDate: new Date(createTaskDTO.startDate),
       endDate: new Date(createTaskDTO.endDate!),
+      deviceId: "1",
+      operatorId: "2",
+      supervisorId: null
     };
 
     const maintenanceDeviceTaskRepository = {
@@ -279,10 +285,9 @@ describe("BaseTaskService", () => {
       title: null,
       threshold: 1,
       frequency: Frequency.DAILY,
-      deviceId: "1",
-      operatorId: "2",
-      type: TaskType.MONITORIZE_CONSUMPTION,
-      supervisorId: null
+      deviceName: "Device-Monitorize",
+      operatorEmail: "bob.doe@example.com",
+      type: TaskType.MONITORIZE_CONSUMPTION
     };
 
     const id = uuidv4();
@@ -291,7 +296,10 @@ describe("BaseTaskService", () => {
       id: id,
       startDate: new Date(createTaskDTO.startDate),
       endDate: new Date(createTaskDTO.endDate!),
-      threshold: createTaskDTO.threshold!
+      threshold: createTaskDTO.threshold!,
+      deviceId: "1",
+      operatorId: "2",
+      supervisorId: null
     };
 
     const monitorizeConsumptionTaskRepository = {
@@ -323,9 +331,8 @@ describe("BaseTaskService", () => {
       title: "New Anomalies Report",
       threshold: 15,
       frequency: Frequency.DAILY,
-      deviceId: "1",
-      operatorId: "2",
-      supervisorId: null
+      deviceName: "Device-Monitorize",
+      operatorEmail: "bob.doe@example.com",
     };
 
     const error = new Error("Error creating task");

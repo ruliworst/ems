@@ -69,10 +69,9 @@ describe("MonitorizeConsumptionTaskService", () => {
     title: null,
     threshold: 1,
     frequency: Frequency.DAILY,
-    deviceId: "1",
-    operatorId: "2",
-    type: TaskType.MONITORIZE_CONSUMPTION,
-    supervisorId: null
+    deviceName: "Device-Monitorize",
+    operatorEmail: "bob.doe@example.com",
+    type: TaskType.MONITORIZE_CONSUMPTION
   };
 
   const id = uuidv4();
@@ -81,7 +80,10 @@ describe("MonitorizeConsumptionTaskService", () => {
     id: id,
     startDate: new Date(createTaskDTO.startDate),
     endDate: new Date(createTaskDTO.endDate!),
-    threshold: createTaskDTO.threshold!
+    threshold: createTaskDTO.threshold!,
+    deviceId: "1",
+    operatorId: "2",
+    supervisorId: null
   };
 
   beforeEach(() => {

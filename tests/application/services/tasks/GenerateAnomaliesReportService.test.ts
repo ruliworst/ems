@@ -81,10 +81,9 @@ describe("GenerateAnomaliesReportTaskService", () => {
     title: "Report 1",
     threshold: 5,
     frequency: Frequency.DAILY,
-    deviceId: "1",
-    operatorId: "2",
+    deviceName: "Device-Monitorize",
+    operatorEmail: "bob.doe@example.com",
     type: TaskType.GENERATE_ANOMALIES_REPORT,
-    supervisorId: null
   };
 
   const id = uuidv4();
@@ -96,7 +95,10 @@ describe("GenerateAnomaliesReportTaskService", () => {
     startReportDate: new Date(createTaskDTO.startReportDate!),
     endReportDate: new Date(createTaskDTO.endReportDate!),
     title: createTaskDTO.title!,
-    threshold: createTaskDTO.threshold!
+    threshold: createTaskDTO.threshold!,
+    deviceId: "1",
+    operatorId: "2",
+    supervisorId: null
   };
 
   beforeEach(() => {

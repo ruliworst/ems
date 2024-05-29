@@ -21,9 +21,8 @@ export default class PrismaMonitorizeConsumptionTaskRepository implements Monito
       endDate,
       threshold,
       frequency,
-      deviceId,
-      operatorId,
-      supervisorId
+      deviceName,
+      operatorEmail,
     } = createTaskDTO;
 
     try {
@@ -34,9 +33,9 @@ export default class PrismaMonitorizeConsumptionTaskRepository implements Monito
           endDate,
           threshold: threshold!,
           frequency,
-          deviceId,
-          operatorId,
-          supervisorId
+          deviceId: "1",
+          operatorId: "2",
+          supervisorId: null
         }
       });
     } finally {

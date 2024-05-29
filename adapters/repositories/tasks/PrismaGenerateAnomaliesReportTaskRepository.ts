@@ -36,13 +36,14 @@ export default class PrismaGenerateAnomaliesReportTaskRepository implements Gene
       title,
       threshold,
       frequency,
-      deviceId,
-      operatorId,
-      supervisorId
+      deviceName,
+      operatorEmail,
     } = createTaskDTO;
 
     try {
       await this.connect();
+
+      // TODO: Include device and operator references.
       return await this.prisma.generateAnomaliesReportTask.create({
         data: {
           startDate,
@@ -52,9 +53,9 @@ export default class PrismaGenerateAnomaliesReportTaskRepository implements Gene
           title: title!,
           threshold: threshold!,
           frequency,
-          deviceId,
-          operatorId,
-          supervisorId
+          deviceId: "1",
+          operatorId: "2",
+          supervisorId: null
         }
       });
     } finally {

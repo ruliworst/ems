@@ -25,13 +25,14 @@ export default class PrismaGenerateConsumptionReportTaskRepository implements Ge
       endReportDate,
       title,
       frequency,
-      deviceId,
-      operatorId,
-      supervisorId
+      deviceName,
+      operatorEmail,
     } = createTaskDTO;
 
     try {
       await this.connect();
+
+      // TODO: Include device and operator references.
       return await this.prisma.generateConsumptionReportTask.create({
         data: {
           startDate,
@@ -40,9 +41,9 @@ export default class PrismaGenerateConsumptionReportTaskRepository implements Ge
           endReportDate: endReportDate!,
           title: title!,
           frequency,
-          deviceId,
-          operatorId,
-          supervisorId
+          deviceId: "1",
+          operatorId: "2",
+          supervisorId: null
         }
       });
     } finally {

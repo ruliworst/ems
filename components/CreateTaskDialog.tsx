@@ -26,10 +26,10 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { TaskType } from "@/dtos/tasks/task.dto";
 import CreateTaskForm from "./CreateTaskForm";
+import { TaskType, TaskViewDTO } from "@/dtos/tasks/task.dto";
 
-export default function CreateTaskDialog({ onTaskCreated }: { onTaskCreated: (task: any) => void }) {
+export default function CreateTaskDialog({ onTaskCreated }: { onTaskCreated: (task: TaskViewDTO) => void }) {
   const taskTypes = [
     {
       value: TaskType.GENERATE_ANOMALIES_REPORT,
@@ -59,6 +59,15 @@ export default function CreateTaskDialog({ onTaskCreated }: { onTaskCreated: (ta
     setType(taskType);
     setOpen(false);
   };
+
+  const handleTaskCreated = (task: TaskViewDTO) => {
+    toast({
+      title: "Task created.",
+      description: `${new Date().toLocaleString()}`
+    });
+    onTaskCreated(task);
+    setOpened(false);
+  }
 
   return (
     <>
@@ -111,7 +120,7 @@ export default function CreateTaskDialog({ onTaskCreated }: { onTaskCreated: (ta
               </Command>
             </PopoverContent>
           </Popover>
-          {type !== undefined && <CreateTaskForm type={type} />}
+          {type !== undefined && <CreateTaskForm type={type} onTaskCreated={handleTaskCreated} />}
         </DialogContent>
       </Dialog>
       <Toaster />
