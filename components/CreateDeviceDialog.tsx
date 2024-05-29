@@ -46,7 +46,7 @@ export default function CreateDeviceDialog({ onDeviceCreated }: { onDeviceCreate
 
     const createDeviceDTO: CreateDeviceDTO = {
       name: data.name!.toString(),
-      installationDate: data.installationDate!.toDateString(),
+      installationDate: data.installationDate!.toISOString(),
       ratedPower: Number(data.ratedPower!),
       observations: data.observations?.toString(),
     };
