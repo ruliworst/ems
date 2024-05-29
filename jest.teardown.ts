@@ -8,5 +8,6 @@ module.exports = async () => {
   await prisma.generateConsumptionReportTask.deleteMany();
   await prisma.maintenanceDeviceTask.deleteMany();
   await prisma.operator.deleteMany();
+  await prisma.supervisor.deleteMany();
   await prisma.device.deleteMany();
 };

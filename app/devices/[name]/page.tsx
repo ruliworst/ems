@@ -24,7 +24,7 @@ export default function DevicePage({ params }: { params: { name: string } }) {
   }, []);
 
   if (device) {
-    return <DeviceView device={device!} onSave={() => console.log("Saving")} />
+    return <DeviceView device={device!} />
   }
 
   return <></>;

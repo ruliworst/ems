@@ -215,7 +215,7 @@ export default function CreateTaskForm({ type, onTaskCreated }: CreateTaskFormPr
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "PPP") : <span>Pick a date</span>}
+                  {startDate ? startDate.toDateString() : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" id="startDate">
@@ -243,7 +243,7 @@ export default function CreateTaskForm({ type, onTaskCreated }: CreateTaskFormPr
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "PPP") : <span>Pick a date</span>}
+                  {endDate ? endDate.toDateString() : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" id="endDate">
@@ -325,7 +325,7 @@ export default function CreateTaskForm({ type, onTaskCreated }: CreateTaskFormPr
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startReportDate ? format(startReportDate, "PPP") : <span>Pick a date</span>}
+                  {startReportDate ? startReportDate.toDateString() : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" id="startReportDate">
@@ -355,7 +355,7 @@ export default function CreateTaskForm({ type, onTaskCreated }: CreateTaskFormPr
                   )}
                 >
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endReportDate ? format(endReportDate, "PPP") : <span>Pick a date</span>}
+                  {endReportDate ? endReportDate.toDateString() : <span>Pick a date</span>}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" id="endReportDate">

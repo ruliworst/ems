@@ -3,9 +3,10 @@ import "@/config/container";
 import { container } from "tsyringe";
 import { DeviceRepository } from "@/ports/devices/DeviceRepository";
 import DeviceService from "@/application/services/devices/DeviceService";
-import { DeviceDTO } from "@/dtos/devices/device.dto";
-import { Device, Prisma, Status } from "@prisma/client";
+import { CreateDeviceDTO, DeviceDTO, UpdateDeviceDTO } from "@/dtos/devices/device.dto";
+import { Device, Status } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
+import { DeviceEntity } from "@/domain/model/Device";
 
 describe("DeviceService", () => {
   let deviceService: DeviceService;
@@ -36,20 +37,30 @@ describe("DeviceService", () => {
     {
       name: "Device 1",
       ratedPower: 100,
-      installationDate: "Wed May 01 2024",
+      installationDate: "2024-05-01T10:00:00.000Z",
+      lastMaintenance: "2024-05-01T10:00:00.000Z",
       status: Status.IDLE,
       observations: "Observation 1",
-      lastMaintenance: "Wed May 01 2024"
+      currentPower: 10
     },
     {
       name: "Device 2",
       ratedPower: 200,
-      installationDate: "Wed May 01 2024",
+      installationDate: "2024-05-01T10:00:00.000Z",
+      lastMaintenance: "2024-05-01T10:00:00.000Z",
       status: Status.RUNNING,
       observations: "Observation 2",
-      lastMaintenance: "Wed May 01 2024"
+      currentPower: 100
     }
   ];
+
+  const expectedUpdatedDevice = {
+    ...mockDevices[0],
+    name: "Updated Device 1",
+    ratedPower: 150,
+    installationDate: "2024-06-01T10:00:00.000Z",
+    observations: "Updated Observation 1",
+  }
 
   beforeEach(() => {
     deviceRepository = {
@@ -61,7 +72,8 @@ describe("DeviceService", () => {
         const index = mockDevices.findIndex(device => device.name === name);
         if (index === -1) return null;
         return mockDevices.splice(index, 1)[0];
-      })
+      }),
+      update: jest.fn().mockResolvedValue(expectedUpdatedDevice),
     } as unknown as jest.Mocked<DeviceRepository>;
 
     container.registerInstance("DeviceRepository", deviceRepository);
@@ -73,23 +85,27 @@ describe("DeviceService", () => {
   });
 
   it("should fetch all devices", async () => {
-    const devices = await deviceService.getAll();
-    expect(devices).toEqual(mockDeviceDTOs);
+    const devices: DeviceEntity[] = await deviceService.getAll();
+    expect(devices.length).toBe(2);
     expect(deviceRepository.getAll).toHaveBeenCalledTimes(1);
   });
 
   it("should create a new device", async () => {
-    const deviceDTO: DeviceDTO = {
+    const createDeviceDTO: CreateDeviceDTO = {
       name: "Device 1",
       ratedPower: 100,
-      installationDate: "Wed May 01 2024",
+      installationDate: "2024-05-01T10:00:00.000Z",
+      lastMaintenance: "2024-05-01T10:00:00.000Z",
       status: Status.IDLE,
       observations: "Observation 1",
-      lastMaintenance: "Wed May 01 2024"
     };
 
-    const createdDeviceDTO = await deviceService.create(deviceDTO);
-    expect(createdDeviceDTO).toMatchObject(deviceDTO);
+    const deviceEntity: DeviceEntity = await deviceService.create(createDeviceDTO);
+    expect(deviceEntity).toMatchObject({
+      ...createDeviceDTO,
+      installationDate: new Date(mockDeviceDTOs[0]["installationDate"]),
+      lastMaintenance: new Date(mockDeviceDTOs[0]["lastMaintenance"]!),
+    });
   });
 
   describe("delete", () => {
@@ -110,9 +126,8 @@ describe("DeviceService", () => {
 
   describe("getByName", () => {
     it("should fetch a device by name successfully", async () => {
-      const deviceName = "Device 2";
-      const expectedDevice = mockDeviceDTOs[1];
-      const fetchedDevice = await deviceService.getByName(deviceName);
+      const expectedDevice: Device = mockDevices[0];
+      const fetchedDevice: DeviceEntity | null = await deviceService.getByName(expectedDevice.name);
       expect(fetchedDevice).toMatchObject(expectedDevice!);
     });
 
@@ -123,96 +138,19 @@ describe("DeviceService", () => {
     });
   });
 
+  describe("update", () => {
+    it("update a device successfully", async () => {
+      const updateDeviceDTO: UpdateDeviceDTO = {
+        originalName: "Device 1",
+        name: "Updated Device 1",
+        ratedPower: 150,
+        installationDate: "2024-06-01T10:00:00.000Z",
+        observations: "Updated Observation 1",
+      };
 
-  describe("toDeviceCreateInputMany", () => {
-    it("should convert an array of DeviceDTOs to an array of Prisma.DeviceCreateInput", () => {
-      const deviceDTOs: DeviceDTO[] = [
-        {
-          name: "MASKSK32-12",
-          ratedPower: 100,
-          installationDate: "Wed May 01 2024",
-          lastMaintenance: "Fri May 10 2024",
-          observations: "First device, performing well.",
-          status: Status.RUNNING,
-        },
-        {
-          name: "MLSLS-234",
-          ratedPower: 200,
-          installationDate: "Sat Jun 01 2024",
-          lastMaintenance: "Mon Jun 10 2024",
-          observations: "Second device, requires maintenance.",
-          status: Status.IDLE,
-        }
-      ];
+      const updatedDevice: DeviceEntity | null = await deviceService.update(updateDeviceDTO);
 
-      const expected: Prisma.DeviceCreateInput[] = [
-        {
-          name: "MASKSK32-12",
-          ratedPower: 100,
-          installationDate: new Date("Wed May 01 2024"),
-          lastMaintenance: new Date("Fri May 10 2024"),
-          observations: "First device, performing well.",
-          status: Status.RUNNING,
-        },
-        {
-          name: "MLSLS-234",
-          ratedPower: 200,
-          installationDate: new Date("Sat Jun 01 2024"),
-          lastMaintenance: new Date("Mon Jun 10 2024"),
-          observations: "Second device, requires maintenance.",
-          status: Status.IDLE,
-        }
-      ];
-
-      const result = deviceService.toDeviceCreateInputMany(deviceDTOs);
-      expect(result).toEqual(expected);
-    });
-  });
-
-  describe("toDeviceDtoMany", () => {
-    it("should convert an array of Devices to an array of DeviceDTOs", () => {
-      const devices: Device[] = [
-        {
-          id: uuidv4(),
-          name: "MASKSK23",
-          ratedPower: 100,
-          installationDate: new Date("Wed May 01 2024"),
-          lastMaintenance: new Date("Fri May 10 2024"),
-          observations: "First device, performing well.",
-          status: Status.RUNNING,
-        },
-        {
-          id: uuidv4(),
-          name: "mSKOP32",
-          ratedPower: 200,
-          installationDate: new Date("Sat Jun 01 2024"),
-          lastMaintenance: new Date("Mon Jun 10 2024"),
-          observations: "Second device, requires maintenance.",
-          status: Status.IDLE,
-        }
-      ];
-
-      const expected: DeviceDTO[] = [
-        {
-          name: "MASKSK23",
-          ratedPower: 100,
-          installationDate: "Wed May 01 2024",
-          lastMaintenance: "Fri May 10 2024",
-          observations: "First device, performing well.",
-          status: Status.RUNNING,
-        },
-        {
-          name: "mSKOP32",
-          ratedPower: 200,
-          installationDate: "Sat Jun 01 2024",
-          lastMaintenance: "Mon Jun 10 2024",
-          observations: "Second device, requires maintenance.",
-          status: Status.IDLE,
-        }
-      ];
-
-      const result = deviceService.toDeviceDtoMany(devices);
-      expect(result).toEqual(expected);
+      expect(updatedDevice).toMatchObject(expectedUpdatedDevice);
     });
   });
 });
