@@ -1,5 +1,6 @@
+import { CreateTaskDTO } from "@/dtos/tasks/task.dto";
 import { GenerateConsumptionReportTaskRepository } from "@/ports/tasks/GenerateConsumptionReportTaskRepository";
-import { GenerateConsumptionReportTask, PrismaClient } from "@prisma/client";
+import { $Enums, GenerateConsumptionReportTask, PrismaClient } from "@prisma/client";
 import { injectable } from "tsyringe";
 
 @injectable()
@@ -8,6 +9,46 @@ export default class PrismaGenerateConsumptionReportTaskRepository implements Ge
 
   constructor() {
     this.prisma = new PrismaClient();
+  }
+
+  async create(createTaskDTO: CreateTaskDTO): Promise<GenerateConsumptionReportTask> {
+    if (createTaskDTO.startReportDate === undefined ||
+      createTaskDTO.endReportDate === undefined ||
+      createTaskDTO.title === undefined) {
+      throw new Error("Some values are not valid.");
+    }
+
+    const {
+      startDate,
+      endDate,
+      startReportDate,
+      endReportDate,
+      title,
+      frequency,
+      deviceName,
+      operatorEmail,
+    } = createTaskDTO;
+
+    try {
+      await this.connect();
+
+      // TODO: Include device and operator references.
+      return await this.prisma.generateConsumptionReportTask.create({
+        data: {
+          startDate,
+          endDate,
+          startReportDate: startReportDate!,
+          endReportDate: endReportDate!,
+          title: title!,
+          frequency,
+          deviceId: "1",
+          operatorId: "2",
+          supervisorId: null
+        }
+      });
+    } finally {
+      this.disconnect();
+    }
   }
 
   async getAll(): Promise<GenerateConsumptionReportTask[]> {

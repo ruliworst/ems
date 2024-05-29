@@ -118,8 +118,8 @@ model MonitorizeConsumptionTask {
   endDate      DateTime?
   frequency    Frequency
   threshold    Float
-  Device       Device?     @relation(fields: [deviceId], references: [id])
-  deviceId     String?
+  Device       Device     @relation(fields: [deviceId], references: [id])
+  deviceId     String
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
   operatorId   String?
   Supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
@@ -134,8 +134,8 @@ model GenerateConsumptionReportTask {
   startReportDate DateTime
   endReportDate   DateTime
   title           String
-  Device          Device?     @relation(fields: [deviceId], references: [id])
-  deviceId        String?
+  Device          Device     @relation(fields: [deviceId], references: [id])
+  deviceId        String
   Operator        Operator?   @relation(fields: [operatorId], references: [id])
   operatorId      String?
   Supervisor      Supervisor? @relation(fields: [supervisorId], references: [id])
@@ -151,8 +151,8 @@ model GenerateAnomaliesReportTask {
   endReportDate   DateTime
   title           String
   threshold       Float
-  Device          Device?     @relation(fields: [deviceId], references: [id])
-  deviceId        String?
+  Device          Device     @relation(fields: [deviceId], references: [id])
+  deviceId        String
   Operator        Operator?   @relation(fields: [operatorId], references: [id])
   operatorId      String?
   Supervisor      Supervisor? @relation(fields: [supervisorId], references: [id])
@@ -164,8 +164,8 @@ model MaintenanceDeviceTask {
   startDate    DateTime
   endDate      DateTime?
   frequency    Frequency
-  Device       Device?     @relation(fields: [deviceId], references: [id])
-  deviceId     String?
+  Device       Device     @relation(fields: [deviceId], references: [id])
+  deviceId     String
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
   operatorId   String?
   Supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
@@ -179,8 +179,8 @@ model UnusualConsumptionAlert {
   resolved     Boolean     @default(false)
   priority     Priority
   threshold    Float
-  Device       Device?     @relation(fields: [deviceId], references: [id])
-  deviceId     String?
+  Device       Device     @relation(fields: [deviceId], references: [id])
+  deviceId     String
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
   operatorId   String?
   Supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
@@ -192,8 +192,8 @@ model MaintenanceAlert {
   message      String
   resolved     Boolean     @default(false)
   priority     Priority
-  Device       Device?     @relation(fields: [deviceId], references: [id])
-  deviceId     String?
+  Device       Device     @relation(fields: [deviceId], references: [id])
+  deviceId     String
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
   operatorId   String?
   Supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
