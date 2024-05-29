@@ -1,11 +1,36 @@
 import { Status } from "@prisma/client";
 
-// TODO: Move to here the calculation of currentPower.
 export type DeviceDTO = {
   name: string;
   ratedPower: number;
   installationDate: string;
   lastMaintenance?: string | null;
   observations?: string | null;
-  status?: Status;
+  status: Status;
+  currentPower: number;
 };
+
+export type DeviceViewDTO = {
+  name: string;
+  ratedPower: number;
+  installationDate: string;
+  lastMaintenance?: string | null;
+  status: Status;
+}
+
+export type CreateDeviceDTO = {
+  name: string;
+  ratedPower: number;
+  installationDate: string;
+  lastMaintenance?: string | null;
+  observations?: string | null;
+  status?: Status;
+}
+
+export type UpdateDeviceDTO = {
+  originalName: string;
+  name: string | null;
+  ratedPower: number | null;
+  installationDate: string | null;
+  observations: string | null;
+}

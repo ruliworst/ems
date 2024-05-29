@@ -1,3 +1,4 @@
+import { UpdateDeviceDTO } from "@/dtos/devices/device.dto";
 import { DeviceRepository } from "@/ports/devices/DeviceRepository";
 import { PrismaClient, Device, Prisma } from "@prisma/client";
 import { injectable } from "tsyringe";
@@ -43,6 +44,34 @@ export default class PrismaDeviceRepository implements DeviceRepository {
     try {
       await this.connect();
       return this.prisma.device.create({ data: device });
+    } finally {
+      this.disconnect();
+    }
+  }
+
+  async update(originalName: string, updateData: UpdateDeviceDTO): Promise<Device | null> {
+    if (updateData.name === "") {
+      throw new Error("It was not possible to update the Device because the name cannot be empty.");
+    }
+
+    const updatedDevice: Partial<Device> = {
+      name: updateData.name ? updateData.name : undefined,
+      ratedPower: updateData.ratedPower ? updateData.ratedPower : undefined,
+      installationDate: updateData.installationDate ? new Date(updateData.installationDate) : undefined,
+      observations: updateData.observations ? updateData.observations : undefined,
+    }
+
+    try {
+      await this.connect();
+      const device = this.prisma.device.update({
+        where: { name: originalName },
+        data: { ...updatedDevice },
+      }).catch(error => {
+        console.error(error);
+        return null;
+      });
+
+      return device;
     } finally {
       this.disconnect();
     }

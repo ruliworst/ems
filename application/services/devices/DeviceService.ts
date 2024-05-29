@@ -1,7 +1,8 @@
 import { injectable, inject } from "tsyringe";
-import { Device, Prisma } from "@prisma/client";
-import { DeviceDTO } from "@/dtos/devices/device.dto";
+import { Device } from "@prisma/client";
+import { CreateDeviceDTO, UpdateDeviceDTO } from "@/dtos/devices/device.dto";
 import type { DeviceRepository } from "@/ports/devices/DeviceRepository";
+import { DeviceEntity } from "@/domain/model/Device";
 
 @injectable()
 class DeviceService {
@@ -9,69 +10,59 @@ class DeviceService {
     @inject("DeviceRepository") private deviceRepository: DeviceRepository
   ) { }
 
-  async getAll(): Promise<DeviceDTO[]> {
+  async getAll(): Promise<DeviceEntity[]> {
     const devices = await this.deviceRepository.getAll();
-    return this.toDeviceDtoMany(devices);
+    return devices.map<DeviceEntity>(device => new DeviceEntity({
+      ...device
+    }));
   }
 
-  async getByName(name: string): Promise<DeviceDTO | null> {
+  async getByName(name: string): Promise<DeviceEntity | null> {
     const device = await this.deviceRepository.getByName(name);
     if (!device) return null;
-    return this.toDeviceDTO(device);
+    return new DeviceEntity({ ...device });
   }
 
-  async delete(name: string): Promise<DeviceDTO | null> {
+  async delete(name: string): Promise<DeviceEntity | null> {
     try {
       const device: Device | null = await this.deviceRepository.delete(name);
       if (!device) {
         throw new Error("The device could not be deleted.");
       }
-      return this.toDeviceDTO(device);
+      return new DeviceEntity({ ...device });
     } catch (error) {
       console.error("Error deleting a device:", error);
       return null;
     }
   }
 
-  async create(deviceDTO: DeviceDTO): Promise<DeviceDTO> {
-    const deviceToCreate = this.toDeviceCreateInput(deviceDTO);
+  async create(createDeviceDTO: CreateDeviceDTO): Promise<DeviceEntity> {
     try {
-      const device: Device = await this.deviceRepository.create(deviceToCreate);
-      return this.toDeviceDTO(device);
+      const device: Device = await this.deviceRepository.create({ ...createDeviceDTO });
+      return new DeviceEntity({ ...device });
     } catch (error) {
       console.error("Error creating a device:", error);
       throw error;
     }
   }
 
-  toDeviceCreateInputMany(deviceDTOs: DeviceDTO[]): Prisma.DeviceCreateInput[] {
-    return deviceDTOs.map(deviceDTO => this.toDeviceCreateInput(deviceDTO));
-  }
-
-  toDeviceCreateInput(deviceDTO: DeviceDTO): Prisma.DeviceCreateInput {
-    return {
-      name: deviceDTO.name,
-      ratedPower: deviceDTO.ratedPower,
-      installationDate: new Date(deviceDTO.installationDate),
-      lastMaintenance: deviceDTO.lastMaintenance ? new Date(deviceDTO.lastMaintenance) : null,
-      observations: deviceDTO.observations,
-      status: deviceDTO.status,
-    };
-  }
-
-  toDeviceDtoMany(devices: Device[]): DeviceDTO[] {
-    return devices.map(device => this.toDeviceDTO(device));
-  }
-
-  toDeviceDTO(device: Device): DeviceDTO {
-    return {
-      name: device.name,
-      ratedPower: device.ratedPower,
-      installationDate: device.installationDate.toDateString(),
-      lastMaintenance: device.lastMaintenance?.toDateString(),
-      observations: device.observations,
-      status: device.status
-    };
+  async update(updateDeviceDTO: UpdateDeviceDTO): Promise<DeviceEntity | null> {
+    try {
+      const updatedDevice: Device | null = await this.deviceRepository.update(updateDeviceDTO.originalName, {
+        originalName: updateDeviceDTO.originalName,
+        name: updateDeviceDTO.name,
+        ratedPower: updateDeviceDTO.ratedPower,
+        installationDate: updateDeviceDTO.installationDate,
+        observations: updateDeviceDTO.observations,
+      });
+      if (!updatedDevice) {
+        throw new Error("The device could not be updated.");
+      }
+      return new DeviceEntity({ ...updatedDevice });
+    } catch (error) {
+      console.error("Error updating a device:", error);
+      throw error;
+    }
   }
 }
 
