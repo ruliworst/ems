@@ -1,4 +1,4 @@
-import { DeviceDTO } from "@/dtos/device.dto";
+import { CreateDeviceDTO, DeviceDTO, UpdateDeviceDTO } from "@/dtos/devices/device.dto";
 
 export class DeviceApiService {
   static async fetchAll(): Promise<DeviceDTO[]> {
@@ -17,7 +17,7 @@ export class DeviceApiService {
     return response.json();
   }
 
-  static async create(device: DeviceDTO): Promise<DeviceDTO> {
+  static async create(device: CreateDeviceDTO): Promise<DeviceDTO> {
     const response = await fetch('/api/devices', {
       method: "POST",
       headers: {
@@ -40,6 +40,20 @@ export class DeviceApiService {
     });
     if (!response.ok) {
       throw new Error(`Failed to delete device with name ${name}`);
+    }
+    return response.json();
+  }
+
+  static async patch(updateDeviceDTO: UpdateDeviceDTO): Promise<DeviceDTO> {
+    const response = await fetch(`/api/devices/${updateDeviceDTO.originalName}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateDeviceDTO),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update device with name ${updateDeviceDTO.originalName}`);
     }
     return response.json();
   }

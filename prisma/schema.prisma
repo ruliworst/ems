@@ -1,6 +1,6 @@
 datasource db {
-  provider = "postgresql"
-  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL") // uses connection pooling
   directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
 }
 
@@ -9,27 +9,39 @@ generator client {
 }
 
 model Operator {
-  id                 String              @id @default(uuid())
-  firstName          String
-  firstSurname       String
-  secondSurname      String?
-  email              String              @unique
-  password           String
-  phoneNumber        String
-  consumptionReports ConsumptionReport[]
-  anomaliesReports   AnomaliesReport[]
+  id                            String                          @id @default(uuid())
+  firstName                     String
+  firstSurname                  String
+  secondSurname                 String?
+  email                         String                          @unique
+  password                      String
+  phoneNumber                   String
+  consumptionReports            ConsumptionReport[]
+  anomaliesReports              AnomaliesReport[]
+  monitorizeConsumptionTasks    MonitorizeConsumptionTask[]
+  generateConsumptionReportTask GenerateConsumptionReportTask[]
+  generateAnomaliesReportTask   GenerateAnomaliesReportTask[]
+  maintenanceDeviceTasks        MaintenanceDeviceTask[]
+  unusualConsumptionAlerts      UnusualConsumptionAlert[]
+  maintenanceAlerts             MaintenanceAlert[]
 }
 
 model Supervisor {
-  id                 String              @id @default(uuid())
-  firstName          String
-  firstSurname       String
-  secondSurname      String?
-  email              String              @unique
-  password           String
-  phoneNumber        String
-  consumptionReports ConsumptionReport[]
-  anomaliesReports   AnomaliesReport[]
+  id                            String                          @id @default(uuid())
+  firstName                     String
+  firstSurname                  String
+  secondSurname                 String?
+  email                         String                          @unique
+  password                      String
+  phoneNumber                   String
+  consumptionReports            ConsumptionReport[]
+  anomaliesReports              AnomaliesReport[]
+  monitorizeConsumptionTasks    MonitorizeConsumptionTask[]
+  generateConsumptionReportTask GenerateConsumptionReportTask[]
+  generateAnomaliesReportTask   GenerateAnomaliesReportTask[]
+  maintenanceDeviceTasks        MaintenanceDeviceTask[]
+  unusualConsumptionAlerts      UnusualConsumptionAlert[]
+  maintenanceAlerts             MaintenanceAlert[]
 }
 
 model Device {
@@ -101,29 +113,37 @@ model EnergyConsumptionRecord {
 
 // Tasks.
 model MonitorizeConsumptionTask {
-  id        String    @id @default(uuid())
-  startDate DateTime
-  endDate   DateTime?
-  frequency Frequency
-  threshold Float
-  Device    Device?   @relation(fields: [deviceId], references: [id])
-  deviceId  String?
+  id           String      @id @default(uuid())
+  startDate    DateTime
+  endDate      DateTime?
+  frequency    Frequency
+  threshold    Float
+  Device       Device     @relation(fields: [deviceId], references: [id])
+  deviceId     String
+  Operator     Operator?   @relation(fields: [operatorId], references: [id])
+  operatorId   String?
+  Supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
+  supervisorId String?
 }
 
 model GenerateConsumptionReportTask {
-  id              String    @id @default(uuid())
+  id              String      @id @default(uuid())
   startDate       DateTime
   endDate         DateTime?
   frequency       Frequency
   startReportDate DateTime
   endReportDate   DateTime
   title           String
-  Device          Device?   @relation(fields: [deviceId], references: [id])
-  deviceId        String?
+  Device          Device     @relation(fields: [deviceId], references: [id])
+  deviceId        String
+  Operator        Operator?   @relation(fields: [operatorId], references: [id])
+  operatorId      String?
+  Supervisor      Supervisor? @relation(fields: [supervisorId], references: [id])
+  supervisorId    String?
 }
 
 model GenerateAnomaliesReportTask {
-  id              String    @id @default(uuid())
+  id              String      @id @default(uuid())
   startDate       DateTime
   endDate         DateTime?
   frequency       Frequency
@@ -131,38 +151,53 @@ model GenerateAnomaliesReportTask {
   endReportDate   DateTime
   title           String
   threshold       Float
-  Device          Device?   @relation(fields: [deviceId], references: [id])
-  deviceId        String?
+  Device          Device     @relation(fields: [deviceId], references: [id])
+  deviceId        String
+  Operator        Operator?   @relation(fields: [operatorId], references: [id])
+  operatorId      String?
+  Supervisor      Supervisor? @relation(fields: [supervisorId], references: [id])
+  supervisorId    String?
 }
 
 model MaintenanceDeviceTask {
-  id        String    @id @default(uuid())
-  startDate DateTime
-  endDate   DateTime?
-  frequency Frequency
-  threshold Float
-  Device    Device?   @relation(fields: [deviceId], references: [id])
-  deviceId  String?
+  id           String      @id @default(uuid())
+  startDate    DateTime
+  endDate      DateTime?
+  frequency    Frequency
+  Device       Device     @relation(fields: [deviceId], references: [id])
+  deviceId     String
+  Operator     Operator?   @relation(fields: [operatorId], references: [id])
+  operatorId   String?
+  Supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
+  supervisorId String?
 }
 
 // Alerts.
 model UnusualConsumptionAlert {
-  id        String   @id @default(uuid())
-  message   String
-  resolved  Boolean  @default(false)
-  priority  Priority
-  threshold Float
-  Device    Device?  @relation(fields: [deviceId], references: [id])
-  deviceId  String?
+  id           String      @id @default(uuid())
+  message      String
+  resolved     Boolean     @default(false)
+  priority     Priority
+  threshold    Float
+  Device       Device     @relation(fields: [deviceId], references: [id])
+  deviceId     String
+  Operator     Operator?   @relation(fields: [operatorId], references: [id])
+  operatorId   String?
+  Supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
+  supervisorId String?
 }
 
 model MaintenanceAlert {
-  id       String   @id @default(uuid())
-  message  String
-  resolved Boolean  @default(false)
-  priority Priority
-  Device   Device?  @relation(fields: [deviceId], references: [id])
-  deviceId String?
+  id           String      @id @default(uuid())
+  message      String
+  resolved     Boolean     @default(false)
+  priority     Priority
+  Device       Device     @relation(fields: [deviceId], references: [id])
+  deviceId     String
+  Operator     Operator?   @relation(fields: [operatorId], references: [id])
+  operatorId   String?
+  Supervisor   Supervisor? @relation(fields: [supervisorId], references: [id])
+  supervisorId String?
 }
 
 enum Frequency {

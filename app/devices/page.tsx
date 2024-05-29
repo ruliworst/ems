@@ -11,15 +11,15 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { DeviceDTO } from "@/dtos/device.dto";
-import { DeviceApiService } from "@/adapters/services/DeviceApiService";
+import { DeviceViewDTO } from "@/dtos/devices/device.dto";
+import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
 import CreateDeviceDialog from "@/components/CreateDeviceDialog";
 
 // TODO: Restyle the top layout.
 
 // TODO: Use skeleton.
 export default function DevicesView() {
-  const [devices, setDevices] = useState<DeviceDTO[]>([]);
+  const [devices, setDevices] = useState<DeviceViewDTO[]>([]);
 
   useEffect(() => {
     async function loadDevices() {
@@ -34,7 +34,7 @@ export default function DevicesView() {
     loadDevices();
   }, []);
 
-  const handleDeviceCreated = (newDevice: DeviceDTO) => {
+  const handleDeviceCreated = (newDevice: DeviceViewDTO) => {
     setDevices((prevDevices) => [...prevDevices, newDevice]);
   };
 

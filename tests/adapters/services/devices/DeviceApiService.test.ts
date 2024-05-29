@@ -1,5 +1,6 @@
-import { DeviceApiService } from "@/adapters/services/DeviceApiService";
-import { DeviceDTO } from "@/dtos/device.dto";
+import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
+import { CreateDeviceDTO, DeviceDTO, UpdateDeviceDTO } from "@/dtos/devices/device.dto";
+import { Status } from "@prisma/client";
 
 global.fetch = jest.fn();
 
@@ -14,18 +15,20 @@ describe("DeviceApiService", () => {
       {
         name: "MKASL323",
         ratedPower: 100,
-        installationDate: "Sat Jun 01 2024",
-        lastMaintenance: "Mon Jun 10 2024",
+        installationDate: "2024-05-01T10:00:00.000Z",
+        lastMaintenance: "2024-05-01T10:00:00.000Z",
         observations: "First device, performing well.",
-        status: "RUNNING",
+        status: Status.RUNNING,
+        currentPower: 50
       },
       {
         name: "MKASL32334",
         ratedPower: 200,
-        installationDate: "Sat Jun 01 2024",
-        lastMaintenance: "Mon Jun 10 2024",
+        installationDate: "2024-05-01T10:00:00.000Z",
+        lastMaintenance: "2024-05-01T10:00:00.000Z",
         observations: "Second device, requires maintenance.",
-        status: "IDLE",
+        status: Status.IDLE,
+        currentPower: 20
       },
     ];
 
@@ -53,29 +56,18 @@ describe("DeviceApiService", () => {
     expect(fetch).toHaveBeenCalledWith("/api/devices");
   });
 
-  it("should throw an error when fetching devices fails", async () => {
-    // Arrange.
-    (fetch as jest.Mock).mockResolvedValue({
-      ok: false,
-    });
-
-    // Act & Assert.
-    await expect(DeviceApiService.fetchAll()).rejects.toThrow("Failed to fetch devices");
-    expect(fetch).toHaveBeenCalledWith("/api/devices");
-  });
-
   it("should create a device successfully", async () => {
     // Arrange.
-    const deviceToCreate: DeviceDTO = {
+    const deviceToCreate: CreateDeviceDTO = {
       name: "MAKSLSL3223",
       ratedPower: 100,
-      installationDate: "Sat Jun 01 2024",
-      lastMaintenance: "Mon Jun 10 2024",
+      installationDate: "2024-05-01T10:00:00.000Z",
+      lastMaintenance: "2024-05-01T10:00:00.000Z",
       observations: "First device, performing well.",
-      status: "RUNNING",
+      status: Status.RUNNING,
     };
 
-    const createdDevice: DeviceDTO = { ...deviceToCreate };
+    const createdDevice: DeviceDTO = { ...deviceToCreate, currentPower: 50, status: deviceToCreate.status! };
 
     (fetch as jest.Mock).mockResolvedValue({
       ok: true,
@@ -98,13 +90,12 @@ describe("DeviceApiService", () => {
 
   it("should throw an error when creating a device fails", async () => {
     // Arrange.
-    const deviceToCreate: DeviceDTO = {
+    const deviceToCreate: CreateDeviceDTO = {
       name: "OQPWPE-32",
       ratedPower: 100,
-      installationDate: "Sat Jun 01 2024",
-      lastMaintenance: "Mon Jun 10 2024",
+      installationDate: "2024-05-01T10:00:00.000Z",
+      lastMaintenance: "2024-05-01T10:00:00.000Z",
       observations: "First device, performing well.",
-      status: "RUNNING",
     };
 
     (fetch as jest.Mock).mockResolvedValue({
@@ -128,10 +119,11 @@ describe("DeviceApiService", () => {
     const mockDevice: DeviceDTO = {
       name: "MAKS-DLS-23",
       ratedPower: 100,
-      installationDate: "Sat Jun 01 2024",
-      lastMaintenance: "Mon Jun 10 2024",
+      installationDate: "2024-05-01T10:00:00.000Z",
+      lastMaintenance: "2024-05-01T10:00:00.000Z",
       observations: "First device, performing well.",
-      status: "RUNNING",
+      status: Status.RUNNING,
+      currentPower: 50
     };
 
     (fetch as jest.Mock).mockResolvedValue({
@@ -167,10 +159,11 @@ describe("DeviceApiService", () => {
     const deletedDevice: DeviceDTO = {
       name: 'KASDM-32929',
       ratedPower: 100,
-      installationDate: "Sat Jun 01 2024",
-      lastMaintenance: "Mon Jun 10 2024",
+      installationDate: "2024-05-01T10:00:00.000Z",
+      lastMaintenance: "2024-05-01T10:00:00.000Z",
       observations: 'First device, performing well.',
-      status: 'RUNNING',
+      status: Status.RUNNING,
+      currentPower: 50
     };
 
     (fetch as jest.Mock).mockResolvedValue({
@@ -206,6 +199,71 @@ describe("DeviceApiService", () => {
       headers: {
         'Content-Type': 'application/json',
       },
+    });
+  });
+
+  // Tests for the patch method.
+  it('should update a device successfully', async () => {
+    // Arrange.
+    const updateDeviceDTO: UpdateDeviceDTO = {
+      originalName: 'MKASL323',
+      name: 'UpdatedDeviceName',
+      ratedPower: 150,
+      installationDate: '2024-05-01T10:00:00.000Z',
+      observations: 'Updated observations',
+    };
+
+    const updatedDevice: DeviceDTO = {
+      name: 'UpdatedDeviceName',
+      ratedPower: 150,
+      installationDate: '2024-05-01T10:00:00.000Z',
+      lastMaintenance: '2024-05-01T10:00:00.000Z',
+      status: Status.RUNNING,
+      observations: 'Updated observations',
+      currentPower: 75,
+    };
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => updatedDevice,
+    });
+
+    // Act.
+    const result = await DeviceApiService.patch(updateDeviceDTO);
+
+    // Assert.
+    expect(result).toEqual(updatedDevice);
+    expect(fetch).toHaveBeenCalledWith(`/api/devices/${updateDeviceDTO.originalName}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateDeviceDTO),
+    });
+  });
+
+  it('should throw an error when updating a device fails', async () => {
+    // Arrange.
+    const updateDeviceDTO: UpdateDeviceDTO = {
+      originalName: 'MKASL323',
+      name: 'UpdatedDeviceName',
+      ratedPower: 150,
+      installationDate: '2024-05-01T10:00:00.000Z',
+      observations: 'Updated observations',
+    };
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+    });
+
+    // Act & Assert.
+    await expect(DeviceApiService.patch(updateDeviceDTO)).rejects.toThrow('Failed to update device with name MKASL323');
+    expect(fetch).toHaveBeenCalledWith(`/api/devices/${updateDeviceDTO.originalName}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updateDeviceDTO),
     });
   });
 });

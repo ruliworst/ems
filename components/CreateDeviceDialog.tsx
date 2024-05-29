@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { DeviceApiService } from "@/adapters/services/DeviceApiService";
-import { DeviceDTO } from "@/dtos/device.dto";
+import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
+import { CreateDeviceDTO, DeviceDTO } from "@/dtos/devices/device.dto";
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast";
 
@@ -44,14 +44,14 @@ export default function CreateDeviceDialog({ onDeviceCreated }: { onDeviceCreate
       observations: formData.get("observations"),
     };
 
-    const deviceDTO: DeviceDTO = {
+    const createDeviceDTO: CreateDeviceDTO = {
       name: data.name!.toString(),
-      installationDate: data.installationDate!.toDateString(),
+      installationDate: data.installationDate!.toISOString(),
       ratedPower: Number(data.ratedPower!),
       observations: data.observations?.toString(),
     };
 
-    await DeviceApiService.create(deviceDTO)
+    await DeviceApiService.create(createDeviceDTO)
       .then(device => {
         setOpened(false);
         toast({
@@ -96,7 +96,7 @@ export default function CreateDeviceDialog({ onDeviceCreated }: { onDeviceCreate
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {date ? format(date, "PPP") : <span>Pick a date</span>}
+                      {date ? date.toDateString() : <span>Pick a date</span>}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0" id="installationDate">
