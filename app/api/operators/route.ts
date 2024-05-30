@@ -1,7 +1,7 @@
-import OperatorService from "@/src/domain/services/operators/OperatorService";
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
+import OperatorService from "@/src/domain/services/operators/OperatorService";
 import { NextRequest, NextResponse } from "next/server";
 import { CreateOperatorDTO } from "@/src/infrastructure/api/dtos/operators/operator.dto";
 

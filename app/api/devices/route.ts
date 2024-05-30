@@ -4,7 +4,7 @@ import { container } from "tsyringe";
 import DeviceService from "@/src/domain/services/devices/DeviceService";
 import { NextRequest, NextResponse } from "next/server";
 import { CreateDeviceDTO, DeviceDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
-import { DeviceEntity } from "@/domain/model/Device";
+import { DeviceEntity } from "@/src/infrastructure/entities/devices/DeviceEntity";
 
 export async function GET() {
   const deviceService = container.resolve(DeviceService);
