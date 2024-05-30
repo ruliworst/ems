@@ -8,8 +8,6 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { DeviceDTO, UpdateDeviceDTO } from "@/dtos/devices/device.dto";
-import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { useRouter } from "next/navigation";
@@ -24,6 +22,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { DeviceDTO, UpdateDeviceDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
+import { DeviceApiService } from "@/src/infrastructure/api/services/devices/DeviceApiService";
 
 export default function DeviceView({ device }: { device: DeviceDTO }) {
   const { toast } = useToast()

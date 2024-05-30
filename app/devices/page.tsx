@@ -11,9 +11,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { DeviceViewDTO } from "@/dtos/devices/device.dto";
-import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
 import CreateDeviceDialog from "@/components/CreateDeviceDialog";
+import { DeviceViewDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
+import { DeviceApiService } from "@/src/infrastructure/api/services/devices/DeviceApiService";
 
 // TODO: Restyle the top layout.
 

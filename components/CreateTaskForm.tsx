@@ -9,13 +9,13 @@ import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useEffect, useState } from "react";
-import { CreateTaskDTO, TaskType, TaskViewDTO } from "@/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { Frequency } from "@prisma/client";
 import { CaretSortIcon, CheckIcon } from "@radix-ui/react-icons";
 import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
-import { DeviceDTO } from "@/dtos/devices/device.dto";
-import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
-import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
+import { DeviceDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
+import { DeviceApiService } from "@/src/infrastructure/api/services/devices/DeviceApiService";
+import { TaskApiService } from "@/src/infrastructure/api/services/tasks/TaskApiService";
 
 
 interface CreateTaskFormProps {

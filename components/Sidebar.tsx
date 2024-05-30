@@ -47,7 +47,7 @@ export default function Sidebar() {
           <li className="px-8 py-4">
             <Link className="flex items-center space-x-2 hover:text-white hover:font-semibold hover:text-xl" href="/register">
               <i className="fas fa-user-plus"></i>
-              <span className="text-lg">Register User</span>
+              <span className="text-lg">Register Operator</span>
             </Link>
           </li>
           <li className="px-8 py-4">
