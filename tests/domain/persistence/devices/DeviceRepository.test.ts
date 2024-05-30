@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import { Device, Prisma, PrismaClient, Status } from "@prisma/client";
+import { Device, PrismaClient, Status } from "@prisma/client";
 import { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 import { CreateDeviceDTO, UpdateDeviceDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
 
@@ -79,26 +79,26 @@ describe("DeviceRepository", () => {
   describe("create", () => {
     it("should create a new device", async () => {
       // Arrange.
-      const deviceToCreate: Prisma.DeviceCreateInput = {
+      const deviceToCreate: CreateDeviceDTO = {
         name: "MK342858-223MD",
         ratedPower: 100,
-        installationDate: new Date(),
+        installationDate: new Date().toISOString(),
         status: Status.IDLE,
         observations: "Observation 1",
-        lastMaintenance: new Date(),
+        lastMaintenance: new Date().toISOString(),
       };
 
       // Act.
       const createdDevice = await deviceRepository.create(deviceToCreate);
 
       // Assert.
-      expect(createdDevice).toMatchObject(deviceToCreate);
+      expect(createdDevice).toMatchObject({ ...deviceToCreate, installationDate: new Date(deviceToCreate.installationDate), lastMaintenance: new Date(deviceToCreate.lastMaintenance!) });
       expect(createdDevice).toHaveProperty("id");
       expect(typeof createdDevice.id).toBe("string");
 
       const foundDevice = await prisma.device.findUnique({ where: { id: createdDevice.id } });
       expect(foundDevice).not.toBeNull();
-      expect(foundDevice).toMatchObject(deviceToCreate);
+      expect(foundDevice).toMatchObject({ ...deviceToCreate, installationDate: new Date(deviceToCreate.installationDate), lastMaintenance: new Date(deviceToCreate.lastMaintenance!) });
     });
   });
 

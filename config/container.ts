@@ -2,6 +2,7 @@ import "reflect-metadata";
 import { container } from "tsyringe";
 import { DeviceRepository } from "../src/domain/persistence/devices/DeviceRepository";
 import DeviceService from "@/src/domain/services/devices/DeviceService";
+import OperatorService from "@/src/domain/services/operators/OperatorService";
 import PrismaMonitorizeConsumptionTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMonitorizeConsumptionTaskRepository";
 import PrismaMaintenanceDeviceTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMaintenanceDeviceTaskRepository";
 import GenerateAnomaliesReportTaskService from "@/src/domain/services/tasks/GenerateAnomaliesReportTaskService";
@@ -13,6 +14,7 @@ import { GenerateAnomaliesReportTaskRepository } from "@/src/domain/persistence/
 import PrismaDeviceRepository from "@/src/infrastructure/prisma/devices/PrismaDeviceRepository";
 import PrismaGenerateAnomaliesReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateAnomaliesReportTaskRepository";
 import PrismaGenerateConsumptionReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateConsumptionReportTaskRepository";
+import PrismaOperatorRepository from "@/src/infrastructure/prisma/operators/PrismaOperatorRepository";
 
 // Register repositories.
 container.registerSingleton<DeviceRepository>("DeviceRepository", PrismaDeviceRepository);
@@ -24,6 +26,8 @@ container.registerSingleton<PrismaMonitorizeConsumptionTaskRepository>(
   "MonitorizeConsumptionTaskRepository", PrismaMonitorizeConsumptionTaskRepository);
 container.registerSingleton<PrismaMaintenanceDeviceTaskRepository>(
   "MaintenanceDeviceTaskRepository", PrismaMaintenanceDeviceTaskRepository);
+container.registerSingleton<PrismaOperatorRepository>(
+  "OperatorRepository", PrismaOperatorRepository);
 
 // Register services.
 container.registerSingleton(DeviceService);
@@ -32,3 +36,4 @@ container.registerSingleton(GenerateConsumptionReportTaskService);
 container.registerSingleton(MaintenanceDeviceTaskService);
 container.registerSingleton(MonitorizeConsumptionTaskService);
 container.registerSingleton(BaseTaskService);
+container.registerSingleton(OperatorService);
