@@ -27,7 +27,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import CreateTaskForm from "./CreateTaskForm";
-import { TaskType, TaskViewDTO } from "@/dtos/tasks/task.dto";
+import { TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 
 export default function CreateTaskDialog({ onTaskCreated }: { onTaskCreated: (task: TaskViewDTO) => void }) {
   const taskTypes = [

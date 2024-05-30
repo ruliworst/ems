@@ -1,18 +1,18 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { DeviceRepository } from "../ports/devices/DeviceRepository";
-import PrismaDeviceRepository from "@/adapters/repositories/devices/PrismaDeviceRepository";
-import DeviceService from "@/application/services/devices/DeviceService";
-import { GenerateAnomaliesReportTaskRepository } from "@/ports/tasks/GenerateAnomaliesReportTaskRepository";
-import PrismaGenerateAnomaliesReportTaskRepository from "@/adapters/repositories/tasks/PrismaGenerateAnomaliesReportTaskRepository";
-import PrismaGenerateConsumptionReportTaskRepository from "@/adapters/repositories/tasks/PrismaGenerateConsumptionReportTaskRepository";
-import PrismaMonitorizeConsumptionTaskRepository from "@/adapters/repositories/tasks/PrismaMonitorizeConsumptionTaskRepository";
-import PrismaMaintenanceDeviceTaskRepository from "@/adapters/repositories/tasks/PrismaMaintenanceDeviceTaskRepository";
-import GenerateAnomaliesReportTaskService from "@/application/services/tasks/GenerateAnomaliesReportTaskService";
-import GenerateConsumptionReportTaskService from "@/application/services/tasks/GenerateConsumptionReportTaskService";
-import MaintenanceDeviceTaskService from "@/application/services/tasks/MaintenanceDeviceTaskService";
-import MonitorizeConsumptionTaskService from "@/application/services/tasks/MonitorizeConsumptionTaskService";
-import BaseTaskService from "@/application/services/tasks/BaseTaskService";
+import { DeviceRepository } from "../src/domain/persistence/devices/DeviceRepository";
+import DeviceService from "@/src/domain/services/devices/DeviceService";
+import PrismaMonitorizeConsumptionTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMonitorizeConsumptionTaskRepository";
+import PrismaMaintenanceDeviceTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMaintenanceDeviceTaskRepository";
+import GenerateAnomaliesReportTaskService from "@/src/domain/services/tasks/GenerateAnomaliesReportTaskService";
+import GenerateConsumptionReportTaskService from "@/src/domain/services/tasks/GenerateConsumptionReportTaskService";
+import MaintenanceDeviceTaskService from "@/src/domain/services/tasks/MaintenanceDeviceTaskService";
+import MonitorizeConsumptionTaskService from "@/src/domain/services/tasks/MonitorizeConsumptionTaskService";
+import BaseTaskService from "@/src/domain/services/tasks/BaseTaskService";
+import { GenerateAnomaliesReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateAnomaliesReportTaskRepository";
+import PrismaDeviceRepository from "@/src/infrastructure/prisma/devices/PrismaDeviceRepository";
+import PrismaGenerateAnomaliesReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateAnomaliesReportTaskRepository";
+import PrismaGenerateConsumptionReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateConsumptionReportTaskRepository";
 
 // Register repositories.
 container.registerSingleton<DeviceRepository>("DeviceRepository", PrismaDeviceRepository);

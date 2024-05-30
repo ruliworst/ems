@@ -11,8 +11,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { TaskType, TaskViewDTO } from "@/dtos/tasks/task.dto";
-import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
+import { TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { TaskApiService } from "@/src/infrastructure/api/tasks/TaskApiService";
 import { v4 as uuidv4 } from "uuid";
 import CreateTaskDialog from "@/components/CreateTaskDialog";
 

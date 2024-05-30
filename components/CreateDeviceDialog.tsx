@@ -25,7 +25,7 @@ import {
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
 import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
-import { CreateDeviceDTO, DeviceDTO } from "@/dtos/devices/device.dto";
+import { CreateDeviceDTO, DeviceDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast";
 

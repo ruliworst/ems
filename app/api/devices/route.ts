@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import DeviceService from "@/application/services/devices/DeviceService";
+import DeviceService from "@/src/domain/services/devices/DeviceService";
 import { NextRequest, NextResponse } from "next/server";
-import { CreateDeviceDTO, DeviceDTO } from "@/dtos/devices/device.dto";
+import { CreateDeviceDTO, DeviceDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
 import { DeviceEntity } from "@/domain/model/Device";
 
 export async function GET() {
