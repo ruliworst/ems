@@ -114,6 +114,7 @@ model EnergyConsumptionRecord {
 // Tasks.
 model MonitorizeConsumptionTask {
   id           String      @id @default(uuid())
+  publicId     String   @unique @default(uuid())
   startDate    DateTime
   endDate      DateTime?
   frequency    Frequency
@@ -128,6 +129,7 @@ model MonitorizeConsumptionTask {
 
 model GenerateConsumptionReportTask {
   id              String      @id @default(uuid())
+  publicId        String   @unique @default(uuid())
   startDate       DateTime
   endDate         DateTime?
   frequency       Frequency
@@ -144,6 +146,7 @@ model GenerateConsumptionReportTask {
 
 model GenerateAnomaliesReportTask {
   id              String      @id @default(uuid())
+  publicId        String   @unique @default(uuid())
   startDate       DateTime
   endDate         DateTime?
   frequency       Frequency
@@ -161,6 +164,7 @@ model GenerateAnomaliesReportTask {
 
 model MaintenanceDeviceTask {
   id           String      @id @default(uuid())
+  publicId     String   @unique @default(uuid())
   startDate    DateTime
   endDate      DateTime?
   frequency    Frequency
