@@ -1,13 +1,17 @@
+import { inject, injectable } from "tsyringe";
+import "@/config/container";
+import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 import { GenerateConsumptionReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateConsumptionReportTaskRepository";
 import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
-import { GenerateConsumptionReportTask, PrismaClient } from "@prisma/client";
-import { injectable } from "tsyringe";
+import { GenerateConsumptionReportTask, Operator, PrismaClient, Supervisor } from "@prisma/client";
 
 @injectable()
 export default class PrismaGenerateConsumptionReportTaskRepository implements GenerateConsumptionReportTaskRepository {
   private prisma: PrismaClient;
 
-  constructor() {
+  constructor(
+    @inject("DeviceRepository") private deviceRepository: DeviceRepository
+  ) {
     this.prisma = new PrismaClient();
   }
 
@@ -32,7 +36,17 @@ export default class PrismaGenerateConsumptionReportTaskRepository implements Ge
     try {
       await this.connect();
 
-      // TODO: Include device and operator references.
+      const operator: Operator | null = await this.prisma.operator.findUnique({ where: { email: operatorEmail! } });
+      const supervisor: Supervisor | null = await this.prisma.supervisor.findUnique({ where: { email: operatorEmail! } });
+      if (!operator && !supervisor) {
+        throw new Error(`Due to the operator or supervisor with email: ${operatorEmail} was not found, the task can not be created.`);
+      }
+
+      const device = await this.deviceRepository.getByName(deviceName);
+      if (!device) {
+        throw new Error(`Due to the device with name: ${deviceName} was not found, the task can not be created.`);
+      }
+
       return await this.prisma.generateConsumptionReportTask.create({
         data: {
           startDate,
@@ -41,11 +55,27 @@ export default class PrismaGenerateConsumptionReportTaskRepository implements Ge
           endReportDate: endReportDate!,
           title: title!,
           frequency,
-          deviceId: "1",
-          operatorId: "2",
-          supervisorId: null
+          deviceId: device.id,
+          operatorId: operator ? operator.id : null,
+          supervisorId: supervisor ? supervisor.id : null,
         }
       });
+    } finally {
+      this.disconnect();
+    }
+  }
+
+  async getTaskByPublicId(publicId: string): Promise<GenerateConsumptionReportTask | null> {
+    try {
+      await this.connect();
+      const task = await this.prisma.generateConsumptionReportTask.findUnique({
+        where: {
+          publicId,
+        },
+      });
+      return task;
+    } catch (error) {
+      return null;
     } finally {
       this.disconnect();
     }

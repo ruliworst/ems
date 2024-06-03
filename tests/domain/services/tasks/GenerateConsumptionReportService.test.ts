@@ -14,6 +14,8 @@ describe("GenerateConsumptionReportTaskService", () => {
 
   const firstTaskId = uuidv4();
   const secondTaskId = uuidv4();
+  const firstTaskPublicId = uuidv4();
+  const secondTaskPublicId = uuidv4();
 
   const mockTasks: GenerateConsumptionReportTask[] = [
     {
@@ -26,7 +28,8 @@ describe("GenerateConsumptionReportTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: firstTaskPublicId,
     },
     {
       id: secondTaskId,
@@ -38,7 +41,8 @@ describe("GenerateConsumptionReportTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: secondTaskPublicId,
     }
   ];
 
@@ -53,7 +57,8 @@ describe("GenerateConsumptionReportTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: firstTaskPublicId,
     }),
     new GenerateConsumptionReportTaskEntity({
       id: secondTaskId,
@@ -65,7 +70,8 @@ describe("GenerateConsumptionReportTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: secondTaskPublicId,
     })
   ];
 
@@ -83,6 +89,7 @@ describe("GenerateConsumptionReportTaskService", () => {
   };
 
   const id = uuidv4();
+  const publicId = uuidv4();
   const createdTask: GenerateConsumptionReportTask = {
     ...createTaskDTO,
     id: id,
@@ -93,13 +100,15 @@ describe("GenerateConsumptionReportTaskService", () => {
     title: createTaskDTO.title!,
     deviceId: "1",
     operatorId: "2",
-    supervisorId: null
+    supervisorId: null,
+    publicId
   };
 
   beforeEach(() => {
     tasksRepository = {
       getAll: jest.fn().mockResolvedValue(mockTasks),
       create: jest.fn().mockResolvedValue(createdTask),
+      getTaskByPublicId: jest.fn().mockResolvedValue(mockTaskEntities[0]),
     };
 
     container.registerInstance("GenerateConsumptionReportTaskRepository", tasksRepository);
@@ -117,5 +126,12 @@ describe("GenerateConsumptionReportTaskService", () => {
     const expectedTaskEntity = new GenerateConsumptionReportTaskEntity({ ...createdTask, id });
 
     expect(result).toEqual(expectedTaskEntity);
+  });
+
+  it("should fetch a task by public ID", async () => {
+    const taskEntity = new GenerateConsumptionReportTaskEntity(mockTasks[0]);
+    const result = await service.getTaskByPublicId(firstTaskPublicId);
+
+    expect(result).toEqual(taskEntity);
   });
 });

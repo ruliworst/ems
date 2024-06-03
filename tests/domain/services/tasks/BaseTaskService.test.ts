@@ -29,7 +29,8 @@ describe("BaseTaskService", () => {
       deviceId: "1",
       operatorId: "2",
       frequency: Frequency.DAILY,
-      supervisorId: null
+      supervisorId: null,
+      publicId: uuidv4()
     }
   ];
 
@@ -44,7 +45,8 @@ describe("BaseTaskService", () => {
       deviceId: "1",
       operatorId: "2",
       frequency: Frequency.DAILY,
-      supervisorId: null
+      supervisorId: null,
+      publicId: uuidv4()
     }
   ];
 
@@ -56,7 +58,8 @@ describe("BaseTaskService", () => {
       deviceId: "1",
       operatorId: "2",
       frequency: Frequency.DAILY,
-      supervisorId: null
+      supervisorId: null,
+      publicId: uuidv4()
     }
   ];
 
@@ -69,7 +72,8 @@ describe("BaseTaskService", () => {
       deviceId: "1",
       operatorId: "2",
       frequency: Frequency.DAILY,
-      supervisorId: null
+      supervisorId: null,
+      publicId: uuidv4()
     }
   ];
 
@@ -78,25 +82,29 @@ describe("BaseTaskService", () => {
       startDate: "Wed May 01 2024",
       endDate: "Fri May 10 2024",
       frequency: Frequency.DAILY,
-      type: TaskType.GENERATE_ANOMALIES_REPORT
+      type: TaskType.GENERATE_ANOMALIES_REPORT,
+      publicId: mockAnomaliesReportTasks[0].publicId
     },
     {
       startDate: "Wed May 01 2024",
       endDate: "Fri May 10 2024",
       frequency: Frequency.DAILY,
-      type: TaskType.GENERATE_CONSUMPTION_REPORT
+      type: TaskType.GENERATE_CONSUMPTION_REPORT,
+      publicId: mockConsumptionReportTasks[0].publicId
     },
     {
       startDate: "Wed May 01 2024",
       endDate: "Fri May 10 2024",
       frequency: Frequency.DAILY,
-      type: TaskType.MAINTENANCE_DEVICE
+      type: TaskType.MAINTENANCE_DEVICE,
+      publicId: mockMaintenanceDeviceTasks[0].publicId
     },
     {
       startDate: "Wed May 01 2024",
       endDate: "Fri May 10 2024",
       frequency: Frequency.DAILY,
-      type: TaskType.MONITORIZE_CONSUMPTION
+      type: TaskType.MONITORIZE_CONSUMPTION,
+      publicId: mockMonitorizeConsumptionTasks[0].publicId
     }
   ];
 
@@ -156,7 +164,8 @@ describe("BaseTaskService", () => {
       threshold: createTaskDTO.threshold!,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: expect.any(String)
     };
 
     const generateAnomaliesReportTaskRepository = {
@@ -173,7 +182,8 @@ describe("BaseTaskService", () => {
       startDate: "Wed May 01 2024",
       endDate: "Fri May 10 2024",
       frequency: Frequency.DAILY,
-      type: TaskType.GENERATE_ANOMALIES_REPORT
+      type: TaskType.GENERATE_ANOMALIES_REPORT,
+      publicId: expect.any(String)
     };
 
     expect(result).toEqual(expectedTaskView);
@@ -205,7 +215,8 @@ describe("BaseTaskService", () => {
       threshold: createTaskDTO.threshold!,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: expect.any(String)
     };
 
     const anomaliesReportTaskRepository = {
@@ -221,7 +232,8 @@ describe("BaseTaskService", () => {
       startDate: "Sat Jun 01 2024",
       endDate: "Mon Jun 10 2024",
       frequency: Frequency.DAILY,
-      type: TaskType.GENERATE_CONSUMPTION_REPORT
+      type: TaskType.GENERATE_CONSUMPTION_REPORT,
+      publicId: expect.any(String)
     };
 
     expect(result).toEqual(expectedTaskView);
@@ -249,7 +261,8 @@ describe("BaseTaskService", () => {
       endDate: new Date(createTaskDTO.endDate!),
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: expect.any(String)
     };
 
     const maintenanceDeviceTaskRepository = {
@@ -265,7 +278,8 @@ describe("BaseTaskService", () => {
       startDate: "Wed May 01 2024",
       endDate: "Fri May 10 2024",
       frequency: Frequency.DAILY,
-      type: TaskType.MAINTENANCE_DEVICE
+      type: TaskType.MAINTENANCE_DEVICE,
+      publicId: expect.any(String)
     };
 
     expect(result).toEqual(expectedTaskView);
@@ -294,7 +308,8 @@ describe("BaseTaskService", () => {
       threshold: createTaskDTO.threshold!,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: expect.any(String)
     };
 
     const monitorizeConsumptionTaskRepository = {
@@ -310,7 +325,8 @@ describe("BaseTaskService", () => {
       startDate: "Wed May 01 2024",
       endDate: "Fri May 10 2024",
       frequency: Frequency.DAILY,
-      type: TaskType.MONITORIZE_CONSUMPTION
+      type: TaskType.MONITORIZE_CONSUMPTION,
+      publicId: expect.any(String)
     };
 
     expect(result).toEqual(expectedTaskView);
@@ -342,4 +358,6 @@ describe("BaseTaskService", () => {
 
     await expect(baseTaskService.create(createTaskDTO)).rejects.toThrow("Error creating task");
   });
+
+
 });

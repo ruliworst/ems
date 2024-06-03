@@ -1,3 +1,4 @@
+import { TaskDTO } from "../../api/dtos/tasks/task.dto";
 import { Task, TaskAttributes } from "./Task";
 
 export interface GenerateReportTaskAttributes extends TaskAttributes {
@@ -21,11 +22,21 @@ export abstract class GenerateReportTask extends Task {
     title,
     deviceId,
     operatorId,
-    supervisorId
+    supervisorId,
+    publicId
   }: GenerateReportTaskAttributes) {
-    super({ id, startDate, endDate, frequency, deviceId, operatorId, supervisorId });
+    super({ id, startDate, endDate, frequency, deviceId, operatorId, supervisorId, publicId });
     this.startReportDate = startReportDate;
     this.endReportDate = endReportDate;
     this.title = title;
+  }
+
+  getTaskDTO(): TaskDTO {
+    return {
+      ...super.getTaskDTO(),
+      startReportDate: this.startReportDate.toDateString(),
+      endReportDate: this.endReportDate.toDateString(),
+      title: this.title,
+    }
   }
 }

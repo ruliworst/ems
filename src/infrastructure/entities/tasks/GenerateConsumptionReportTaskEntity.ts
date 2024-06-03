@@ -1,5 +1,5 @@
 import { GenerateReportTask } from "./GenerateReportTask";
-import { TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { TaskAttributes } from "./Task";
 
 interface GenerateReportTaskAttributes extends TaskAttributes {
@@ -19,9 +19,10 @@ export class GenerateConsumptionReportTaskEntity extends GenerateReportTask {
     title,
     deviceId,
     operatorId,
-    supervisorId
+    supervisorId,
+    publicId
   }: GenerateReportTaskAttributes) {
-    super({ id, startDate, endDate, frequency, startReportDate, endReportDate, title, deviceId, operatorId, supervisorId });
+    super({ id, startDate, endDate, frequency, startReportDate, endReportDate, title, deviceId, operatorId, supervisorId, publicId });
   }
 
   getTaskView(): TaskViewDTO {

@@ -14,6 +14,8 @@ describe("GenerateAnomaliesReportTaskService", () => {
 
   const firstTaskId = uuidv4();
   const secondTaskId = uuidv4();
+  const firstTaskPublicId = uuidv4();
+  const secondTaskPublicId = uuidv4();
 
   const mockTasks: GenerateAnomaliesReportTask[] = [
     {
@@ -27,7 +29,8 @@ describe("GenerateAnomaliesReportTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: firstTaskPublicId,
     },
     {
       id: secondTaskId,
@@ -40,7 +43,8 @@ describe("GenerateAnomaliesReportTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: secondTaskPublicId,
     }
   ];
 
@@ -56,7 +60,8 @@ describe("GenerateAnomaliesReportTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: firstTaskPublicId
     }),
     new GenerateAnomaliesReportTaskEntity({
       id: secondTaskId,
@@ -69,7 +74,8 @@ describe("GenerateAnomaliesReportTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: secondTaskPublicId
     })
   ];
 
@@ -87,6 +93,7 @@ describe("GenerateAnomaliesReportTaskService", () => {
   };
 
   const id = uuidv4();
+  const publicId = uuidv4();
   const createdTask: GenerateAnomaliesReportTask = {
     ...createTaskDTO,
     id: id,
@@ -98,13 +105,15 @@ describe("GenerateAnomaliesReportTaskService", () => {
     threshold: createTaskDTO.threshold!,
     deviceId: "1",
     operatorId: "2",
-    supervisorId: null
+    supervisorId: null,
+    publicId
   };
 
   beforeEach(() => {
     tasksRepository = {
       getAll: jest.fn().mockResolvedValue(mockTasks),
       create: jest.fn().mockResolvedValue(createdTask),
+      getTaskByPublicId: jest.fn().mockResolvedValue(mockTaskEntities[0]),
     } as jest.Mocked<GenerateAnomaliesReportTaskRepository>;
 
     container.registerInstance("GenerateAnomaliesReportTaskRepository", tasksRepository);
@@ -122,5 +131,12 @@ describe("GenerateAnomaliesReportTaskService", () => {
     const expectedTaskEntity = new GenerateAnomaliesReportTaskEntity({ ...createdTask, id });
 
     expect(result).toEqual(expectedTaskEntity);
+  });
+
+  it("should fetch a task by public ID", async () => {
+    const taskEntity = new GenerateAnomaliesReportTaskEntity(mockTasks[0]);
+    const result = await service.getTaskByPublicId(firstTaskPublicId);
+
+    expect(result).toEqual(taskEntity);
   });
 });

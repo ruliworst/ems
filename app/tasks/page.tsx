@@ -23,7 +23,7 @@ export default function TasksView() {
   const [tasks, setTasks] = useState<TaskViewDTO[]>([]);
 
   useEffect(() => {
-    async function loadDevices() {
+    async function loadTasks() {
       try {
         const allTasks = await TaskApiService.fetchAll();
         setTasks(allTasks);
@@ -32,7 +32,7 @@ export default function TasksView() {
       }
     }
 
-    loadDevices();
+    loadTasks();
   }, []);
 
   function getTypeAsString(type: TaskType): string {
@@ -90,7 +90,7 @@ export default function TasksView() {
                   <TableCell>{task.endDate}</TableCell>
                   <TableCell>{task.frequency}</TableCell>
                   <TableCell>
-                    <a href={`/tasks`}>
+                    <a href={`/tasks/${task.publicId}`}>
                       <Button variant="secondary" className="hover:bg-gray-300"><i className="fa-solid fa-eye text-md"></i></Button>
                     </a>
                   </TableCell>

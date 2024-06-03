@@ -14,6 +14,8 @@ describe("MaintenanceDeviceTaskService", () => {
 
   const firstTaskId = uuidv4();
   const secondTaskId = uuidv4();
+  const firstTaskPublicId = uuidv4();
+  const secondTaskPublicId = uuidv4();
 
   const mockTasks: MaintenanceDeviceTask[] = [
     {
@@ -23,7 +25,8 @@ describe("MaintenanceDeviceTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: firstTaskPublicId
     },
     {
       id: secondTaskId,
@@ -32,7 +35,8 @@ describe("MaintenanceDeviceTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: secondTaskPublicId
     }
   ];
 
@@ -44,7 +48,8 @@ describe("MaintenanceDeviceTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: firstTaskPublicId
     }),
     new MaintenanceDeviceTaskEntity({
       id: secondTaskId,
@@ -53,7 +58,8 @@ describe("MaintenanceDeviceTaskService", () => {
       frequency: Frequency.DAILY,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: secondTaskPublicId
     })
   ];
 
@@ -71,6 +77,7 @@ describe("MaintenanceDeviceTaskService", () => {
   };
 
   const id = uuidv4();
+  const publicId = uuidv4();
   const createdTask: MaintenanceDeviceTask = {
     ...createTaskDTO,
     id: id,
@@ -78,13 +85,15 @@ describe("MaintenanceDeviceTaskService", () => {
     endDate: new Date(createTaskDTO.endDate!),
     deviceId: "1",
     operatorId: "2",
-    supervisorId: null
+    supervisorId: null,
+    publicId
   };
 
   beforeEach(() => {
     tasksRepository = {
       getAll: jest.fn().mockResolvedValue(mockTasks),
       create: jest.fn().mockResolvedValue(createdTask),
+      getTaskByPublicId: jest.fn().mockResolvedValue(mockTaskEntities[0]),
     };
 
     container.registerInstance("MaintenanceDeviceTaskRepository", tasksRepository);
@@ -102,5 +111,12 @@ describe("MaintenanceDeviceTaskService", () => {
     const expectedTaskEntity = new MaintenanceDeviceTaskEntity({ ...createdTask, id });
 
     expect(result).toEqual(expectedTaskEntity);
+  });
+
+  it("should fetch a task by public ID", async () => {
+    const taskEntity = new MaintenanceDeviceTaskEntity(mockTasks[0]);
+    const result = await service.getTaskByPublicId(firstTaskPublicId);
+
+    expect(result).toEqual(taskEntity);
   });
 });

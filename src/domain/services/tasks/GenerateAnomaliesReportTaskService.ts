@@ -15,19 +15,7 @@ class GenerateAnomaliesReportTaskService {
   async getAll(): Promise<GenerateAnomaliesReportTaskEntity[]> {
     const tasks: GenerateAnomaliesReportTask[] = await this.tasksRepository.getAll();
 
-    return tasks.map<GenerateAnomaliesReportTaskEntity>(task => new GenerateAnomaliesReportTaskEntity({
-      id: task.id,
-      startDate: task.startDate,
-      endDate: task.endDate,
-      startReportDate: task.startReportDate,
-      endReportDate: task.endReportDate,
-      title: task.title,
-      threshold: task.threshold,
-      frequency: task.frequency,
-      deviceId: task.deviceId,
-      operatorId: task.operatorId || null,
-      supervisorId: task.supervisorId || null
-    }));
+    return tasks.map<GenerateAnomaliesReportTaskEntity>(task => new GenerateAnomaliesReportTaskEntity(task));
   };
 
   async create(createTaskDTO: CreateTaskDTO): Promise<GenerateAnomaliesReportTaskEntity> {
@@ -39,6 +27,12 @@ class GenerateAnomaliesReportTaskService {
       throw error;
     }
   };
+
+  async getTaskByPublicId(publicId: string): Promise<GenerateAnomaliesReportTaskEntity | null> {
+    const task = await this.tasksRepository.getTaskByPublicId(publicId);
+    if (!task) return null;
+    return new GenerateAnomaliesReportTaskEntity(task);
+  }
 }
 
 export default GenerateAnomaliesReportTaskService;
