@@ -1,19 +1,17 @@
 import { inject, injectable } from "tsyringe";
 import "@/config/container";
-import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
-
 import { MaintenanceDeviceTaskRepository } from "@/src/domain/persistence/tasks/MaintenanceDeviceTaskRepository";
 import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
-import { PrismaClient, MaintenanceDeviceTask, Operator, Supervisor } from "@prisma/client";
+import { MaintenanceDeviceTask } from "@prisma/client";
+import PrismaTaskRepository from "./PrismaTaskRepository";
+import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 
 @injectable()
-export default class PrismaMaintenanceDeviceTaskRepository implements MaintenanceDeviceTaskRepository {
-  private prisma: PrismaClient;
-
+export default class PrismaMaintenanceDeviceTaskRepository extends PrismaTaskRepository<MaintenanceDeviceTask> implements MaintenanceDeviceTaskRepository {
   constructor(
-    @inject("DeviceRepository") private deviceRepository: DeviceRepository
+    @inject("DeviceRepository") deviceRepository: DeviceRepository
   ) {
-    this.prisma = new PrismaClient();
+    super(deviceRepository);
   }
 
   async getTaskByPublicId(publicId: string): Promise<MaintenanceDeviceTask | null> {
@@ -44,16 +42,8 @@ export default class PrismaMaintenanceDeviceTaskRepository implements Maintenanc
     try {
       await this.connect();
 
-      const operator: Operator | null = await this.prisma.operator.findUnique({ where: { email: operatorEmail! } });
-      const supervisor: Supervisor | null = await this.prisma.supervisor.findUnique({ where: { email: operatorEmail! } });
-      if (!operator && !supervisor) {
-        throw new Error(`Due to the operator or supervisor with email: ${operatorEmail} was not found, the task can not be created.`);
-      }
-
-      const device = await this.deviceRepository.getByName(deviceName);
-      if (!device) {
-        throw new Error(`Due to the device with name: ${deviceName} was not found, the task can not be created.`);
-      }
+      const { operator, supervisor } = await this.getOperatorAndSupervisor(operatorEmail!);
+      const device = await this.getDevice(deviceName);
 
       return await this.prisma.maintenanceDeviceTask.create({
         data: {
@@ -70,7 +60,6 @@ export default class PrismaMaintenanceDeviceTaskRepository implements Maintenanc
     }
   }
 
-
   async getAll(): Promise<MaintenanceDeviceTask[]> {
     try {
       await this.connect();
@@ -78,13 +67,5 @@ export default class PrismaMaintenanceDeviceTaskRepository implements Maintenanc
     } finally {
       this.disconnect();
     }
-  }
-
-  async connect(): Promise<void> {
-    await this.prisma.$connect();
-  }
-
-  async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
   }
 }

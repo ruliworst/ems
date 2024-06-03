@@ -1,18 +1,17 @@
 import { inject, injectable } from "tsyringe";
 import "@/config/container";
-import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 import { MonitorizeConsumptionTaskRepository } from "@/src/domain/persistence/tasks/MonitorizeConsumptionTaskRepository";
 import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
-import { PrismaClient, MonitorizeConsumptionTask, Operator, Supervisor } from "@prisma/client";
+import { MonitorizeConsumptionTask } from "@prisma/client";
+import PrismaTaskRepository from "./PrismaTaskRepository";
+import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 
 @injectable()
-export default class PrismaMonitorizeConsumptionTaskRepository implements MonitorizeConsumptionTaskRepository {
-  private prisma: PrismaClient;
-
+export default class PrismaMonitorizeConsumptionTaskRepository extends PrismaTaskRepository<MonitorizeConsumptionTask> implements MonitorizeConsumptionTaskRepository {
   constructor(
-    @inject("DeviceRepository") private deviceRepository: DeviceRepository
+    @inject("DeviceRepository") deviceRepository: DeviceRepository
   ) {
-    this.prisma = new PrismaClient();
+    super(deviceRepository);
   }
 
   async getTaskByPublicId(publicId: string): Promise<MonitorizeConsumptionTask | null> {
@@ -32,7 +31,7 @@ export default class PrismaMonitorizeConsumptionTaskRepository implements Monito
   }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<MonitorizeConsumptionTask> {
-    if (createTaskDTO.threshold === undefined || null) {
+    if (createTaskDTO.threshold === undefined || createTaskDTO.threshold === null) {
       throw new Error("Some values are not valid.");
     }
 
@@ -48,16 +47,8 @@ export default class PrismaMonitorizeConsumptionTaskRepository implements Monito
     try {
       await this.connect();
 
-      const operator: Operator | null = await this.prisma.operator.findUnique({ where: { email: operatorEmail! } });
-      const supervisor: Supervisor | null = await this.prisma.supervisor.findUnique({ where: { email: operatorEmail! } });
-      if (!operator && !supervisor) {
-        throw new Error(`Due to the operator or supervisor with email: ${operatorEmail} was not found, the task can not be created.`);
-      }
-
-      const device = await this.deviceRepository.getByName(deviceName);
-      if (!device) {
-        throw new Error(`Due to the device with name: ${deviceName} was not found, the task can not be created.`);
-      }
+      const { operator, supervisor } = await this.getOperatorAndSupervisor(operatorEmail!);
+      const device = await this.getDevice(deviceName);
 
       return await this.prisma.monitorizeConsumptionTask.create({
         data: {
@@ -82,13 +73,5 @@ export default class PrismaMonitorizeConsumptionTaskRepository implements Monito
     } finally {
       this.disconnect();
     }
-  }
-
-  async connect(): Promise<void> {
-    await this.prisma.$connect();
-  }
-
-  async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
   }
 }

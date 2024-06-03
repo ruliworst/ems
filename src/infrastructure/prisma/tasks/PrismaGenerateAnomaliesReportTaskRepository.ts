@@ -1,18 +1,17 @@
 import { inject, injectable } from "tsyringe";
 import "@/config/container";
-import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 import { GenerateAnomaliesReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateAnomaliesReportTaskRepository";
 import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
-import { PrismaClient, GenerateAnomaliesReportTask, Operator, Supervisor } from "@prisma/client";
+import { GenerateAnomaliesReportTask } from "@prisma/client";
+import PrismaTaskRepository from "./PrismaTaskRepository";
+import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 
 @injectable()
-export default class PrismaGenerateAnomaliesReportTaskRepository implements GenerateAnomaliesReportTaskRepository {
-  private prisma: PrismaClient;
-
+export default class PrismaGenerateAnomaliesReportTaskRepository extends PrismaTaskRepository<GenerateAnomaliesReportTask> implements GenerateAnomaliesReportTaskRepository {
   constructor(
-    @inject("DeviceRepository") private deviceRepository: DeviceRepository
+    @inject("DeviceRepository") deviceRepository: DeviceRepository
   ) {
-    this.prisma = new PrismaClient();
+    super(deviceRepository);
   }
 
   async getTaskByPublicId(publicId: string): Promise<GenerateAnomaliesReportTask | null> {
@@ -63,16 +62,8 @@ export default class PrismaGenerateAnomaliesReportTaskRepository implements Gene
     try {
       await this.connect();
 
-      const operator: Operator | null = await this.prisma.operator.findUnique({ where: { email: operatorEmail! } });
-      const supervisor: Supervisor | null = await this.prisma.supervisor.findUnique({ where: { email: operatorEmail! } });
-      if (!operator && !supervisor) {
-        throw new Error(`Due to the operator or supervisor with email: ${operatorEmail} was not found, the task can not be created.`);
-      }
-
-      const device = await this.deviceRepository.getByName(deviceName);
-      if (!device) {
-        throw new Error(`Due to the device with name: ${deviceName} was not found, the task can not be created.`);
-      }
+      const { operator, supervisor } = await this.getOperatorAndSupervisor(operatorEmail!);
+      const device = await this.getDevice(deviceName);
 
       return await this.prisma.generateAnomaliesReportTask.create({
         data: {
@@ -91,13 +82,5 @@ export default class PrismaGenerateAnomaliesReportTaskRepository implements Gene
     } finally {
       this.disconnect();
     }
-  }
-
-  async connect(): Promise<void> {
-    await this.prisma.$connect();
-  }
-
-  async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
   }
 }
