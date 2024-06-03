@@ -10,6 +10,8 @@ describe("MaintenanceDeviceTaskRepository", () => {
   let maintenanceDeviceTaskRepository: PrismaMaintenanceDeviceTaskRepository;
   let prisma: PrismaClient = new PrismaClient();
 
+  const publicId = uuidv4();
+
   const tasksToCreate = [
     {
       id: uuidv4(),
@@ -19,16 +21,13 @@ describe("MaintenanceDeviceTaskRepository", () => {
       operatorId: "2",
       supervisorId: null,
       frequency: Frequency.DAILY,
+      publicId
     },
   ];
 
   beforeAll(async () => {
     maintenanceDeviceTaskRepository = container.resolve(PrismaMaintenanceDeviceTaskRepository);
     await prisma.maintenanceDeviceTask.createMany({ data: tasksToCreate });
-  });
-
-  afterEach(async () => {
-    await prisma.maintenanceDeviceTask.deleteMany();
   });
 
   describe("getAll", () => {
@@ -50,8 +49,8 @@ describe("MaintenanceDeviceTaskRepository", () => {
         title: null,
         threshold: null,
         frequency: Frequency.WEEKLY,
-        deviceName: "Device 1",
-        operatorEmail: "operator@example.com",
+        deviceName: "Device-Monitorize",
+        operatorEmail: "bob.doe@example.com",
         type: TaskType.MAINTENANCE_DEVICE,
         startReportDate: null,
         endReportDate: null
@@ -65,6 +64,24 @@ describe("MaintenanceDeviceTaskRepository", () => {
         startDate: new Date(newTask.startDate),
         endDate: new Date(newTask.endDate!),
       });
+    });
+  });
+
+  describe("getTaskByPublicId", () => {
+    it("should fetch a task by public ID", async () => {
+      // Act
+      const task = await maintenanceDeviceTaskRepository.getTaskByPublicId(publicId);
+
+      // Assert
+      expect(task).toMatchObject(tasksToCreate[0]);
+    });
+
+    it("should return null if task not found", async () => {
+      // Act
+      const task = await maintenanceDeviceTaskRepository.getTaskByPublicId("non-existent-task");
+
+      // Assert
+      expect(task).toBeNull();
     });
   });
 });

@@ -1,4 +1,4 @@
-import { TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { Task, TaskAttributes } from "./Task";
 
 interface MonitorizeConsumptionTaskAttributes extends TaskAttributes {
@@ -16,10 +16,18 @@ export class MonitorizeConsumptionTaskEntity extends Task {
     threshold,
     deviceId,
     operatorId,
-    supervisorId
+    supervisorId,
+    publicId
   }: MonitorizeConsumptionTaskAttributes) {
-    super({ id, startDate, endDate, frequency, deviceId, operatorId, supervisorId });
+    super({ id, startDate, endDate, frequency, deviceId, operatorId, supervisorId, publicId });
     this.threshold = threshold;
+  }
+
+  getTaskDTO(): TaskDTO {
+    return {
+      ...super.getTaskDTO(),
+      threshold: this.threshold,
+    }
   }
 
   getTaskView(): TaskViewDTO {

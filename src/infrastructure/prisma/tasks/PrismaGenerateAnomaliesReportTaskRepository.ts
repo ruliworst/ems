@@ -1,14 +1,33 @@
+import { inject, injectable } from "tsyringe";
+import "@/config/container";
 import { GenerateAnomaliesReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateAnomaliesReportTaskRepository";
 import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
-import { PrismaClient, GenerateAnomaliesReportTask } from "@prisma/client";
-import { injectable } from "tsyringe";
+import { GenerateAnomaliesReportTask } from "@prisma/client";
+import PrismaTaskRepository from "./PrismaTaskRepository";
+import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 
 @injectable()
-export default class PrismaGenerateAnomaliesReportTaskRepository implements GenerateAnomaliesReportTaskRepository {
-  private prisma: PrismaClient;
+export default class PrismaGenerateAnomaliesReportTaskRepository extends PrismaTaskRepository<GenerateAnomaliesReportTask> implements GenerateAnomaliesReportTaskRepository {
+  constructor(
+    @inject("DeviceRepository") deviceRepository: DeviceRepository
+  ) {
+    super(deviceRepository);
+  }
 
-  constructor() {
-    this.prisma = new PrismaClient();
+  async getTaskByPublicId(publicId: string): Promise<GenerateAnomaliesReportTask | null> {
+    try {
+      await this.connect();
+      const task = await this.prisma.generateAnomaliesReportTask.findUnique({
+        where: {
+          publicId,
+        },
+      });
+      return task;
+    } catch (error) {
+      return null;
+    } finally {
+      this.disconnect();
+    }
   }
 
   async getAll(): Promise<GenerateAnomaliesReportTask[]> {
@@ -43,7 +62,9 @@ export default class PrismaGenerateAnomaliesReportTaskRepository implements Gene
     try {
       await this.connect();
 
-      // TODO: Include device and operator references.
+      const { operator, supervisor } = await this.getOperatorAndSupervisor(operatorEmail!);
+      const device = await this.getDevice(deviceName);
+
       return await this.prisma.generateAnomaliesReportTask.create({
         data: {
           startDate,
@@ -53,21 +74,13 @@ export default class PrismaGenerateAnomaliesReportTaskRepository implements Gene
           title: title!,
           threshold: threshold!,
           frequency,
-          deviceId: "1",
-          operatorId: "2",
-          supervisorId: null
+          deviceId: device.id,
+          operatorId: operator ? operator.id : null,
+          supervisorId: supervisor ? supervisor.id : null,
         }
       });
     } finally {
       this.disconnect();
     }
-  }
-
-  async connect(): Promise<void> {
-    await this.prisma.$connect();
-  }
-
-  async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
   }
 }

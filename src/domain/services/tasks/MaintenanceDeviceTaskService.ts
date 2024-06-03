@@ -14,15 +14,7 @@ class MaintenanceDeviceTaskService {
   async getAll(): Promise<MaintenanceDeviceTaskEntity[]> {
     const tasks: MaintenanceDeviceTask[] = await this.tasksRepository.getAll();
 
-    return tasks.map<MaintenanceDeviceTaskEntity>(task => new MaintenanceDeviceTaskEntity({
-      id: task.id,
-      startDate: task.startDate,
-      endDate: task.endDate,
-      frequency: task.frequency,
-      deviceId: task.deviceId,
-      operatorId: task.operatorId || null,
-      supervisorId: task.supervisorId || null
-    }));
+    return tasks.map<MaintenanceDeviceTaskEntity>(task => new MaintenanceDeviceTaskEntity(task));
   };
 
   async create(createTaskDTO: CreateTaskDTO): Promise<MaintenanceDeviceTaskEntity> {
@@ -34,6 +26,12 @@ class MaintenanceDeviceTaskService {
       throw error;
     }
   };
+
+  async getTaskByPublicId(publicId: string): Promise<MaintenanceDeviceTaskEntity | null> {
+    const task = await this.tasksRepository.getTaskByPublicId(publicId);
+    if (!task) return null;
+    return new MaintenanceDeviceTaskEntity(task);
+  }
 }
 
 export default MaintenanceDeviceTaskService;

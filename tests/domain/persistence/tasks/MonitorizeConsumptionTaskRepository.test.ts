@@ -10,6 +10,8 @@ describe("MonitorizeConsumptionTaskRepository", () => {
   let monitorizeConsumptionTaskRepository: PrismaMonitorizeConsumptionTaskRepository;
   let prisma: PrismaClient = new PrismaClient();
 
+  const publicId = uuidv4();
+
   const tasksToCreate = [
     {
       id: uuidv4(),
@@ -20,16 +22,13 @@ describe("MonitorizeConsumptionTaskRepository", () => {
       operatorId: "2",
       supervisorId: null,
       frequency: Frequency.DAILY,
+      publicId
     },
   ];
 
   beforeAll(async () => {
     monitorizeConsumptionTaskRepository = container.resolve(PrismaMonitorizeConsumptionTaskRepository);
     await prisma.monitorizeConsumptionTask.createMany({ data: tasksToCreate });
-  });
-
-  afterEach(async () => {
-    await prisma.monitorizeConsumptionTask.deleteMany();
   });
 
   describe("getAll", () => {
@@ -51,8 +50,8 @@ describe("MonitorizeConsumptionTaskRepository", () => {
         title: "Monitorize Consumption Task 1",
         threshold: 10,
         frequency: Frequency.WEEKLY,
-        deviceName: "Device 1",
-        operatorEmail: "operator@example.com",
+        deviceName: "Device-Monitorize",
+        operatorEmail: "bob.doe@example.com",
         type: TaskType.MONITORIZE_CONSUMPTION,
         startReportDate: null,
         endReportDate: null
@@ -81,6 +80,24 @@ describe("MonitorizeConsumptionTaskRepository", () => {
       // Act & Assert
       await expect(monitorizeConsumptionTaskRepository.create(invalidTask as CreateTaskDTO))
         .rejects.toThrow("Some values are not valid.");
+    });
+  });
+
+  describe("getTaskByPublicId", () => {
+    it("should fetch a task by public ID", async () => {
+      // Act
+      const task = await monitorizeConsumptionTaskRepository.getTaskByPublicId(publicId);
+
+      // Assert
+      expect(task).toMatchObject(tasksToCreate[0]);
+    });
+
+    it("should return null if task not found", async () => {
+      // Act
+      const task = await monitorizeConsumptionTaskRepository.getTaskByPublicId("non-existent-task");
+
+      // Assert
+      expect(task).toBeNull();
     });
   });
 });

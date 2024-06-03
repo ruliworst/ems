@@ -14,16 +14,7 @@ class MonitorizeConsumptionTaskService {
   async getAll(): Promise<MonitorizeConsumptionTaskEntity[]> {
     const tasks: MonitorizeConsumptionTask[] = await this.tasksRepository.getAll();
 
-    return tasks.map<MonitorizeConsumptionTaskEntity>(task => new MonitorizeConsumptionTaskEntity({
-      id: task.id,
-      startDate: task.startDate,
-      endDate: task.endDate,
-      threshold: task.threshold,
-      frequency: task.frequency,
-      deviceId: task.deviceId,
-      operatorId: task.operatorId || null,
-      supervisorId: task.supervisorId || null
-    }));
+    return tasks.map<MonitorizeConsumptionTaskEntity>(task => new MonitorizeConsumptionTaskEntity(task));
   };
 
   async create(createTaskDTO: CreateTaskDTO): Promise<MonitorizeConsumptionTaskEntity> {
@@ -35,6 +26,12 @@ class MonitorizeConsumptionTaskService {
       throw error;
     }
   };
+
+  async getTaskByPublicId(publicId: string): Promise<MonitorizeConsumptionTaskEntity | null> {
+    const task = await this.tasksRepository.getTaskByPublicId(publicId);
+    if (!task) return null;
+    return new MonitorizeConsumptionTaskEntity(task);
+  }
 }
 
 export default MonitorizeConsumptionTaskService;

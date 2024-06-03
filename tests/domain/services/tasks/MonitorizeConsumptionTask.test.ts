@@ -14,6 +14,8 @@ describe("MonitorizeConsumptionTaskService", () => {
 
   const firstTaskId = uuidv4();
   const secondTaskId = uuidv4();
+  const firstTaskPublicId = uuidv4();
+  const secondTaskPublicId = uuidv4();
 
   const mockTasks: MonitorizeConsumptionTask[] = [
     {
@@ -24,7 +26,8 @@ describe("MonitorizeConsumptionTaskService", () => {
       deviceId: "1",
       threshold: 100,
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: firstTaskPublicId
     },
     {
       id: secondTaskId,
@@ -34,7 +37,8 @@ describe("MonitorizeConsumptionTaskService", () => {
       deviceId: "1",
       threshold: 100,
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: secondTaskPublicId
     }
   ];
 
@@ -47,7 +51,8 @@ describe("MonitorizeConsumptionTaskService", () => {
       threshold: 100,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: firstTaskPublicId
     }),
     new MonitorizeConsumptionTaskEntity({
       id: secondTaskId,
@@ -57,7 +62,8 @@ describe("MonitorizeConsumptionTaskService", () => {
       threshold: 100,
       deviceId: "1",
       operatorId: "2",
-      supervisorId: null
+      supervisorId: null,
+      publicId: secondTaskPublicId
     })
   ];
 
@@ -75,6 +81,7 @@ describe("MonitorizeConsumptionTaskService", () => {
   };
 
   const id = uuidv4();
+  const publicId = uuidv4();
   const createdTask: MonitorizeConsumptionTask = {
     ...createTaskDTO,
     id: id,
@@ -83,13 +90,15 @@ describe("MonitorizeConsumptionTaskService", () => {
     threshold: createTaskDTO.threshold!,
     deviceId: "1",
     operatorId: "2",
-    supervisorId: null
+    supervisorId: null,
+    publicId
   };
 
   beforeEach(() => {
     tasksRepository = {
       getAll: jest.fn().mockResolvedValue(mockTasks),
       create: jest.fn().mockResolvedValue(createdTask),
+      getTaskByPublicId: jest.fn().mockResolvedValue(mockTaskEntities[0]),
     };
 
     container.registerInstance("MonitorizeConsumptionTaskRepository", tasksRepository);
@@ -107,5 +116,12 @@ describe("MonitorizeConsumptionTaskService", () => {
     const expectedTaskEntity = new MonitorizeConsumptionTaskEntity({ ...createdTask, id });
 
     expect(result).toEqual(expectedTaskEntity);
+  });
+
+  it("should fetch a task by public ID", async () => {
+    const taskEntity = new MonitorizeConsumptionTaskEntity(mockTasks[0]);
+    const result = await service.getTaskByPublicId(firstTaskPublicId);
+
+    expect(result).toEqual(taskEntity);
   });
 });

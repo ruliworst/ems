@@ -1,6 +1,7 @@
 import { TaskType, CreateTaskDTO, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { TaskApiService } from "@/src/infrastructure/api/services/tasks/TaskApiService";
 import { Frequency } from "@prisma/client";
+import { v4 as uuidv4 } from 'uuid';
 
 global.fetch = jest.fn();
 
@@ -16,13 +17,15 @@ describe('TaskApiService', () => {
         startDate: '2024-05-01T10:00:00.000Z',
         endDate: '2024-05-10T10:00:00.000Z',
         type: TaskType.MAINTENANCE_DEVICE,
-        frequency: Frequency.MONTHLY
+        frequency: Frequency.MONTHLY,
+        publicId: uuidv4()
       },
       {
         startDate: '2024-06-01T10:00:00.000Z',
         endDate: '2024-06-10T10:00:00.000Z',
         type: TaskType.GENERATE_ANOMALIES_REPORT,
-        frequency: Frequency.DAILY
+        frequency: Frequency.DAILY,
+        publicId: uuidv4()
       }
     ];
 
@@ -70,6 +73,7 @@ describe('TaskApiService', () => {
       endDate: '2024-07-10T10:00:00.000Z',
       type: TaskType.MAINTENANCE_DEVICE,
       frequency: Frequency.WEEKLY,
+      publicId: uuidv4()
     };
 
     (fetch as jest.Mock).mockResolvedValue({

@@ -4,13 +4,17 @@ import { container } from "tsyringe";
 import { Frequency, PrismaClient } from "@prisma/client";
 import { CreateTaskDTO, TaskType } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import PrismaGenerateAnomaliesReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateAnomaliesReportTaskRepository";
+import { v4 as uuidv4 } from 'uuid';
 
 describe("GenerateAnomaliesReportTaskRepository", () => {
   let anomaliesReportTaskRepository: PrismaGenerateAnomaliesReportTaskRepository;
   let prisma: PrismaClient = new PrismaClient();
 
+  const publicId = uuidv4();
+
   const tasksToCreate = [
     {
+      id: uuidv4(),
       startDate: new Date("2024-05-01T10:00:00.000Z"),
       endDate: new Date("2024-05-10T10:00:00.000Z"),
       startReportDate: new Date("2024-05-01T10:00:00.000Z"),
@@ -21,6 +25,7 @@ describe("GenerateAnomaliesReportTaskRepository", () => {
       operatorId: "2",
       supervisorId: null,
       frequency: Frequency.DAILY,
+      publicId
     },
   ];
 
@@ -50,8 +55,8 @@ describe("GenerateAnomaliesReportTaskRepository", () => {
         title: "Anomalies Report 2",
         threshold: 10,
         frequency: Frequency.WEEKLY,
-        deviceName: "Device 1",
-        operatorEmail: "operator@example.com",
+        deviceName: "Device-Monitorize",
+        operatorEmail: "bob.doe@example.com",
         type: TaskType.GENERATE_ANOMALIES_REPORT
       };
 
@@ -81,6 +86,24 @@ describe("GenerateAnomaliesReportTaskRepository", () => {
       // Act & Assert
       await expect(anomaliesReportTaskRepository.create(invalidTask as CreateTaskDTO))
         .rejects.toThrow("Some values are not valid.");
+    });
+  });
+
+  describe("getTaskByPublicId", () => {
+    it("should fetch a task by public ID", async () => {
+      // Act
+      const task = await anomaliesReportTaskRepository.getTaskByPublicId(publicId);
+
+      // Assert
+      expect(task).toMatchObject(tasksToCreate[0]);
+    });
+
+    it("should return null if task not found", async () => {
+      // Act
+      const task = await anomaliesReportTaskRepository.getTaskByPublicId("non-existent-task");
+
+      // Assert
+      expect(task).toBeNull();
     });
   });
 });

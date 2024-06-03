@@ -10,6 +10,8 @@ describe("GenerateConsumptionReportTaskRepository", () => {
   let consumptionReportTaskRepository: PrismaGenerateConsumptionReportTaskRepository;
   let prisma: PrismaClient = new PrismaClient();
 
+  const publicId = uuidv4();
+
   const tasksToCreate = [
     {
       id: uuidv4(),
@@ -22,16 +24,13 @@ describe("GenerateConsumptionReportTaskRepository", () => {
       operatorId: "2",
       supervisorId: null,
       frequency: Frequency.DAILY,
+      publicId
     },
   ];
 
   beforeAll(async () => {
     consumptionReportTaskRepository = container.resolve(PrismaGenerateConsumptionReportTaskRepository);
     await prisma.generateConsumptionReportTask.createMany({ data: tasksToCreate });
-  });
-
-  afterEach(async () => {
-    await prisma.generateConsumptionReportTask.deleteMany();
   });
 
   describe("getAll", () => {
@@ -55,8 +54,8 @@ describe("GenerateConsumptionReportTaskRepository", () => {
         title: "Consumption Report 2",
         threshold: null,
         frequency: Frequency.WEEKLY,
-        deviceName: "Device 1",
-        operatorEmail: "operator@example.com",
+        deviceName: "Device-Monitorize",
+        operatorEmail: "bob.doe@example.com",
         type: TaskType.GENERATE_CONSUMPTION_REPORT
       };
 
@@ -85,6 +84,24 @@ describe("GenerateConsumptionReportTaskRepository", () => {
       // Act & Assert
       await expect(consumptionReportTaskRepository.create(invalidTask as CreateTaskDTO))
         .rejects.toThrow("Some values are not valid.");
+    });
+  });
+
+  describe("getTaskByPublicId", () => {
+    it("should fetch a task by public ID", async () => {
+      // Act
+      const task = await consumptionReportTaskRepository.getTaskByPublicId(publicId);
+
+      // Assert
+      expect(task).toMatchObject(tasksToCreate[0]);
+    });
+
+    it("should return null if task not found", async () => {
+      // Act
+      const task = await consumptionReportTaskRepository.getTaskByPublicId("non-existent-task");
+
+      // Assert
+      expect(task).toBeNull();
     });
   });
 });

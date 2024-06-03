@@ -1,5 +1,5 @@
 import { GenerateReportTask, GenerateReportTaskAttributes } from "./GenerateReportTask";
-import { TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 
 interface GenerateAnomaliesReportTaskAttributes extends GenerateReportTaskAttributes {
   threshold: number;
@@ -19,10 +19,18 @@ export class GenerateAnomaliesReportTaskEntity extends GenerateReportTask {
     threshold,
     deviceId,
     operatorId,
-    supervisorId
+    supervisorId,
+    publicId
   }: GenerateAnomaliesReportTaskAttributes) {
-    super({ id, startDate, endDate, frequency, startReportDate, endReportDate, title, deviceId, operatorId, supervisorId });
+    super({ id, startDate, endDate, frequency, startReportDate, endReportDate, title, deviceId, operatorId, supervisorId, publicId });
     this.threshold = threshold;
+  }
+
+  getTaskDTO(): TaskDTO {
+    return {
+      ...super.getTaskDTO(),
+      threshold: this.threshold,
+    }
   }
 
   getTaskView(): TaskViewDTO {

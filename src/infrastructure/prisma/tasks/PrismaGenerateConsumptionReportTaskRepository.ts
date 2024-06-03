@@ -1,14 +1,17 @@
+import { inject, injectable } from "tsyringe";
+import "@/config/container";
 import { GenerateConsumptionReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateConsumptionReportTaskRepository";
 import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
-import { GenerateConsumptionReportTask, PrismaClient } from "@prisma/client";
-import { injectable } from "tsyringe";
+import { GenerateConsumptionReportTask } from "@prisma/client";
+import PrismaTaskRepository from "./PrismaTaskRepository";
+import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 
 @injectable()
-export default class PrismaGenerateConsumptionReportTaskRepository implements GenerateConsumptionReportTaskRepository {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
+export default class PrismaGenerateConsumptionReportTaskRepository extends PrismaTaskRepository<GenerateConsumptionReportTask> implements GenerateConsumptionReportTaskRepository {
+  constructor(
+    @inject("DeviceRepository") deviceRepository: DeviceRepository
+  ) {
+    super(deviceRepository);
   }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<GenerateConsumptionReportTask> {
@@ -32,7 +35,9 @@ export default class PrismaGenerateConsumptionReportTaskRepository implements Ge
     try {
       await this.connect();
 
-      // TODO: Include device and operator references.
+      const { operator, supervisor } = await this.getOperatorAndSupervisor(operatorEmail!);
+      const device = await this.getDevice(deviceName);
+
       return await this.prisma.generateConsumptionReportTask.create({
         data: {
           startDate,
@@ -41,11 +46,27 @@ export default class PrismaGenerateConsumptionReportTaskRepository implements Ge
           endReportDate: endReportDate!,
           title: title!,
           frequency,
-          deviceId: "1",
-          operatorId: "2",
-          supervisorId: null
+          deviceId: device.id,
+          operatorId: operator ? operator.id : null,
+          supervisorId: supervisor ? supervisor.id : null,
         }
       });
+    } finally {
+      this.disconnect();
+    }
+  }
+
+  async getTaskByPublicId(publicId: string): Promise<GenerateConsumptionReportTask | null> {
+    try {
+      await this.connect();
+      const task = await this.prisma.generateConsumptionReportTask.findUnique({
+        where: {
+          publicId,
+        },
+      });
+      return task;
+    } catch (error) {
+      return null;
     } finally {
       this.disconnect();
     }
@@ -58,13 +79,5 @@ export default class PrismaGenerateConsumptionReportTaskRepository implements Ge
     } finally {
       this.disconnect();
     }
-  }
-
-  async connect(): Promise<void> {
-    await this.prisma.$connect();
-  }
-
-  async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
   }
 }

@@ -14,18 +14,7 @@ class GenerateConsumptionReportTaskService {
   async getAll(): Promise<GenerateConsumptionReportTaskEntity[]> {
     const tasks: GenerateConsumptionReportTask[] = await this.tasksRepository.getAll();
 
-    return tasks.map<GenerateConsumptionReportTaskEntity>(task => new GenerateConsumptionReportTaskEntity({
-      id: task.id,
-      startDate: task.startDate,
-      endDate: task.endDate,
-      startReportDate: task.startReportDate,
-      endReportDate: task.endReportDate,
-      title: task.title,
-      frequency: task.frequency,
-      deviceId: task.deviceId,
-      operatorId: task.operatorId || null,
-      supervisorId: task.supervisorId || null
-    }));
+    return tasks.map<GenerateConsumptionReportTaskEntity>(task => new GenerateConsumptionReportTaskEntity(task));
   };
 
   async create(createTaskDTO: CreateTaskDTO): Promise<GenerateConsumptionReportTaskEntity> {
@@ -37,6 +26,12 @@ class GenerateConsumptionReportTaskService {
       throw error;
     }
   };
+
+  async getTaskByPublicId(publicId: string): Promise<GenerateConsumptionReportTaskEntity | null> {
+    const task = await this.tasksRepository.getTaskByPublicId(publicId);
+    if (!task) return null;
+    return new GenerateConsumptionReportTaskEntity(task);
+  }
 }
 
 export default GenerateConsumptionReportTaskService;

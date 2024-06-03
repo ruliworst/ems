@@ -1,5 +1,5 @@
 import { Task, TaskAttributes } from "./Task";
-import { TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 
 export class MaintenanceDeviceTaskEntity extends Task {
   constructor({
@@ -9,9 +9,14 @@ export class MaintenanceDeviceTaskEntity extends Task {
     frequency,
     deviceId,
     operatorId,
-    supervisorId
+    supervisorId,
+    publicId
   }: TaskAttributes) {
-    super({ id, startDate, endDate, frequency, deviceId, operatorId, supervisorId });
+    super({ id, startDate, endDate, frequency, deviceId, operatorId, supervisorId, publicId });
+  }
+
+  getTaskDTO(): TaskDTO {
+    return super.getTaskDTO();
   }
 
   getTaskView(): TaskViewDTO {

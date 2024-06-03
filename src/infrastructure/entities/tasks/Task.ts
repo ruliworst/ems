@@ -1,4 +1,4 @@
-import { TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { Frequency } from "@prisma/client";
 
 export interface TaskAttributes {
@@ -9,6 +9,7 @@ export interface TaskAttributes {
   deviceId: string;
   operatorId: string | null;
   supervisorId: string | null;
+  publicId: string;
 }
 
 export abstract class Task {
@@ -20,8 +21,9 @@ export abstract class Task {
   deviceId: string;
   operatorId: string | null;
   supervisorId: string | null;
+  publicId: string;
 
-  constructor({ id, startDate, endDate, frequency, deviceId, operatorId, supervisorId }: TaskAttributes) {
+  constructor({ id, startDate, endDate, frequency, deviceId, operatorId, supervisorId, publicId }: TaskAttributes) {
     if ((operatorId === undefined || null) && (supervisorId === undefined || null)) {
       throw new Error("The task must be associated to an Operator or a Supervisor.");
     }
@@ -34,14 +36,26 @@ export abstract class Task {
     this.deviceId = deviceId;
     this.operatorId = operatorId;
     this.supervisorId = supervisorId;
+    this.publicId = publicId;
   }
+
+  getTaskDTO(): TaskDTO {
+    return {
+      publicId: this.publicId,
+      startDate: this.startDate.toDateString(),
+      endDate: this.endDate?.toDateString(),
+      frequency: this.frequency,
+    };
+  }
+
 
   getTaskView(type: TaskType): TaskViewDTO {
     return {
       startDate: this.startDate.toDateString(),
       endDate: this.endDate?.toDateString(),
       frequency: this.frequency,
-      type: type
+      type: type,
+      publicId: this.publicId
     };
   };
 

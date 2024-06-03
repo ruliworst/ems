@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
-import { CreateTaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import GenerateAnomaliesReportTaskService from "./GenerateAnomaliesReportTaskService";
 import { GenerateAnomaliesReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateAnomaliesReportTaskEntity";
 import { GenerateConsumptionReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateConsumptionReportTaskEntity";
@@ -54,6 +54,18 @@ class BaseTaskService {
       console.error("Error creating a task:", error);
       throw error;
     }
+  }
+
+  async getTaskByPublicId(publicId: string): Promise<TaskDTO | null> {
+    const tasks = await Promise.all([
+      this.anomaliesReportTaskService.getTaskByPublicId(publicId),
+      this.consumptionReportTaskService.getTaskByPublicId(publicId),
+      this.maintenanceDeviceTaskService.getTaskByPublicId(publicId),
+      this.monitorizeConsumptionTaskService.getTaskByPublicId(publicId),
+    ]);
+
+    const task = tasks.find(task => task !== null);
+    return task ? task.getTaskDTO() : null;
   }
 }
 
