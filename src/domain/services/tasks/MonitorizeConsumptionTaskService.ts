@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import { MonitorizeConsumptionTask } from "@prisma/client";
-import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { MonitorizeConsumptionTaskEntity } from "@/src/infrastructure/entities/tasks/MonitorizeConsumptionTaskEntity";
 import type { MonitorizeConsumptionTaskRepository } from "../../persistence/tasks/MonitorizeConsumptionTaskRepository";
 
@@ -25,6 +25,12 @@ class MonitorizeConsumptionTaskService {
       console.error("Error creating a task:", error);
       throw error;
     }
+  };
+
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<MonitorizeConsumptionTaskEntity> {
+    const task: MonitorizeConsumptionTask | null = await this.tasksRepository.update(updateTaskDTO);
+    if (!task) throw new Error("The task could not be updated.");
+    return new MonitorizeConsumptionTaskEntity(task);
   };
 
   async getTaskByPublicId(publicId: string): Promise<MonitorizeConsumptionTaskEntity | null> {

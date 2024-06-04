@@ -20,13 +20,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { TaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { TaskDTO, TaskType, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { Frequency } from "@prisma/client";
 import { Command, CommandGroup, CommandItem, CommandList } from "@/components/ui/command";
 import { Calendar as CalendarIcon, CheckIcon } from "lucide-react";
 import { CaretSortIcon } from "@radix-ui/react-icons";
+import { TaskApiService } from "@/src/infrastructure/api/services/tasks/TaskApiService";
 
-export default function TaskView({ task }: { task: TaskDTO }) {
+export default function TaskView({ task, type }: { task: TaskDTO, type: TaskType }) {
   const frequencies = [
     {
       value: Frequency.DAILY,
@@ -43,7 +44,6 @@ export default function TaskView({ task }: { task: TaskDTO }) {
   ];
 
   const { toast } = useToast();
-  const router = useRouter();
   const [startDate, setStartDate] = useState<Date | undefined>(new Date(task.startDate));
   const [endDate, setEndDate] = useState<Date | undefined>(task.endDate ? new Date(task.endDate) : undefined);
   const [frequency, setFrequency] = useState<Frequency>(task.frequency);
@@ -64,12 +64,44 @@ export default function TaskView({ task }: { task: TaskDTO }) {
     setOpenFrequencies(false);
   };
 
+  const handleUpdate = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const updateTaskDTO: UpdateTaskDTO = {
+      publicId: task.publicId,
+      startDate: startDate ? startDate.toISOString() : null,
+      endDate: endDate ? endDate.toISOString() : null,
+      frequency: frequency ?? null,
+      type,
+      threshold: threshold ?? null,
+      startReportDate: startReportDate ? startReportDate.toISOString() : null,
+      endReportDate: endReportDate ? endReportDate.toISOString() : null,
+      title: title ?? null
+    };
+
+    await TaskApiService.patch(updateTaskDTO)
+      .then((updatedTask) => {
+        const description = `${new Date().toLocaleString()}`;
+        toast({
+          title: "Task updated.",
+          description
+        });
+        setStartDate(new Date(updatedTask.startDate));
+        setEndDate(updatedTask.endDate ? new Date(updatedTask.endDate) : undefined);
+        setFrequency(updatedTask.frequency);
+        setThreshold(threshold);
+        setStartReportDate(updatedTask.startReportDate ? new Date(updatedTask.startReportDate) : undefined);
+        setEndReportDate(updatedTask.endReportDate ? new Date(updatedTask.endReportDate) : undefined);
+        setTitle(updatedTask.title ?? undefined);
+        setIsEditing(false);
+      });
+  }
+
   return (
     <>
       <div className="w-10/12 p-6">
         <h2 className="text-xl font-bold">Task</h2>
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-          <form id="updateTaskForm">
+          <form id="updateTaskForm" onSubmit={handleUpdate}>
             <div className="grid grid-cols-4 gap-12">
               <div className="grid grid-cols-2 items-center gap-4">
                 <Label htmlFor="startDate" className="text-right">Start Date</Label>

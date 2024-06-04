@@ -13,8 +13,19 @@ export default class PrismaGenerateAnomaliesReportTaskRepository extends PrismaT
   ) {
     super(deviceRepository);
   }
-  update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateAnomaliesReportTask | null> {
-    throw new Error("Method not implemented.");
+
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateAnomaliesReportTask | null> {
+    const updatedTask: Partial<GenerateAnomaliesReportTask> = {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+      startReportDate: updateTaskDTO.startReportDate ? new Date(updateTaskDTO.startReportDate) : undefined,
+      endReportDate: updateTaskDTO.endReportDate ? new Date(updateTaskDTO.endReportDate) : undefined,
+      title: updateTaskDTO.title ?? undefined,
+      threshold: updateTaskDTO.threshold ?? undefined,
+    };
+
+    return super.updateTask(updateTaskDTO.publicId, this.prisma.generateAnomaliesReportTask, updatedTask);
   }
 
   async getTaskByPublicId(publicId: string): Promise<GenerateAnomaliesReportTask | null> {

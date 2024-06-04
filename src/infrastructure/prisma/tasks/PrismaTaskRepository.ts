@@ -2,6 +2,7 @@ import { inject } from "tsyringe";
 import "@/config/container";
 import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 import { Operator, PrismaClient, Supervisor } from "@prisma/client";
+import { UpdateTaskDTO } from "../../api/dtos/tasks/task.dto";
 
 export default abstract class PrismaTaskRepository<T> {
   protected prisma: PrismaClient;
@@ -46,7 +47,22 @@ export default abstract class PrismaTaskRepository<T> {
     }
   }
 
+  async updateTask(publicId: string, entity: any, updatedTask: Partial<T>): Promise<T | null> {
+    try {
+      await this.connect();
+      const task = await entity.update({
+        where: { publicId: publicId },
+        data: { ...updatedTask },
+      }).catch((error: any) => {
+        console.error(error);
+        return null;
+      });
 
+      return task;
+    } finally {
+      this.disconnect();
+    }
+  }
 
   async getOperatorAndSupervisor(operatorEmail: string): Promise<{ operator: Operator | null, supervisor: Supervisor | null }> {
     const operator: Operator | null = await this.prisma.operator.findUnique({ where: { email: operatorEmail! } });

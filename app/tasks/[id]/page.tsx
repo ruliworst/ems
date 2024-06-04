@@ -1,10 +1,7 @@
 "use client";
 
-import DeviceView from '@/components/DeviceView'
 import TaskView from '@/components/TaskView';
-import { DeviceDTO } from '@/src/infrastructure/api/dtos/devices/device.dto';
 import { TaskDTO } from '@/src/infrastructure/api/dtos/tasks/task.dto';
-import { DeviceApiService } from '@/src/infrastructure/api/services/devices/DeviceApiService';
 import { TaskApiService } from '@/src/infrastructure/api/services/tasks/TaskApiService';
 import { useEffect, useState } from 'react';
 
@@ -26,7 +23,7 @@ export default function TaskPage({ params }: { params: { id: string } }) {
   }, []);
 
   if (task) {
-    return <TaskView task={task!} />
+    return <TaskView task={task!} type={task.type!} />
   }
 
   return <></>;

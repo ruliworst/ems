@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
-import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { GenerateAnomaliesReportTask, Prisma } from "@prisma/client";
 import { GenerateAnomaliesReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateAnomaliesReportTaskEntity";
 import type { GenerateAnomaliesReportTaskRepository } from "../../persistence/tasks/GenerateAnomaliesReportTaskRepository";
@@ -26,6 +26,12 @@ class GenerateAnomaliesReportTaskService {
       console.error("Error creating a task:", error);
       throw error;
     }
+  };
+
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateAnomaliesReportTaskEntity> {
+    const task: GenerateAnomaliesReportTask | null = await this.tasksRepository.update(updateTaskDTO);
+    if (!task) throw new Error("The task could not be updated.");
+    return new GenerateAnomaliesReportTaskEntity(task);
   };
 
   async getTaskByPublicId(publicId: string): Promise<GenerateAnomaliesReportTaskEntity | null> {

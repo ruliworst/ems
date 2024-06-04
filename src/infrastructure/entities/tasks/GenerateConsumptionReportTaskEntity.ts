@@ -25,6 +25,13 @@ export class GenerateConsumptionReportTaskEntity extends GenerateReportTask {
     super({ id, startDate, endDate, frequency, startReportDate, endReportDate, title, deviceId, operatorId, supervisorId, publicId });
   }
 
+  getTaskDTO(): TaskDTO {
+    return {
+      ...super.getTaskDTO(),
+      type: TaskType.GENERATE_CONSUMPTION_REPORT
+    }
+  }
+
   getTaskView(): TaskViewDTO {
     return super.getTaskView(TaskType.GENERATE_CONSUMPTION_REPORT);
   }

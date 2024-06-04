@@ -13,7 +13,6 @@ export default function DevicePage({ params }: { params: { name: string } }) {
     async function getDevice() {
       try {
         const device = await DeviceApiService.fetchByName(name!);
-        console.log(device)
         setDevice(device);
       } catch (err: any) {
         console.error(err.message);

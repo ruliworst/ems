@@ -27,6 +27,7 @@ export class MonitorizeConsumptionTaskEntity extends Task {
     return {
       ...super.getTaskDTO(),
       threshold: this.threshold,
+      type: TaskType.MONITORIZE_CONSUMPTION
     }
   }
 

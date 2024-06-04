@@ -14,8 +14,17 @@ export default class PrismaGenerateConsumptionReportTaskRepository extends Prism
     super(deviceRepository);
   }
 
-  update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateConsumptionReportTask | null> {
-    throw new Error("Method not implemented.");
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateConsumptionReportTask | null> {
+    const updatedTask: Partial<GenerateConsumptionReportTask> = {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+      startReportDate: updateTaskDTO.startReportDate ? new Date(updateTaskDTO.startReportDate) : undefined,
+      endReportDate: updateTaskDTO.endReportDate ? new Date(updateTaskDTO.endReportDate) : undefined,
+      title: updateTaskDTO.title ?? undefined,
+    };
+
+    return super.updateTask(updateTaskDTO.publicId, this.prisma.generateConsumptionReportTask, updatedTask);
   }
 
   async getTaskByPublicId(publicId: string): Promise<GenerateConsumptionReportTask | null> {

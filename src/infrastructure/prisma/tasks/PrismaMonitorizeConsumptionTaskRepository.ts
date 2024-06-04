@@ -14,8 +14,15 @@ export default class PrismaMonitorizeConsumptionTaskRepository extends PrismaTas
     super(deviceRepository);
   }
 
-  update(updateTaskDTO: UpdateTaskDTO): Promise<MonitorizeConsumptionTask | null> {
-    throw new Error("Method not implemented.");
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<MonitorizeConsumptionTask | null> {
+    const updatedTask: Partial<MonitorizeConsumptionTask> = {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+      threshold: updateTaskDTO.threshold ?? undefined,
+    };
+
+    return super.updateTask(updateTaskDTO.publicId, this.prisma.monitorizeConsumptionTask, updatedTask);
   }
 
   async getTaskByPublicId(publicId: string): Promise<MonitorizeConsumptionTask | null> {

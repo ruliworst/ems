@@ -1,4 +1,4 @@
-import { CreateTaskDTO, TaskDTO, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskDTO, TaskViewDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 
 export class TaskApiService {
   static async fetchAll(): Promise<TaskViewDTO[]> {
@@ -27,6 +27,20 @@ export class TaskApiService {
     const response = await fetch(`/api/tasks/${publicId}`);
     if (!response.ok) {
       throw new Error(`Failed to fetch task.`);
+    }
+    return response.json();
+  }
+
+  static async patch(updateTaskDTO: UpdateTaskDTO): Promise<TaskDTO> {
+    const response = await fetch(`/api/tasks/${updateTaskDTO.publicId}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updateTaskDTO),
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to update task`);
     }
     return response.json();
   }

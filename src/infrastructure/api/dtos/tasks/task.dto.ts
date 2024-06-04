@@ -16,6 +16,7 @@ export type TaskDTO = {
   endReportDate?: string | null
   title?: string | null
   threshold?: number | null
+  type?: TaskType
 }
 
 export type TaskViewDTO = {

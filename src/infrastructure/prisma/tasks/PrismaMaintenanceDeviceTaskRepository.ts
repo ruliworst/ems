@@ -14,8 +14,14 @@ export default class PrismaMaintenanceDeviceTaskRepository extends PrismaTaskRep
     super(deviceRepository);
   }
 
-  update(updateTaskDTO: UpdateTaskDTO): Promise<MaintenanceDeviceTask | null> {
-    throw new Error("Method not implemented.");
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<MaintenanceDeviceTask | null> {
+    const updatedTask: Partial<MaintenanceDeviceTask> = {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+    };
+
+    return super.updateTask(updateTaskDTO.publicId, this.prisma.maintenanceDeviceTask, updatedTask);
   }
 
   async getTaskByPublicId(publicId: string): Promise<MaintenanceDeviceTask | null> {
