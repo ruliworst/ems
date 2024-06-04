@@ -35,6 +35,10 @@ export default class PrismaGenerateConsumptionReportTaskRepository extends Prism
     return super.getAll(this.prisma.generateConsumptionReportTask);
   }
 
+  async delete(publicId: string): Promise<GenerateConsumptionReportTask | null> {
+    return super.delete(publicId, this.prisma.generateConsumptionReportTask);
+  }
+
   async create(createTaskDTO: CreateTaskDTO): Promise<GenerateConsumptionReportTask> {
     if (createTaskDTO.startReportDate === undefined ||
       createTaskDTO.endReportDate === undefined ||

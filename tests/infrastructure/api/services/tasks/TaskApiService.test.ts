@@ -124,4 +124,47 @@ describe('TaskApiService', () => {
       body: JSON.stringify(mockTask),
     });
   });
+
+  it("should delete a task successfully", async () => {
+    // Arrange
+    const publicIdToDelete = uuidv4();
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => ({ message: "Task deleted successfully" }),
+    });
+
+    // Act
+    const result = await TaskApiService.delete(publicIdToDelete);
+
+    // Assert
+    expect(result).toEqual({ message: "Task deleted successfully" });
+    expect(fetch).toHaveBeenCalledWith(`/api/tasks/${publicIdToDelete}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  });
+
+  it("should throw an error when task deletion fails", async () => {
+    // Arrange
+    const publicIdToDelete = uuidv4();
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+      status: 404,
+    });
+
+    // Act & Assert
+    await expect(TaskApiService.delete(publicIdToDelete)).rejects.toThrow(
+      `Failed to delete task with public identifier ${publicIdToDelete}`
+    );
+    expect(fetch).toHaveBeenCalledWith(`/api/tasks/${publicIdToDelete}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+  });
 });

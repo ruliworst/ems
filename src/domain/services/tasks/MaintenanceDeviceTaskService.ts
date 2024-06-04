@@ -27,6 +27,19 @@ class MaintenanceDeviceTaskService {
     }
   };
 
+  async delete(publicId: string): Promise<MaintenanceDeviceTaskEntity | null> {
+    try {
+      const task: MaintenanceDeviceTask | null = await this.tasksRepository.delete(publicId);
+      if (!task) {
+        throw new Error("The task could not be deleted.");
+      }
+      return new MaintenanceDeviceTaskEntity({ ...task });
+    } catch (error) {
+      console.error("Error deleting a task:", error);
+      return null;
+    }
+  };
+
   async update(updateTaskDTO: UpdateTaskDTO): Promise<MaintenanceDeviceTaskEntity> {
     const task: MaintenanceDeviceTask | null = await this.tasksRepository.update(updateTaskDTO);
     if (!task) throw new Error("The task could not be updated.");

@@ -32,6 +32,10 @@ export default class PrismaMaintenanceDeviceTaskRepository extends PrismaTaskRep
     return super.getAll(this.prisma.maintenanceDeviceTask);
   }
 
+  async delete(publicId: string): Promise<MaintenanceDeviceTask | null> {
+    return super.delete(publicId, this.prisma.maintenanceDeviceTask);
+  }
+
   async create(createTaskDTO: CreateTaskDTO): Promise<MaintenanceDeviceTask> {
     const {
       startDate,

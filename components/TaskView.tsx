@@ -44,6 +44,7 @@ export default function TaskView({ task, type }: { task: TaskDTO, type: TaskType
   ];
 
   const { toast } = useToast();
+  const router = useRouter();
   const [startDate, setStartDate] = useState<Date | undefined>(new Date(task.startDate));
   const [endDate, setEndDate] = useState<Date | undefined>(task.endDate ? new Date(task.endDate) : undefined);
   const [frequency, setFrequency] = useState<Frequency>(task.frequency);
@@ -94,6 +95,20 @@ export default function TaskView({ task, type }: { task: TaskDTO, type: TaskType
         setTitle(updatedTask.title ?? undefined);
         setIsEditing(false);
       });
+  };
+
+  const handleDelete = async () => {
+    try {
+      await TaskApiService.delete(task.publicId).then(task => {
+        toast({
+          title: "Task deleted successfully",
+          description: `${new Date().toLocaleString()}`
+        });
+        router.push('/tasks');
+      });
+    } catch (error: any) {
+      console.error(`Error deleting task: ${error.message}`);
+    }
   }
 
   return (
@@ -225,13 +240,10 @@ export default function TaskView({ task, type }: { task: TaskDTO, type: TaskType
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction>Continue</AlertDialogAction>
+                      <AlertDialogAction onClick={handleDelete}>Continue</AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-                <Button variant="outline" type="button">
-                  <i className="fa-solid fa-chart-line"></i>
-                </Button>
               </div>
             </div>
             <div className="grid grid-cols-4 gap-12 mt-4">

@@ -33,6 +33,10 @@ export default class PrismaMonitorizeConsumptionTaskRepository extends PrismaTas
     return super.getAll(this.prisma.monitorizeConsumptionTask);
   }
 
+  async delete(publicId: string): Promise<MonitorizeConsumptionTask | null> {
+    return super.delete(publicId, this.prisma.monitorizeConsumptionTask);
+  }
+
   async create(createTaskDTO: CreateTaskDTO): Promise<MonitorizeConsumptionTask> {
     if (createTaskDTO.threshold === undefined || createTaskDTO.threshold === null) {
       throw new Error("Some values are not valid.");

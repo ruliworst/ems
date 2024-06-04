@@ -9,6 +9,7 @@ import { GenerateAnomaliesReportTaskRepository } from "@/src/domain/persistence/
 import { GenerateConsumptionReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateConsumptionReportTaskRepository";
 import { MaintenanceDeviceTaskRepository } from "@/src/domain/persistence/tasks/MaintenanceDeviceTaskRepository";
 import { MonitorizeConsumptionTaskRepository } from "@/src/domain/persistence/tasks/MonitorizeConsumptionTaskRepository";
+import { Task } from "@/src/infrastructure/entities/tasks/Task";
 
 describe("BaseTaskService", () => {
   let baseTaskService: BaseTaskService;
@@ -588,5 +589,144 @@ describe("BaseTaskService", () => {
     });
   });
 
+  describe("delete", () => {
+    it("should delete a Generate Anomalies Report task successfully", async () => {
+      const existingTask: GenerateAnomaliesReportTask = mockAnomaliesReportTasks[0];
+
+      const existingTaskDTO: TaskDTO = {
+        publicId: existingTask.publicId,
+        frequency: existingTask.frequency,
+        startDate: existingTask.startDate.toDateString(),
+        endDate: existingTask.endDate?.toDateString(),
+        startReportDate: existingTask.startReportDate.toDateString(),
+        endReportDate: existingTask.endReportDate.toDateString(),
+        threshold: existingTask.threshold,
+        title: existingTask.title,
+        type: TaskType.GENERATE_ANOMALIES_REPORT
+      };
+
+      const generateAnomaliesReportTaskRepository = {
+        delete: jest.fn().mockResolvedValue(existingTask),
+      };
+
+      container.clearInstances();
+      container.registerInstance("GenerateAnomaliesReportTaskRepository", generateAnomaliesReportTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      // Act
+      const result = await baseTaskService.delete(existingTask.publicId);
+
+      // Assert
+      expect(generateAnomaliesReportTaskRepository.delete).toHaveBeenCalledWith(existingTask.publicId);
+      expect(result).toEqual(existingTaskDTO);
+    });
+
+    it("should delete a Generate Consumption Report task successfully", async () => {
+      const existingTask: GenerateConsumptionReportTask = mockConsumptionReportTasks[0];
+
+      const existingTaskDTO: TaskDTO = {
+        publicId: existingTask.publicId,
+        frequency: existingTask.frequency,
+        startDate: existingTask.startDate.toDateString(),
+        endDate: existingTask.endDate?.toDateString(),
+        startReportDate: existingTask.startReportDate.toDateString(),
+        endReportDate: existingTask.endReportDate.toDateString(),
+        title: existingTask.title,
+        type: TaskType.GENERATE_CONSUMPTION_REPORT
+      };
+
+      const generateConsumptionReportTaskRepository = {
+        delete: jest.fn().mockResolvedValue(existingTask),
+      };
+
+      container.clearInstances();
+      container.registerInstance("GenerateConsumptionReportTaskRepository", generateConsumptionReportTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      const result = await baseTaskService.delete(existingTask.publicId);
+
+      expect(generateConsumptionReportTaskRepository.delete).toHaveBeenCalledWith(existingTask.publicId);
+      expect(result).toEqual(existingTaskDTO);
+    });
+
+    it("should delete a Maintenance Device task successfully", async () => {
+      const existingTask: MaintenanceDeviceTask = mockMaintenanceDeviceTasks[0];
+
+      const existingTaskDTO: TaskDTO = {
+        publicId: existingTask.publicId,
+        frequency: existingTask.frequency,
+        startDate: existingTask.startDate.toDateString(),
+        endDate: existingTask.endDate?.toDateString(),
+        type: TaskType.MAINTENANCE_DEVICE
+      };
+
+      const maintenanceDeviceTaskRepository = {
+        delete: jest.fn().mockResolvedValue(existingTask),
+      };
+
+      container.clearInstances();
+      container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      const result: TaskDTO | null = await baseTaskService.delete(existingTask.publicId);
+
+      expect(maintenanceDeviceTaskRepository.delete).toHaveBeenCalledWith(existingTask.publicId);
+      expect(result).toEqual(existingTaskDTO);
+    });
+
+    it("should delete a Monitorize Consumption task successfully", async () => {
+      const existingTask: MonitorizeConsumptionTask = mockMonitorizeConsumptionTasks[0];
+
+      const existingTaskDTO: TaskDTO = {
+        publicId: existingTask.publicId,
+        frequency: existingTask.frequency,
+        startDate: existingTask.startDate.toDateString(),
+        endDate: existingTask.endDate?.toDateString(),
+        threshold: 5,
+        type: TaskType.MONITORIZE_CONSUMPTION
+      };
+
+      const monitorizeConsumptionTaskRepository = {
+        delete: jest.fn().mockResolvedValue(existingTask),
+      };
+
+      container.clearInstances();
+      container.registerInstance("MonitorizeConsumptionTaskRepository", monitorizeConsumptionTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      const result = await baseTaskService.delete(existingTask.publicId);
+
+      expect(monitorizeConsumptionTaskRepository.delete).toHaveBeenCalledWith(existingTask.publicId);
+      expect(result).toEqual(existingTaskDTO);
+    });
+
+    it("should return null if no task is found with the given publicId", async () => {
+      const nonExistentPublicId = "non-existent-publicId";
+
+      const generateAnomaliesReportTaskRepository = {
+        delete: jest.fn().mockResolvedValue(null),
+      };
+      const generateConsumptionReportTaskRepository = {
+        delete: jest.fn().mockResolvedValue(null),
+      };
+      const maintenanceDeviceTaskRepository = {
+        delete: jest.fn().mockResolvedValue(null),
+      };
+      const monitorizeConsumptionTaskRepository = {
+        delete: jest.fn().mockResolvedValue(null),
+      };
+
+      container.clearInstances();
+      container.registerInstance("GenerateAnomaliesReportTaskRepository", generateAnomaliesReportTaskRepository);
+      container.registerInstance("GenerateConsumptionReportTaskRepository", generateConsumptionReportTaskRepository);
+      container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
+      container.registerInstance("MonitorizeConsumptionTaskRepository", monitorizeConsumptionTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      const result = await baseTaskService.delete(nonExistentPublicId);
+
+      expect(result).toBeNull();
+    });
+  });
 
 });

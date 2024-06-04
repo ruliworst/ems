@@ -26,6 +26,19 @@ class GenerateAnomaliesReportTaskService {
     }
   };
 
+  async delete(publicId: string): Promise<GenerateAnomaliesReportTaskEntity | null> {
+    try {
+      const task: GenerateAnomaliesReportTask | null = await this.tasksRepository.delete(publicId);
+      if (!task) {
+        throw new Error("The task could not be deleted.");
+      }
+      return new GenerateAnomaliesReportTaskEntity({ ...task });
+    } catch (error) {
+      console.error("Error deleting a task:", error);
+      return null;
+    }
+  };
+
   async update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateAnomaliesReportTaskEntity> {
     const task: GenerateAnomaliesReportTask | null = await this.tasksRepository.update(updateTaskDTO);
     if (!task) throw new Error("The task could not be updated.");

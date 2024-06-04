@@ -20,6 +20,16 @@ export default abstract class PrismaTaskRepository<T> {
     await this.prisma.$disconnect();
   }
 
+  async delete(publicId: string, entity: any): Promise<T | null> {
+    try {
+      await this.connect();
+      return await entity.delete({ where: { publicId } });
+    } catch (error) {
+      return null;
+    } finally {
+      this.disconnect();
+    }
+  }
 
   async getTaskByPublicId(publicId: string, entity: any): Promise<T | null> {
     try {
