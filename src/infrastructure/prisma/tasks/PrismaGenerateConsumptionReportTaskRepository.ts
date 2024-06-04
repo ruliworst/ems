@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import "@/config/container";
 import { GenerateConsumptionReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateConsumptionReportTaskRepository";
-import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { GenerateConsumptionReportTask } from "@prisma/client";
 import PrismaTaskRepository from "./PrismaTaskRepository";
 import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
@@ -12,6 +12,27 @@ export default class PrismaGenerateConsumptionReportTaskRepository extends Prism
     @inject("DeviceRepository") deviceRepository: DeviceRepository
   ) {
     super(deviceRepository);
+  }
+
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateConsumptionReportTask | null> {
+    const updatedTask: Partial<GenerateConsumptionReportTask> = {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+      startReportDate: updateTaskDTO.startReportDate ? new Date(updateTaskDTO.startReportDate) : undefined,
+      endReportDate: updateTaskDTO.endReportDate ? new Date(updateTaskDTO.endReportDate) : undefined,
+      title: updateTaskDTO.title ?? undefined,
+    };
+
+    return super.updateTask(updateTaskDTO.publicId, this.prisma.generateConsumptionReportTask, updatedTask);
+  }
+
+  async getTaskByPublicId(publicId: string): Promise<GenerateConsumptionReportTask | null> {
+    return super.getTaskByPublicId(publicId, this.prisma.generateConsumptionReportTask);
+  }
+
+  async getAll(): Promise<GenerateConsumptionReportTask[]> {
+    return super.getAll(this.prisma.generateConsumptionReportTask);
   }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<GenerateConsumptionReportTask> {
@@ -51,31 +72,6 @@ export default class PrismaGenerateConsumptionReportTaskRepository extends Prism
           supervisorId: supervisor ? supervisor.id : null,
         }
       });
-    } finally {
-      this.disconnect();
-    }
-  }
-
-  async getTaskByPublicId(publicId: string): Promise<GenerateConsumptionReportTask | null> {
-    try {
-      await this.connect();
-      const task = await this.prisma.generateConsumptionReportTask.findUnique({
-        where: {
-          publicId,
-        },
-      });
-      return task;
-    } catch (error) {
-      return null;
-    } finally {
-      this.disconnect();
-    }
-  }
-
-  async getAll(): Promise<GenerateConsumptionReportTask[]> {
-    try {
-      await this.connect();
-      return this.prisma.generateConsumptionReportTask.findMany();
     } finally {
       this.disconnect();
     }

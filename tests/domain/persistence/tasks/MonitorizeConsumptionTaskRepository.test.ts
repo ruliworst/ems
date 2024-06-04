@@ -4,7 +4,7 @@ import { container } from "tsyringe";
 import { Frequency, PrismaClient } from "@prisma/client";
 import PrismaMonitorizeConsumptionTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMonitorizeConsumptionTaskRepository";
 import { v4 as uuidv4 } from 'uuid';
-import { CreateTaskDTO, TaskType } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskType, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 
 describe("MonitorizeConsumptionTaskRepository", () => {
   let monitorizeConsumptionTaskRepository: PrismaMonitorizeConsumptionTaskRepository;
@@ -98,6 +98,55 @@ describe("MonitorizeConsumptionTaskRepository", () => {
 
       // Assert
       expect(task).toBeNull();
+    });
+  });
+
+  describe("update", () => {
+    it("should update a monitorize consumption task successfully", async () => {
+      // Arrange
+      const updatedTaskData: UpdateTaskDTO = {
+        publicId,
+        startDate: "2024-10-01T10:00:00.000Z",
+        endDate: "2024-10-10T10:00:00.000Z",
+        frequency: Frequency.DAILY,
+        threshold: 7.5,
+        startReportDate: null,
+        endReportDate: null,
+        title: null,
+        type: TaskType.MONITORIZE_CONSUMPTION
+      };
+
+      // Act
+      const updatedTask = await monitorizeConsumptionTaskRepository.update(updatedTaskData);
+
+      // Assert
+      expect(updatedTask).toMatchObject({
+        startDate: new Date(updatedTaskData.startDate!),
+        endDate: new Date(updatedTaskData.endDate!),
+        frequency: updatedTaskData.frequency,
+        threshold: updatedTaskData.threshold,
+      });
+    });
+
+    it("should return null if task not found", async () => {
+      // Arrange
+      const nonExistentPublicId = "non-existent-publicId";
+
+      // Act
+      const updatedTask = await monitorizeConsumptionTaskRepository.update({
+        publicId: nonExistentPublicId,
+        startDate: "2024-10-01T10:00:00.000Z",
+        endDate: "2024-10-10T10:00:00.000Z",
+        frequency: Frequency.DAILY,
+        threshold: 7.5,
+        type: TaskType.MONITORIZE_CONSUMPTION,
+        startReportDate: null,
+        endReportDate: null,
+        title: null
+      });
+
+      // Assert
+      expect(updatedTask).toBeNull();
     });
   });
 });

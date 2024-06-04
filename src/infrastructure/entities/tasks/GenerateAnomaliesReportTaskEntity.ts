@@ -30,6 +30,7 @@ export class GenerateAnomaliesReportTaskEntity extends GenerateReportTask {
     return {
       ...super.getTaskDTO(),
       threshold: this.threshold,
+      type: TaskType.GENERATE_ANOMALIES_REPORT
     }
   }
 

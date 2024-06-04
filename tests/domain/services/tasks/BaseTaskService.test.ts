@@ -3,7 +3,7 @@ import "@/config/container";
 import { container } from "tsyringe";
 import BaseTaskService from "@/src/domain/services/tasks/BaseTaskService";
 import { Frequency, GenerateAnomaliesReportTask, GenerateConsumptionReportTask, MaintenanceDeviceTask, MonitorizeConsumptionTask } from "@prisma/client";
-import { TaskType, CreateTaskDTO, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { TaskType, CreateTaskDTO, TaskViewDTO, UpdateTaskDTO, TaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { v4 as uuidv4 } from 'uuid';
 import { GenerateAnomaliesReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateAnomaliesReportTaskRepository";
 import { GenerateConsumptionReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateConsumptionReportTaskRepository";
@@ -357,6 +357,235 @@ describe("BaseTaskService", () => {
     const baseTaskService = container.resolve(BaseTaskService);
 
     await expect(baseTaskService.create(createTaskDTO)).rejects.toThrow("Error creating task");
+  });
+
+  describe("update", () => {
+    it("should update a Generate Anomalies Report task successfully", async () => {
+      const existingTask = mockAnomaliesReportTasks[0];
+
+      const updatedTaskDTO: UpdateTaskDTO = {
+        publicId: existingTask.publicId,
+        startDate: "2024-07-01T10:00:00.000Z",
+        endDate: "2024-07-10T10:00:00.000Z",
+        startReportDate: "2024-07-01T10:00:00.000Z",
+        endReportDate: "2024-07-10T10:00:00.000Z",
+        title: "Updated Anomalies Report",
+        threshold: 10,
+        frequency: Frequency.WEEKLY,
+        type: TaskType.GENERATE_ANOMALIES_REPORT,
+      };
+
+      const updatedTask: GenerateAnomaliesReportTask = {
+        ...updatedTaskDTO,
+        id: existingTask.id,
+        deviceId: existingTask.deviceId,
+        operatorId: existingTask.operatorId,
+        supervisorId: existingTask.supervisorId,
+        startDate: new Date(updatedTaskDTO.startDate!),
+        endDate: new Date(updatedTaskDTO.endReportDate!),
+        startReportDate: new Date(updatedTaskDTO.startReportDate!),
+        endReportDate: new Date(updatedTaskDTO.endReportDate!),
+        title: updatedTaskDTO.title!,
+        threshold: updatedTaskDTO.threshold!,
+      };
+
+      const generateAnomaliesReportTaskRepository = {
+        update: jest.fn().mockResolvedValueOnce(updatedTask),
+      };
+
+      container.clearInstances();
+      container.registerInstance("GenerateAnomaliesReportTaskRepository", generateAnomaliesReportTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      const result: TaskDTO = await baseTaskService.update(updatedTaskDTO);
+
+      const expectedTask: TaskDTO = {
+        ...updatedTaskDTO,
+        startDate: updatedTask.startDate.toDateString(),
+        endDate: updatedTask.endDate!.toDateString(),
+        startReportDate: updatedTask.startReportDate.toDateString(),
+        endReportDate: updatedTask.endReportDate.toDateString(),
+      };
+
+      expect(result).toEqual(expectedTask);
+    });
+
+    it("should update a Generate Consumption Report task successfully", async () => {
+      const existingTask = mockConsumptionReportTasks[0];
+
+      const updatedTaskDTO: UpdateTaskDTO = {
+        publicId: existingTask.publicId,
+        startDate: "2024-08-05T12:00:00.000Z",
+        endDate: "2024-08-25T12:00:00.000Z",
+        frequency: Frequency.MONTHLY,
+        startReportDate: "2024-08-05T12:00:00.000Z",
+        endReportDate: "2024-08-25T12:00:00.000Z",
+        title: "Updated Consumption Report",
+        threshold: 10,
+        type: TaskType.GENERATE_CONSUMPTION_REPORT,
+      };
+
+      const updatedTask: GenerateConsumptionReportTask = {
+        ...updatedTaskDTO,
+        id: existingTask.id,
+        deviceId: existingTask.deviceId,
+        operatorId: existingTask.operatorId,
+        supervisorId: existingTask.supervisorId,
+        startDate: new Date(updatedTaskDTO.startDate!),
+        endDate: new Date(updatedTaskDTO.endDate!),
+        startReportDate: new Date(updatedTaskDTO.startReportDate!),
+        endReportDate: new Date(updatedTaskDTO.endReportDate!),
+        title: updatedTaskDTO.title!
+      };
+
+      const generateConsumptionReportTaskRepository = {
+        update: jest.fn().mockResolvedValueOnce(updatedTask),
+      };
+
+      container.clearInstances();
+      container.registerInstance("GenerateConsumptionReportTaskRepository", generateConsumptionReportTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      const result: TaskDTO = await baseTaskService.update(updatedTaskDTO);
+
+      const expectedTask: Partial<TaskDTO> = {
+        publicId: updatedTaskDTO.publicId,
+        startDate: updatedTask.startDate.toDateString(),
+        endDate: updatedTask.endDate!.toDateString(),
+        startReportDate: updatedTask.startReportDate.toDateString(),
+        endReportDate: updatedTask.endReportDate.toDateString(),
+        frequency: updatedTask.frequency,
+        type: TaskType.GENERATE_CONSUMPTION_REPORT,
+        title: updatedTask.title
+      };
+
+      expect(result).toEqual(expectedTask);
+      expect(generateConsumptionReportTaskRepository.update).toHaveBeenCalledWith(updatedTaskDTO);
+    });
+
+    it("should update a Maintenance Device task successfully", async () => {
+      const existingTask = mockMaintenanceDeviceTasks[0];
+
+      const updatedTaskDTO: UpdateTaskDTO = {
+        publicId: existingTask.publicId,
+        startDate: "2024-09-10T08:00:00.000Z",
+        endDate: "2024-09-25T08:00:00.000Z",
+        frequency: Frequency.WEEKLY,
+        type: TaskType.MAINTENANCE_DEVICE,
+        startReportDate: null,
+        endReportDate: null,
+        title: null,
+        threshold: null
+      };
+
+      const updatedTask: MaintenanceDeviceTask = {
+        ...updatedTaskDTO,
+        id: existingTask.id,
+        deviceId: existingTask.deviceId,
+        operatorId: existingTask.operatorId,
+        supervisorId: existingTask.supervisorId,
+        startDate: new Date(updatedTaskDTO.startDate!),
+        endDate: new Date(updatedTaskDTO.endDate!),
+      };
+
+      const maintenanceDeviceTaskRepository = {
+        update: jest.fn().mockResolvedValueOnce(updatedTask),
+      };
+
+      container.clearInstances();
+      container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      const result: TaskDTO = await baseTaskService.update(updatedTaskDTO);
+
+      const expectedTask: Partial<TaskDTO> = {
+        publicId: updatedTaskDTO.publicId,
+        startDate: updatedTask.startDate.toDateString(),
+        endDate: updatedTask.endDate!.toDateString(),
+        frequency: updatedTask.frequency,
+        type: TaskType.MAINTENANCE_DEVICE,
+      };
+
+      expect(result).toEqual(expectedTask);
+      expect(maintenanceDeviceTaskRepository.update).toHaveBeenCalledWith(updatedTaskDTO);
+    });
+
+    it("should update a Monitorize Consumption task successfully", async () => {
+      const existingTask = mockMonitorizeConsumptionTasks[0];
+
+      const updatedTaskDTO: UpdateTaskDTO = {
+        publicId: existingTask.publicId,
+        startDate: "2024-10-15T16:30:00.000Z",
+        endDate: "2024-10-28T16:30:00.000Z",
+        frequency: Frequency.DAILY,
+        threshold: 8.2,
+        type: TaskType.MONITORIZE_CONSUMPTION,
+        startReportDate: null,
+        endReportDate: null,
+        title: null
+      };
+
+      const updatedTask: MonitorizeConsumptionTask = {
+        ...updatedTaskDTO,
+        id: existingTask.id,
+        deviceId: existingTask.deviceId,
+        operatorId: existingTask.operatorId,
+        supervisorId: existingTask.supervisorId,
+        startDate: new Date(updatedTaskDTO.startDate!),
+        endDate: new Date(updatedTaskDTO.endDate!),
+        threshold: updatedTaskDTO.threshold!
+      };
+
+      const monitorizeConsumptionTaskRepository = {
+        update: jest.fn().mockResolvedValueOnce(updatedTask),
+      };
+
+      container.clearInstances();
+      container.registerInstance("MonitorizeConsumptionTaskRepository", monitorizeConsumptionTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      const result: TaskDTO = await baseTaskService.update(updatedTaskDTO);
+
+      const expectedTask: Partial<TaskDTO> = {
+        publicId: updatedTaskDTO.publicId,
+        startDate: updatedTask.startDate.toDateString(),
+        endDate: updatedTask.endDate!.toDateString(),
+        frequency: updatedTask.frequency,
+        threshold: updatedTask.threshold,
+        type: TaskType.MONITORIZE_CONSUMPTION,
+      };
+
+      expect(result).toEqual(expectedTask);
+      expect(monitorizeConsumptionTaskRepository.update).toHaveBeenCalledWith(updatedTaskDTO);
+    });
+
+    it("should handle update errors gracefully", async () => {
+      const existingTask = mockAnomaliesReportTasks[0];
+
+      const updateTaskDTO: UpdateTaskDTO = {
+        publicId: existingTask.publicId,
+        startDate: "2024-07-01T10:00:00.000Z",
+        endDate: "2024-07-10T10:00:00.000Z",
+        startReportDate: "2024-07-01T10:00:00.000Z",
+        endReportDate: "2024-07-10T10:00:00.000Z",
+        title: "Updated Anomalies Report",
+        threshold: 10,
+        frequency: Frequency.WEEKLY,
+        type: TaskType.GENERATE_ANOMALIES_REPORT,
+      };
+
+      const error = new Error("Database error");
+
+      const generateAnomaliesReportTaskRepository = {
+        update: jest.fn().mockRejectedValueOnce(error),
+      };
+
+      container.clearInstances();
+      container.registerInstance("GenerateAnomaliesReportTaskRepository", generateAnomaliesReportTaskRepository);
+      const baseTaskService = container.resolve(BaseTaskService);
+
+      await expect(baseTaskService.update(updateTaskDTO)).rejects.toThrow(error);
+    });
   });
 
 

@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import "@/config/container";
 import { MonitorizeConsumptionTaskRepository } from "@/src/domain/persistence/tasks/MonitorizeConsumptionTaskRepository";
-import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { MonitorizeConsumptionTask } from "@prisma/client";
 import PrismaTaskRepository from "./PrismaTaskRepository";
 import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
@@ -14,20 +14,23 @@ export default class PrismaMonitorizeConsumptionTaskRepository extends PrismaTas
     super(deviceRepository);
   }
 
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<MonitorizeConsumptionTask | null> {
+    const updatedTask: Partial<MonitorizeConsumptionTask> = {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+      threshold: updateTaskDTO.threshold ?? undefined,
+    };
+
+    return super.updateTask(updateTaskDTO.publicId, this.prisma.monitorizeConsumptionTask, updatedTask);
+  }
+
   async getTaskByPublicId(publicId: string): Promise<MonitorizeConsumptionTask | null> {
-    try {
-      await this.connect();
-      const task = await this.prisma.monitorizeConsumptionTask.findUnique({
-        where: {
-          publicId,
-        },
-      });
-      return task;
-    } catch (error) {
-      return null;
-    } finally {
-      this.disconnect();
-    }
+    return super.getTaskByPublicId(publicId, this.prisma.monitorizeConsumptionTask);
+  }
+
+  async getAll(): Promise<MonitorizeConsumptionTask[]> {
+    return super.getAll(this.prisma.monitorizeConsumptionTask);
   }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<MonitorizeConsumptionTask> {
@@ -54,22 +57,13 @@ export default class PrismaMonitorizeConsumptionTaskRepository extends PrismaTas
         data: {
           startDate,
           endDate,
-          threshold: threshold!,
+          threshold,
           frequency,
           deviceId: device.id,
           operatorId: operator ? operator.id : null,
           supervisorId: supervisor ? supervisor.id : null,
         }
       });
-    } finally {
-      this.disconnect();
-    }
-  }
-
-  async getAll(): Promise<MonitorizeConsumptionTask[]> {
-    try {
-      await this.connect();
-      return this.prisma.monitorizeConsumptionTask.findMany();
     } finally {
       this.disconnect();
     }

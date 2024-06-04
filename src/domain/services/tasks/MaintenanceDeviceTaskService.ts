@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import { MaintenanceDeviceTask } from "@prisma/client";
-import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { MaintenanceDeviceTaskEntity } from "@/src/infrastructure/entities/tasks/MaintenanceDeviceTaskEntity";
 import type { MaintenanceDeviceTaskRepository } from "../../persistence/tasks/MaintenanceDeviceTaskRepository";
 
@@ -25,6 +25,12 @@ class MaintenanceDeviceTaskService {
       console.error("Error creating a task:", error);
       throw error;
     }
+  };
+
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<MaintenanceDeviceTaskEntity> {
+    const task: MaintenanceDeviceTask | null = await this.tasksRepository.update(updateTaskDTO);
+    if (!task) throw new Error("The task could not be updated.");
+    return new MaintenanceDeviceTaskEntity(task);
   };
 
   async getTaskByPublicId(publicId: string): Promise<MaintenanceDeviceTaskEntity | null> {

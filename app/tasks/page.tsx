@@ -26,6 +26,7 @@ export default function TasksView() {
     async function loadTasks() {
       try {
         const allTasks = await TaskApiService.fetchAll();
+        console.log(allTasks)
         setTasks(allTasks);
       } catch (err: any) {
         console.error(err.message);

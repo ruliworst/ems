@@ -3,7 +3,7 @@ import "@/config/container";
 import { container } from "tsyringe";
 import { Frequency, PrismaClient } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
-import { CreateTaskDTO, TaskType } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskType, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import PrismaGenerateConsumptionReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateConsumptionReportTaskRepository";
 
 describe("GenerateConsumptionReportTaskRepository", () => {
@@ -102,6 +102,57 @@ describe("GenerateConsumptionReportTaskRepository", () => {
 
       // Assert
       expect(task).toBeNull();
+    });
+  });
+
+  describe("update", () => {
+    it("should update a generate consumption report task successfully", async () => {
+      // Arrange
+      const updatedTaskData: UpdateTaskDTO = {
+        publicId,
+        startDate: "2024-08-01T10:00:00.000Z",
+        endDate: "2024-08-15T10:00:00.000Z",
+        frequency: Frequency.MONTHLY,
+        startReportDate: "2024-08-01T10:00:00.000Z",
+        endReportDate: "2024-08-15T10:00:00.000Z",
+        title: "Updated Consumption Report",
+        threshold: 10,
+        type: TaskType.GENERATE_CONSUMPTION_REPORT
+      };
+
+      // Act
+      const updatedTask = await consumptionReportTaskRepository.update(updatedTaskData);
+
+      // Assert
+      expect(updatedTask).toMatchObject({
+        startDate: new Date(updatedTaskData.startDate!),
+        endDate: new Date(updatedTaskData.endDate!),
+        frequency: updatedTaskData.frequency,
+        startReportDate: new Date(updatedTaskData.startReportDate!),
+        endReportDate: new Date(updatedTaskData.endReportDate!),
+        title: updatedTaskData.title,
+      });
+    });
+
+    it("should return null if task not found", async () => {
+      // Arrange
+      const nonExistentPublicId = "non-existent-publicId";
+
+      // Act
+      const updatedTask = await consumptionReportTaskRepository.update({
+        publicId: nonExistentPublicId,
+        startDate: "2024-08-01T10:00:00.000Z",
+        endDate: "2024-08-15T10:00:00.000Z",
+        frequency: Frequency.MONTHLY,
+        startReportDate: "2024-08-01T10:00:00.000Z",
+        endReportDate: "2024-08-15T10:00:00.000Z",
+        title: "Updated Consumption Report",
+        threshold: 10,
+        type: TaskType.GENERATE_CONSUMPTION_REPORT
+      });
+
+      // Assert
+      expect(updatedTask).toBeNull();
     });
   });
 });

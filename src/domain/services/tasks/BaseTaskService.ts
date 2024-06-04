@@ -1,6 +1,6 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
-import { CreateTaskDTO, TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskDTO, TaskType, TaskViewDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import GenerateAnomaliesReportTaskService from "./GenerateAnomaliesReportTaskService";
 import { GenerateAnomaliesReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateAnomaliesReportTaskEntity";
 import { GenerateConsumptionReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateConsumptionReportTaskEntity";
@@ -34,6 +34,27 @@ class BaseTaskService {
 
     return tasks;
   };
+
+  async update(updateTaskDTO: UpdateTaskDTO): Promise<TaskDTO> {
+    let updateTask;
+    try {
+      if (updateTaskDTO.type === TaskType.GENERATE_ANOMALIES_REPORT) {
+        updateTask = await this.anomaliesReportTaskService.update(updateTaskDTO);
+      } else if (updateTaskDTO.type === TaskType.GENERATE_CONSUMPTION_REPORT) {
+        updateTask = await this.consumptionReportTaskService.update(updateTaskDTO);
+      } else if (updateTaskDTO.type === TaskType.MAINTENANCE_DEVICE) {
+        updateTask = await this.maintenanceDeviceTaskService.update(updateTaskDTO);
+      } else if (updateTaskDTO.type === TaskType.MONITORIZE_CONSUMPTION) {
+        updateTask = await this.monitorizeConsumptionTaskService.update(updateTaskDTO);
+      } else {
+        throw new Error("The specified task type is not valid.")
+      }
+      return updateTask.getTaskDTO();
+    } catch (error) {
+      console.error("Error updating a task:", error);
+      throw error;
+    }
+  }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<TaskViewDTO> {
     let createdTask;

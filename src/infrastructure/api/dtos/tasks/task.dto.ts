@@ -16,6 +16,7 @@ export type TaskDTO = {
   endReportDate?: string | null
   title?: string | null
   threshold?: number | null
+  type?: TaskType
 }
 
 export type TaskViewDTO = {
@@ -37,4 +38,16 @@ export type CreateTaskDTO = {
   title: string | null
   deviceName: string
   operatorEmail: string | null
+}
+
+export type UpdateTaskDTO = {
+  publicId: string
+  startDate: string | null
+  endDate: string | null
+  frequency: Frequency
+  type: TaskType
+  threshold: number | null
+  startReportDate: string | null
+  endReportDate: string | null
+  title: string | null
 }

@@ -114,6 +114,7 @@ describe("GenerateAnomaliesReportTaskService", () => {
       getAll: jest.fn().mockResolvedValue(mockTasks),
       create: jest.fn().mockResolvedValue(createdTask),
       getTaskByPublicId: jest.fn().mockResolvedValue(mockTaskEntities[0]),
+      update: jest.fn()
     } as jest.Mocked<GenerateAnomaliesReportTaskRepository>;
 
     container.registerInstance("GenerateAnomaliesReportTaskRepository", tasksRepository);
