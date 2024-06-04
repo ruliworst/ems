@@ -1,7 +1,7 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
-import { GenerateAnomaliesReportTask, Prisma } from "@prisma/client";
+import { GenerateAnomaliesReportTask } from "@prisma/client";
 import { GenerateAnomaliesReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateAnomaliesReportTaskEntity";
 import type { GenerateAnomaliesReportTaskRepository } from "../../persistence/tasks/GenerateAnomaliesReportTaskRepository";
 
@@ -11,10 +11,8 @@ class GenerateAnomaliesReportTaskService {
     @inject("GenerateAnomaliesReportTaskRepository") private tasksRepository: GenerateAnomaliesReportTaskRepository
   ) { }
 
-  // TODO: Include Device and Operator/Supervisor relationships.
   async getAll(): Promise<GenerateAnomaliesReportTaskEntity[]> {
     const tasks: GenerateAnomaliesReportTask[] = await this.tasksRepository.getAll();
-
     return tasks.map<GenerateAnomaliesReportTaskEntity>(task => new GenerateAnomaliesReportTaskEntity(task));
   };
 

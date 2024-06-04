@@ -57,7 +57,7 @@ export default class PrismaMonitorizeConsumptionTaskRepository extends PrismaTas
         data: {
           startDate,
           endDate,
-          threshold: threshold!,
+          threshold,
           frequency,
           deviceId: device.id,
           operatorId: operator ? operator.id : null,

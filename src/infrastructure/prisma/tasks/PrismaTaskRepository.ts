@@ -2,7 +2,6 @@ import { inject } from "tsyringe";
 import "@/config/container";
 import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
 import { Operator, PrismaClient, Supervisor } from "@prisma/client";
-import { UpdateTaskDTO } from "../../api/dtos/tasks/task.dto";
 
 export default abstract class PrismaTaskRepository<T> {
   protected prisma: PrismaClient;
@@ -65,8 +64,8 @@ export default abstract class PrismaTaskRepository<T> {
   }
 
   async getOperatorAndSupervisor(operatorEmail: string): Promise<{ operator: Operator | null, supervisor: Supervisor | null }> {
-    const operator: Operator | null = await this.prisma.operator.findUnique({ where: { email: operatorEmail! } });
-    const supervisor: Supervisor | null = await this.prisma.supervisor.findUnique({ where: { email: operatorEmail! } });
+    const operator: Operator | null = await this.prisma.operator.findUnique({ where: { email: operatorEmail } });
+    const supervisor: Supervisor | null = await this.prisma.supervisor.findUnique({ where: { email: operatorEmail } });
     if (!operator && !supervisor) {
       throw new Error(`Due to the operator or supervisor with email: ${operatorEmail} was not found, the task cannot be created.`);
     }
