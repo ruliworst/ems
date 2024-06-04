@@ -27,6 +27,19 @@ class GenerateConsumptionReportTaskService {
     }
   };
 
+  async delete(publicId: string): Promise<GenerateConsumptionReportTaskEntity | null> {
+    try {
+      const task: GenerateConsumptionReportTask | null = await this.tasksRepository.delete(publicId);
+      if (!task) {
+        throw new Error("The task could not be deleted.");
+      }
+      return new GenerateConsumptionReportTaskEntity({ ...task });
+    } catch (error) {
+      console.error("Error deleting a task:", error);
+      return null;
+    }
+  };
+
   async update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateConsumptionReportTaskEntity> {
     const task: GenerateConsumptionReportTask | null = await this.tasksRepository.update(updateTaskDTO);
     if (!task) throw new Error("The task could not be updated.");

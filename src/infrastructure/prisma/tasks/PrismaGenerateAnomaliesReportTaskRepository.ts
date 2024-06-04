@@ -36,6 +36,10 @@ export default class PrismaGenerateAnomaliesReportTaskRepository extends PrismaT
     return super.getAll(this.prisma.generateAnomaliesReportTask);
   }
 
+  async delete(publicId: string): Promise<GenerateAnomaliesReportTask | null> {
+    return super.delete(publicId, this.prisma.generateAnomaliesReportTask);
+  }
+
   async create(createTaskDTO: CreateTaskDTO): Promise<GenerateAnomaliesReportTask> {
     if (createTaskDTO.startReportDate === undefined ||
       createTaskDTO.endReportDate === undefined ||

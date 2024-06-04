@@ -35,3 +35,17 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
+
+  try {
+    const task: TaskDTO | null = await taskService.delete(id);
+    if (!task) {
+      return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+    }
+    return NextResponse.json(task, { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: 'Failed to task device' }, { status: 500 });
+  }
+}

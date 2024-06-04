@@ -31,6 +31,19 @@ export class TaskApiService {
     return response.json();
   }
 
+  static async delete(publicId: string): Promise<TaskDTO> {
+    const response = await fetch(`/api/tasks/${publicId}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    if (!response.ok) {
+      throw new Error(`Failed to delete task with public identifier ${publicId}`);
+    }
+    return response.json();
+  }
+
   static async patch(updateTaskDTO: UpdateTaskDTO): Promise<TaskDTO> {
     const response = await fetch(`/api/tasks/${updateTaskDTO.publicId}`, {
       method: "PATCH",
