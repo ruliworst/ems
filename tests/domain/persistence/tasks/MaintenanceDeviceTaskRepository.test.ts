@@ -4,7 +4,7 @@ import { container } from "tsyringe";
 import { Frequency, PrismaClient } from "@prisma/client";
 import PrismaMaintenanceDeviceTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMaintenanceDeviceTaskRepository";
 import { v4 as uuidv4 } from 'uuid';
-import { CreateTaskDTO, TaskType } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskType, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 
 describe("MaintenanceDeviceTaskRepository", () => {
   let maintenanceDeviceTaskRepository: PrismaMaintenanceDeviceTaskRepository;
@@ -82,6 +82,54 @@ describe("MaintenanceDeviceTaskRepository", () => {
 
       // Assert
       expect(task).toBeNull();
+    });
+  });
+
+  describe("update", () => {
+    it("should update a maintenance device task successfully", async () => {
+      // Arrange
+      const updatedTaskData: UpdateTaskDTO = {
+        publicId,
+        startDate: "2024-09-05T10:00:00.000Z",
+        endDate: "2024-09-20T10:00:00.000Z",
+        frequency: Frequency.WEEKLY,
+        type: TaskType.MAINTENANCE_DEVICE,
+        threshold: null,
+        startReportDate: null,
+        endReportDate: null,
+        title: null
+      };
+
+      // Act
+      const updatedTask = await maintenanceDeviceTaskRepository.update(updatedTaskData);
+
+      // Assert
+      expect(updatedTask).toMatchObject({
+        startDate: new Date(updatedTaskData.startDate!),
+        endDate: new Date(updatedTaskData.endDate!),
+        frequency: updatedTaskData.frequency,
+      });
+    });
+
+    it("should return null if task not found", async () => {
+      // Arrange
+      const nonExistentPublicId = "non-existent-publicId";
+
+      // Act
+      const updatedTask = await maintenanceDeviceTaskRepository.update({
+        publicId: nonExistentPublicId,
+        startDate: "2024-09-05T10:00:00.000Z",
+        endDate: "2024-09-20T10:00:00.000Z",
+        frequency: Frequency.WEEKLY,
+        type: TaskType.MAINTENANCE_DEVICE,
+        threshold: null,
+        startReportDate: null,
+        endReportDate: null,
+        title: null
+      });
+
+      // Assert
+      expect(updatedTask).toBeNull();
     });
   });
 });

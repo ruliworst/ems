@@ -2,7 +2,7 @@ import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
 import { Frequency, PrismaClient } from "@prisma/client";
-import { CreateTaskDTO, TaskType } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, TaskType, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import PrismaGenerateAnomaliesReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateAnomaliesReportTaskRepository";
 import { v4 as uuidv4 } from 'uuid';
 
@@ -104,6 +104,58 @@ describe("GenerateAnomaliesReportTaskRepository", () => {
 
       // Assert
       expect(task).toBeNull();
+    });
+  });
+
+  describe("update", () => {
+    it("should update a generate anomalies report task successfully", async () => {
+      // Arrange
+      const updatedTaskData: UpdateTaskDTO = {
+        publicId,
+        startDate: "2024-07-20T10:00:00.000Z",
+        endDate: "2024-07-30T10:00:00.000Z",
+        frequency: Frequency.MONTHLY,
+        startReportDate: "2024-07-20T10:00:00.000Z",
+        endReportDate: "2024-07-30T10:00:00.000Z",
+        title: "Updated Anomalies Report",
+        threshold: 8,
+        type: TaskType.GENERATE_ANOMALIES_REPORT
+      };
+
+      // Act
+      const updatedTask = await anomaliesReportTaskRepository.update(updatedTaskData);
+
+      // Assert
+      expect(updatedTask).toMatchObject({
+        startDate: new Date(updatedTaskData.startDate!),
+        endDate: new Date(updatedTaskData.endDate!),
+        frequency: updatedTaskData.frequency,
+        startReportDate: new Date(updatedTaskData.startReportDate!),
+        endReportDate: new Date(updatedTaskData.endReportDate!),
+        title: updatedTaskData.title,
+        threshold: updatedTaskData.threshold,
+      });
+    });
+
+    it("should return null if task not found", async () => {
+      // Arrange
+      const nonExistentPublicId = "non-existent-publicId";
+
+      // Act
+      const updatedTask = await anomaliesReportTaskRepository.update({
+        publicId: nonExistentPublicId,
+        startDate: "2024-07-20T10:00:00.000Z",
+        endDate: "2024-07-30T10:00:00.000Z",
+        frequency: Frequency.MONTHLY,
+        startReportDate: "2024-07-20T10:00:00.000Z",
+        endReportDate: "2024-07-30T10:00:00.000Z",
+        title: "Updated Anomalies Report",
+        threshold: 8,
+        type: TaskType.GENERATE_ANOMALIES_REPORT
+      });
+
+      // Assert
+      expect(updatedTask).toBeNull();
     });
   });
 });
