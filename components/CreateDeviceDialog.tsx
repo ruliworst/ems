@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { useState } from "react";
-import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -24,10 +23,10 @@ import {
 } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { Textarea } from "@/components/ui/textarea";
-import { DeviceApiService } from "@/adapters/services/devices/DeviceApiService";
-import { CreateDeviceDTO, DeviceDTO } from "@/dtos/devices/device.dto";
+import { CreateDeviceDTO, DeviceDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from "@/components/ui/use-toast";
+import { DeviceApiService } from "@/src/infrastructure/api/services/devices/DeviceApiService";
 
 export default function CreateDeviceDialog({ onDeviceCreated }: { onDeviceCreated: (device: DeviceDTO) => void }) {
   const { toast } = useToast()

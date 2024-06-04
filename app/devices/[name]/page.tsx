@@ -1,8 +1,8 @@
 "use client";
 
-import { DeviceApiService } from '@/adapters/services/devices/DeviceApiService';
 import DeviceView from '@/components/DeviceView'
-import { DeviceDTO } from '@/dtos/devices/device.dto';
+import { DeviceDTO } from '@/src/infrastructure/api/dtos/devices/device.dto';
+import { DeviceApiService } from '@/src/infrastructure/api/services/devices/DeviceApiService';
 import { useEffect, useState } from 'react';
 
 export default function DevicePage({ params }: { params: { name: string } }) {
@@ -13,7 +13,6 @@ export default function DevicePage({ params }: { params: { name: string } }) {
     async function getDevice() {
       try {
         const device = await DeviceApiService.fetchByName(name!);
-        console.log(device)
         setDevice(device);
       } catch (err: any) {
         console.error(err.message);

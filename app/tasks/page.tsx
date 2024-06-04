@@ -11,10 +11,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { TaskType, TaskViewDTO } from "@/dtos/tasks/task.dto";
-import { TaskApiService } from "@/adapters/services/tasks/TaskApiService";
+import { TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { v4 as uuidv4 } from "uuid";
 import CreateTaskDialog from "@/components/CreateTaskDialog";
+import { TaskApiService } from "@/src/infrastructure/api/services/tasks/TaskApiService";
 
 // TODO: Restyle the top layout.
 
@@ -23,16 +23,17 @@ export default function TasksView() {
   const [tasks, setTasks] = useState<TaskViewDTO[]>([]);
 
   useEffect(() => {
-    async function loadDevices() {
+    async function loadTasks() {
       try {
         const allTasks = await TaskApiService.fetchAll();
+        console.log(allTasks)
         setTasks(allTasks);
       } catch (err: any) {
         console.error(err.message);
       }
     }
 
-    loadDevices();
+    loadTasks();
   }, []);
 
   function getTypeAsString(type: TaskType): string {
@@ -90,7 +91,7 @@ export default function TasksView() {
                   <TableCell>{task.endDate}</TableCell>
                   <TableCell>{task.frequency}</TableCell>
                   <TableCell>
-                    <a href={`/tasks`}>
+                    <a href={`/tasks/${task.publicId}`}>
                       <Button variant="secondary" className="hover:bg-gray-300"><i className="fa-solid fa-eye text-md"></i></Button>
                     </a>
                   </TableCell>

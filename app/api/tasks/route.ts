@@ -2,8 +2,8 @@ import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
 import { NextRequest, NextResponse } from "next/server";
-import BaseTaskService from "@/application/services/tasks/BaseTaskService";
-import { CreateTaskDTO, TaskViewDTO } from "@/dtos/tasks/task.dto";
+import BaseTaskService from "@/src/domain/services/tasks/BaseTaskService";
+import { CreateTaskDTO, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 
 export async function GET() {
   const baseTaskService = container.resolve(BaseTaskService);

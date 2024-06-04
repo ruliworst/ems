@@ -10,12 +10,6 @@ export default function Sidebar() {
         <nav className="mt-6">
           <ul>
             <li className="px-8 py-4">
-              <Link className="flex items-center space-x-2 hover:text-white hover:font-semibold hover:text-xl" href="/">
-                <i className="fas fa-th-large"></i>
-                <span className="text-lg">Overview</span>
-              </Link>
-            </li>
-            <li className="px-8 py-4">
               <Link className="flex items-center space-x-2 hover:text-white hover:font-semibold hover:text-xl" href="/devices">
                 <i className="fas fa-desktop"></i>
                 <span className="text-lg">Devices</span>
@@ -47,7 +41,7 @@ export default function Sidebar() {
           <li className="px-8 py-4">
             <Link className="flex items-center space-x-2 hover:text-white hover:font-semibold hover:text-xl" href="/register">
               <i className="fas fa-user-plus"></i>
-              <span className="text-lg">Register User</span>
+              <span className="text-lg">Register Operator</span>
             </Link>
           </li>
           <li className="px-8 py-4">
