@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import "@/config/container";
 import { MaintenanceDeviceTaskRepository } from "@/src/domain/persistence/tasks/MaintenanceDeviceTaskRepository";
-import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { MaintenanceDeviceTask } from "@prisma/client";
 import PrismaTaskRepository from "./PrismaTaskRepository";
 import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
@@ -14,20 +14,16 @@ export default class PrismaMaintenanceDeviceTaskRepository extends PrismaTaskRep
     super(deviceRepository);
   }
 
+  update(updateTaskDTO: UpdateTaskDTO): Promise<MaintenanceDeviceTask | null> {
+    throw new Error("Method not implemented.");
+  }
+
   async getTaskByPublicId(publicId: string): Promise<MaintenanceDeviceTask | null> {
-    try {
-      await this.connect();
-      const task = await this.prisma.maintenanceDeviceTask.findUnique({
-        where: {
-          publicId,
-        },
-      });
-      return task;
-    } catch (error) {
-      return null;
-    } finally {
-      this.disconnect();
-    }
+    return super.getTaskByPublicId(publicId, this.prisma.maintenanceDeviceTask);
+  }
+
+  async getAll(): Promise<MaintenanceDeviceTask[]> {
+    return super.getAll(this.prisma.maintenanceDeviceTask);
   }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<MaintenanceDeviceTask> {
@@ -55,15 +51,6 @@ export default class PrismaMaintenanceDeviceTaskRepository extends PrismaTaskRep
           supervisorId: supervisor ? supervisor.id : null,
         }
       });
-    } finally {
-      this.disconnect();
-    }
-  }
-
-  async getAll(): Promise<MaintenanceDeviceTask[]> {
-    try {
-      await this.connect();
-      return this.prisma.maintenanceDeviceTask.findMany();
     } finally {
       this.disconnect();
     }

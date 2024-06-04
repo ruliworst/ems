@@ -38,3 +38,15 @@ export type CreateTaskDTO = {
   deviceName: string
   operatorEmail: string | null
 }
+
+export type UpdateTaskDTO = {
+  publicId: string
+  startDate: string | null
+  endDate: string | null
+  frequency: Frequency
+  type: TaskType
+  threshold: number | null
+  startReportDate: string | null
+  endReportDate: string | null
+  title: string | null
+}

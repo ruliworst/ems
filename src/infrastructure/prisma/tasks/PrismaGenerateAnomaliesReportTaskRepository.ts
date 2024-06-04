@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import "@/config/container";
 import { GenerateAnomaliesReportTaskRepository } from "@/src/domain/persistence/tasks/GenerateAnomaliesReportTaskRepository";
-import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { GenerateAnomaliesReportTask } from "@prisma/client";
 import PrismaTaskRepository from "./PrismaTaskRepository";
 import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
@@ -13,30 +13,16 @@ export default class PrismaGenerateAnomaliesReportTaskRepository extends PrismaT
   ) {
     super(deviceRepository);
   }
+  update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateAnomaliesReportTask | null> {
+    throw new Error("Method not implemented.");
+  }
 
   async getTaskByPublicId(publicId: string): Promise<GenerateAnomaliesReportTask | null> {
-    try {
-      await this.connect();
-      const task = await this.prisma.generateAnomaliesReportTask.findUnique({
-        where: {
-          publicId,
-        },
-      });
-      return task;
-    } catch (error) {
-      return null;
-    } finally {
-      this.disconnect();
-    }
+    return super.getTaskByPublicId(publicId, this.prisma.generateAnomaliesReportTask);
   }
 
   async getAll(): Promise<GenerateAnomaliesReportTask[]> {
-    try {
-      await this.connect();
-      return this.prisma.generateAnomaliesReportTask.findMany();
-    } finally {
-      this.disconnect();
-    }
+    return super.getAll(this.prisma.generateAnomaliesReportTask);
   }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<GenerateAnomaliesReportTask> {

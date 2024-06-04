@@ -1,7 +1,7 @@
 import { inject, injectable } from "tsyringe";
 import "@/config/container";
 import { MonitorizeConsumptionTaskRepository } from "@/src/domain/persistence/tasks/MonitorizeConsumptionTaskRepository";
-import { CreateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { MonitorizeConsumptionTask } from "@prisma/client";
 import PrismaTaskRepository from "./PrismaTaskRepository";
 import type { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
@@ -14,20 +14,16 @@ export default class PrismaMonitorizeConsumptionTaskRepository extends PrismaTas
     super(deviceRepository);
   }
 
+  update(updateTaskDTO: UpdateTaskDTO): Promise<MonitorizeConsumptionTask | null> {
+    throw new Error("Method not implemented.");
+  }
+
   async getTaskByPublicId(publicId: string): Promise<MonitorizeConsumptionTask | null> {
-    try {
-      await this.connect();
-      const task = await this.prisma.monitorizeConsumptionTask.findUnique({
-        where: {
-          publicId,
-        },
-      });
-      return task;
-    } catch (error) {
-      return null;
-    } finally {
-      this.disconnect();
-    }
+    return super.getTaskByPublicId(publicId, this.prisma.monitorizeConsumptionTask);
+  }
+
+  async getAll(): Promise<MonitorizeConsumptionTask[]> {
+    return super.getAll(this.prisma.monitorizeConsumptionTask);
   }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<MonitorizeConsumptionTask> {
@@ -61,15 +57,6 @@ export default class PrismaMonitorizeConsumptionTaskRepository extends PrismaTas
           supervisorId: supervisor ? supervisor.id : null,
         }
       });
-    } finally {
-      this.disconnect();
-    }
-  }
-
-  async getAll(): Promise<MonitorizeConsumptionTask[]> {
-    try {
-      await this.connect();
-      return this.prisma.monitorizeConsumptionTask.findMany();
     } finally {
       this.disconnect();
     }
