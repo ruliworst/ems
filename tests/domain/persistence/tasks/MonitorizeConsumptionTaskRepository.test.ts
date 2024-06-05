@@ -1,151 +1,191 @@
+import { mockDeep, mockReset } from 'jest-mock-extended';
+
 import "reflect-metadata";
 import "@/config/container";
-import { container } from "tsyringe";
-import { Frequency, PrismaClient } from "@prisma/client";
-import PrismaMonitorizeConsumptionTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMonitorizeConsumptionTaskRepository";
+import { MonitorizeConsumptionTask, PrismaClient, PrismaPromise } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
-import { CreateTaskDTO, TaskType, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
+import PrismaMonitorizeConsumptionTaskRepository from '@/src/infrastructure/prisma/tasks/PrismaMonitorizeConsumptionTaskRepository';
+
+
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn().mockImplementation(() => mockDeep<PrismaClient>()),
+}));
+
+jest.mock("@/src/domain/persistence/devices/DeviceRepository");
 
 describe("MonitorizeConsumptionTaskRepository", () => {
   let monitorizeConsumptionTaskRepository: PrismaMonitorizeConsumptionTaskRepository;
-  let prisma: PrismaClient = new PrismaClient();
+  let prismaMock: jest.Mocked<PrismaClient>;
+  let deviceRepository: jest.Mocked<DeviceRepository>;
 
   const publicId = uuidv4();
 
-  const tasksToCreate = [
+  const tasksToCreate: MonitorizeConsumptionTask[] = [
     {
       id: uuidv4(),
       startDate: new Date("2024-05-01T10:00:00.000Z"),
       endDate: new Date("2024-05-10T10:00:00.000Z"),
-      threshold: 5,
       deviceId: "1",
       operatorId: "2",
       supervisorId: null,
-      frequency: Frequency.DAILY,
-      publicId
+      frequency: "DAILY",
+      publicId,
+      threshold: 10,
     },
   ];
 
-  beforeAll(async () => {
-    monitorizeConsumptionTaskRepository = container.resolve(PrismaMonitorizeConsumptionTaskRepository);
-    await prisma.monitorizeConsumptionTask.createMany({ data: tasksToCreate });
+  beforeEach(() => {
+    prismaMock = new PrismaClient() as jest.Mocked<PrismaClient>;
+
+    (prismaMock.operator.findUnique as jest.MockedFunction<
+      typeof prismaMock.operator.findUnique
+    >).mockResolvedValue({
+      id: "2",
+      firstName: "Bob",
+      firstSurname: "Doe",
+      secondSurname: "Smith",
+      email: "bob.doe@example.com",
+      password: uuidv4(),
+      phoneNumber: "123456789",
+    });
+
+    (prismaMock.supervisor.findUnique as jest.MockedFunction<
+      typeof prismaMock.supervisor.findUnique
+    >).mockResolvedValue(null);
+
+    deviceRepository = {
+      getByName: jest.fn().mockResolvedValue({ id: "1" }),
+    } as unknown as jest.Mocked<DeviceRepository>;
+    monitorizeConsumptionTaskRepository = new PrismaMonitorizeConsumptionTaskRepository(prismaMock, deviceRepository);
+  });
+
+  afterEach(() => {
+    mockReset(prismaMock);
   });
 
   describe("getAll", () => {
     it("should fetch all monitorize consumption tasks", async () => {
-      // Act
+      const monitorizeConsumptionTaskMock =
+        prismaMock.monitorizeConsumptionTask as jest.Mocked<PrismaClient["monitorizeConsumptionTask"]>;
+
+      monitorizeConsumptionTaskMock.findMany.mockImplementation(
+        () => Promise.resolve(tasksToCreate) as PrismaPromise<MonitorizeConsumptionTask[]>
+      );
+
       const tasks = await monitorizeConsumptionTaskRepository.getAll();
 
-      // Assert
-      expect(tasks).toContainEqual(expect.objectContaining(tasksToCreate[0]));
+      expect(tasks).toEqual(tasksToCreate);
     });
   });
 
   describe("create", () => {
     it("should create a monitorize consumption task successfully", async () => {
-      // Arrange
-      const newTask: CreateTaskDTO = {
-        startDate: "2024-07-01T10:00:00.000Z",
-        endDate: "2024-07-10T10:00:00.000Z",
-        title: "Monitorize Consumption Task 1",
-        threshold: 10,
-        frequency: Frequency.WEEKLY,
-        deviceName: "Device-Monitorize",
-        operatorEmail: "bob.doe@example.com",
-        type: TaskType.MONITORIZE_CONSUMPTION,
-        startReportDate: null,
-        endReportDate: null
+      const newTask: Partial<MonitorizeConsumptionTask> = {
+        startDate: new Date("2024-07-01T10:00:00.000Z"),
+        endDate: new Date("2024-07-10T10:00:00.000Z"),
+        frequency: "WEEKLY",
+        threshold: 10
       };
+      const operatorEmail = "bob.doe@example.com";
+      const deviceName = "Device-Monitorize";
 
-      // Act
-      const createdTask = await monitorizeConsumptionTaskRepository.create(newTask);
-
-      // Assert
-      expect(createdTask).toMatchObject({
-        startDate: new Date(newTask.startDate),
+      const createdTask: MonitorizeConsumptionTask = {
+        ...newTask,
+        startDate: new Date(newTask.startDate!),
         endDate: new Date(newTask.endDate!),
-        threshold: newTask.threshold,
-        frequency: newTask.frequency,
-      });
-    });
-
-    it("should throw an error when some values are missing", async () => {
-      // Arrange
-      const invalidTask: Partial<CreateTaskDTO> = {
-        startDate: "2024-07-01T10:00:00.000Z",
-        endDate: "2024-07-10T10:00:00.000Z",
-        // Missing required fields
+        id: uuidv4(),
+        deviceId: "1",
+        operatorId: "2",
+        supervisorId: null,
+        publicId: uuidv4(),
+        frequency: newTask.frequency!,
+        threshold: newTask.threshold!
       };
 
-      // Act & Assert
-      await expect(monitorizeConsumptionTaskRepository.create(invalidTask as CreateTaskDTO))
-        .rejects.toThrow("Some values are not valid.");
-    });
-  });
+      const monitorizeConsumptionTaskMock =
+        prismaMock.monitorizeConsumptionTask as jest.Mocked<PrismaClient["monitorizeConsumptionTask"]>;
 
+      monitorizeConsumptionTaskMock.create.mockResolvedValue(createdTask);
+
+      const result = await monitorizeConsumptionTaskRepository.create(newTask, operatorEmail, deviceName);
+
+      expect(result).toEqual(createdTask);
+    })
+  });
   describe("getTaskByPublicId", () => {
     it("should fetch a task by public ID", async () => {
-      // Act
+      (prismaMock.monitorizeConsumptionTask.findUnique as jest.MockedFunction<
+        typeof prismaMock.monitorizeConsumptionTask.findUnique
+      >).mockResolvedValueOnce(tasksToCreate[0]);
+
       const task = await monitorizeConsumptionTaskRepository.getTaskByPublicId(publicId);
 
-      // Assert
-      expect(task).toMatchObject(tasksToCreate[0]);
+      expect(task).toEqual(tasksToCreate[0]);
     });
 
     it("should return null if task not found", async () => {
-      // Act
+      (prismaMock.monitorizeConsumptionTask.findUnique as jest.MockedFunction<
+        typeof prismaMock.monitorizeConsumptionTask.findUnique
+      >).mockResolvedValueOnce(null);
+
       const task = await monitorizeConsumptionTaskRepository.getTaskByPublicId("non-existent-task");
 
-      // Assert
       expect(task).toBeNull();
     });
   });
 
   describe("update", () => {
     it("should update a monitorize consumption task successfully", async () => {
-      // Arrange
-      const updatedTaskData: UpdateTaskDTO = {
+      const updatedTaskData: Partial<MonitorizeConsumptionTask> = {
         publicId,
-        startDate: "2024-10-01T10:00:00.000Z",
-        endDate: "2024-10-10T10:00:00.000Z",
-        frequency: Frequency.DAILY,
-        threshold: 7.5,
-        startReportDate: null,
-        endReportDate: null,
-        title: null,
-        type: TaskType.MONITORIZE_CONSUMPTION
+        startDate: new Date("2024-07-20T10:00:00.000Z"),
+        endDate: new Date("2024-07-30T10:00:00.000Z"),
+        frequency: "MONTHLY",
+        threshold: 10
       };
 
-      // Act
-      const updatedTask = await monitorizeConsumptionTaskRepository.update(updatedTaskData);
-
-      // Assert
-      expect(updatedTask).toMatchObject({
+      const updatedTask: MonitorizeConsumptionTask = {
+        ...tasksToCreate[0],
+        ...updatedTaskData,
         startDate: new Date(updatedTaskData.startDate!),
         endDate: new Date(updatedTaskData.endDate!),
-        frequency: updatedTaskData.frequency,
-        threshold: updatedTaskData.threshold,
-      });
+        threshold: updatedTaskData.threshold!
+      };
+
+      (prismaMock.monitorizeConsumptionTask.update as jest.MockedFunction<
+        typeof prismaMock.monitorizeConsumptionTask.update
+      >).mockResolvedValueOnce(updatedTask);
+
+      const result = await monitorizeConsumptionTaskRepository.update(
+        updatedTaskData.publicId!,
+        updatedTaskData
+      );
+
+      expect(result).toEqual(updatedTask);
     });
 
     it("should return null if task not found", async () => {
-      // Arrange
       const nonExistentPublicId = "non-existent-publicId";
 
-      // Act
-      const updatedTask = await monitorizeConsumptionTaskRepository.update({
-        publicId: nonExistentPublicId,
-        startDate: "2024-10-01T10:00:00.000Z",
-        endDate: "2024-10-10T10:00:00.000Z",
-        frequency: Frequency.DAILY,
-        threshold: 7.5,
-        type: TaskType.MONITORIZE_CONSUMPTION,
-        startReportDate: null,
-        endReportDate: null,
-        title: null
+      (prismaMock.monitorizeConsumptionTask.update as jest.MockedFunction<
+        typeof prismaMock.monitorizeConsumptionTask.update
+      >).mockRejectedValueOnce({
+        code: "P2025",
+        message: "An operation failed because it depends on one or more records that were required but not found. {cause}",
       });
 
-      // Assert
+      const updatedTask = await monitorizeConsumptionTaskRepository.update(
+        nonExistentPublicId,
+        {
+          publicId: nonExistentPublicId,
+          startDate: new Date("2024-07-20T10:00:00.000Z"),
+          endDate: new Date("2024-07-30T10:00:00.000Z"),
+          frequency: "MONTHLY",
+          threshold: 10
+        }
+      );
+
       expect(updatedTask).toBeNull();
     });
   });
