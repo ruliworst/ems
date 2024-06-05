@@ -1,55 +1,44 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
-import { MonitorizeConsumptionTask } from "@prisma/client";
 import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { MonitorizeConsumptionTask } from "@prisma/client";
+import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
+import { TaskService } from "./TaskService";
 import { MonitorizeConsumptionTaskEntity } from "@/src/infrastructure/entities/tasks/MonitorizeConsumptionTaskEntity";
-import type { MonitorizeConsumptionTaskRepository } from "../../persistence/tasks/MonitorizeConsumptionTaskRepository";
 
 @injectable()
-class MonitorizeConsumptionTaskService {
+class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumptionTask, MonitorizeConsumptionTaskEntity> {
   constructor(
-    @inject("MonitorizeConsumptionTaskRepository") private tasksRepository: MonitorizeConsumptionTaskRepository
-  ) { }
+    @inject("MonitorizeConsumptionTaskRepository") taskRepository: TaskRepository<MonitorizeConsumptionTask>
+  ) {
+    super(taskRepository);
+  }
 
-  async getAll(): Promise<MonitorizeConsumptionTaskEntity[]> {
-    const tasks: MonitorizeConsumptionTask[] = await this.tasksRepository.getAll();
+  protected mapToEntity(task: MonitorizeConsumptionTask): MonitorizeConsumptionTaskEntity {
+    return new MonitorizeConsumptionTaskEntity({ ...task });
+  }
 
-    return tasks.map<MonitorizeConsumptionTaskEntity>(task => new MonitorizeConsumptionTaskEntity(task));
-  };
-
-  async create(createTaskDTO: CreateTaskDTO): Promise<MonitorizeConsumptionTaskEntity> {
-    try {
-      const task: MonitorizeConsumptionTask = await this.tasksRepository.create(createTaskDTO);
-      return new MonitorizeConsumptionTaskEntity(task);
-    } catch (error) {
-      console.error("Error creating a task:", error);
-      throw error;
+  protected checkAttributes(createTaskDTO: CreateTaskDTO): void {
+    if (createTaskDTO.threshold === (undefined || null)) {
+      throw new Error("Some values are not valid.");
     }
-  };
+  }
 
-  async delete(publicId: string): Promise<MonitorizeConsumptionTaskEntity | null> {
-    try {
-      const task: MonitorizeConsumptionTask | null = await this.tasksRepository.delete(publicId);
-      if (!task) {
-        throw new Error("The task could not be deleted.");
-      }
-      return new MonitorizeConsumptionTaskEntity({ ...task });
-    } catch (error) {
-      console.error("Error deleting a task:", error);
-      return null;
-    }
-  };
+  protected getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<MonitorizeConsumptionTask> {
+    return {
+      startDate: new Date(createTaskDTO.startDate),
+      endDate: createTaskDTO.endDate ? new Date(createTaskDTO.endDate) : null,
+      frequency: createTaskDTO.frequency,
+      threshold: createTaskDTO.threshold!,
+    };
+  }
 
-  async update(updateTaskDTO: UpdateTaskDTO): Promise<MonitorizeConsumptionTaskEntity> {
-    const task: MonitorizeConsumptionTask | null = await this.tasksRepository.update(updateTaskDTO);
-    if (!task) throw new Error("The task could not be updated.");
-    return new MonitorizeConsumptionTaskEntity(task);
-  };
-
-  async getTaskByPublicId(publicId: string): Promise<MonitorizeConsumptionTaskEntity | null> {
-    const task = await this.tasksRepository.getTaskByPublicId(publicId);
-    if (!task) return null;
-    return new MonitorizeConsumptionTaskEntity(task);
+  protected getTaskToUpdate(updateTaskDTO: UpdateTaskDTO): Partial<MonitorizeConsumptionTask> {
+    return {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+    };
   }
 }
 
