@@ -1,12 +1,13 @@
 import "reflect-metadata";
 import "@/config/container";
-import { inject } from "tsyringe";
+import { inject, injectable } from "tsyringe";
 import { MaintenanceAlertService } from "./MaintenanceAlertService";
 import { UnusualConsumptionAlertService } from "./UnusualConsumptionAlertService";
 import { AlertViewDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
 import { MaintenanceAlertEntity } from "@/src/infrastructure/entities/alerts/MaintenanceAlertEntity";
 import { UnusualConsumptionAlertEntity } from "@/src/infrastructure/entities/alerts/UnusualConsumptionAlertEntity";
 
+@injectable()
 export class BaseAlertService {
   constructor(
     @inject(MaintenanceAlertService) private maintenanceAlertService: MaintenanceAlertService,
