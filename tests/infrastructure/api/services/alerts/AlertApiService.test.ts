@@ -96,4 +96,47 @@ describe("AlertApiService", () => {
       method: "PATCH",
     });
   });
+
+  it("should delete an alert successfully", async () => {
+    // Arrange
+    const deviceName = "Device1";
+    const publicId = "alert-1";
+    const deletedAlert: AlertViewDTO = {
+      message: "Test Alert 1",
+      resolved: true,
+      priority: "HIGH",
+      publicId: "alert-1",
+      type: AlertType.MAINTENANCE
+    };
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: true,
+      json: async () => deletedAlert,
+    });
+
+    // Act
+    const result = await AlertApiService.delete(deviceName, publicId);
+
+    // Assert
+    expect(result).toEqual(deletedAlert);
+    expect(fetch).toHaveBeenCalledWith(`/api/devices/${deviceName}/alerts/${publicId}`, {
+      method: "DELETE",
+    });
+  });
+
+  it("should throw an error when deleting an alert fails", async () => {
+    // Arrange
+    const deviceName = "Device1";
+    const publicId = "alert-1";
+
+    (fetch as jest.Mock).mockResolvedValue({
+      ok: false,
+    });
+
+    // Act & Assert
+    await expect(AlertApiService.delete(deviceName, publicId)).rejects.toThrow("Failed to delete alert");
+    expect(fetch).toHaveBeenCalledWith(`/api/devices/${deviceName}/alerts/${publicId}`, {
+      method: "DELETE",
+    });
+  });
 });

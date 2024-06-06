@@ -34,6 +34,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AlertApiService } from "@/src/infrastructure/api/services/alerts/AlertApiService";
+import { AlertService } from "@/src/domain/services/alerts/AlertService";
 
 export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDTO, fetchedAlerts: AlertViewDTO[] }) {
   const { toast } = useToast()
@@ -140,6 +141,20 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
       });
     } catch (error: any) {
       console.error(`Error resolving alert: ${error.message}`);
+    }
+  }
+
+  const handleDeleteAlert = async (publicId: string) => {
+    try {
+      await AlertApiService.delete(deviceName, publicId).then(alert => {
+        toast({
+          title: "Alert deleted successfully",
+          description: `${new Date().toLocaleString()}`
+        });
+        setAlerts(prevAlerts => prevAlerts.filter(alert => alert.publicId !== publicId));
+      });
+    } catch (error: any) {
+      console.error(`Error deleting alert: ${error.message}`);
     }
   }
 
@@ -289,23 +304,43 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
                   <TableCell>{alert.priority}</TableCell>
                   <TableCell>{alert.resolved ? "Yes" : "No"}</TableCell>
                   <TableCell>
-                    <AlertDialog>
-                      <AlertDialogTrigger>
-                        <Button variant="secondary" className="hover:bg-gray-300 bg-white" disabled={alert.resolved}><i className="fa-solid fa-check text-md"></i></Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Are you sure to resolve the alert?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            This action cannot be undone.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancel</AlertDialogCancel>
-                          <AlertDialogAction onClick={() => handleResolveAlert(alert.publicId)}>Continue</AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <div className="flex gap-2">
+                      <AlertDialog>
+                        <AlertDialogTrigger>
+                          <Button variant="secondary" className="hover:bg-gray-300 bg-white" disabled={alert.resolved}><i className="fa-solid fa-check text-md"></i></Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure to resolve the alert?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleResolveAlert(alert.publicId)}>Continue</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                      <AlertDialog>
+                        <AlertDialogTrigger>
+                          <Button variant="secondary" className="hover:bg-gray-300 bg-white"><i className="fa-solid fa-trash"></i></Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Are you sure to delete the alert?</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              This action cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => handleDeleteAlert(alert.publicId)}>Continue</AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
+
                   </TableCell>
                 </TableRow>
               ))}

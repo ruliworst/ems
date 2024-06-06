@@ -45,7 +45,15 @@ async function main() {
   await prisma.unusualConsumptionAlert.createMany({
     data: [
       {
-        message: "Maintenance alert message",
+        message: "Unusual consumption",
+        priority: Priority.HIGH,
+        deviceId: "1",
+        operatorId: "2",
+        threshold: 10,
+        publicId: uuidv4()
+      },
+      {
+        message: "Unusual consumption",
         resolved: false,
         priority: Priority.HIGH,
         deviceId: "1",

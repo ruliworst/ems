@@ -10,10 +10,12 @@ jest.mock("@prisma/client", () => ({
     maintenanceAlert: {
       findMany: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
     },
     unusualConsumptionAlert: {
       findMany: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
     },
   })),
 }));
@@ -218,6 +220,75 @@ describe("PrismaAlertRepository", () => {
       expect(prismaClient.unusualConsumptionAlert.update).toHaveBeenCalledWith({
         where: { publicId: "public-id" },
         data: { resolved: true },
+      });
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("delete", () => {
+    it("should delete an alert by publicId (MaintenanceAlert)", async () => {
+      const mockAlert: MaintenanceAlert = {
+        id: "alert-id",
+        message: "Test Alert",
+        resolved: false,
+        priority: "LOW",
+        deviceId: "device-id",
+        operatorId: "operator-id",
+        supervisorId: "supervisor-id",
+        publicId: "public-id"
+      };
+
+      jest.spyOn(prismaClient.maintenanceAlert, 'delete').mockResolvedValue(mockAlert as any);
+
+      const result = await maintenanceAlertRepository.delete("public-id");
+
+      expect(prismaClient.maintenanceAlert.delete).toHaveBeenCalledWith({
+        where: { publicId: "public-id" },
+      });
+      expect(result).toEqual(mockAlert);
+    });
+
+    it("should delete an alert by publicId (UnusualConsumptionAlert)", async () => {
+      const mockAlert: UnusualConsumptionAlert = {
+        id: "alert-id",
+        message: "Test Alert",
+        resolved: false,
+        priority: "LOW",
+        deviceId: "device-id",
+        operatorId: "operator-id",
+        supervisorId: "supervisor-id",
+        publicId: "public-id",
+        threshold: 10
+      };
+
+      jest.spyOn(prismaClient.unusualConsumptionAlert, 'delete').mockResolvedValue(mockAlert as any);
+
+      const result = await unusualConsumptionAlertRepository.delete("public-id");
+
+      expect(prismaClient.unusualConsumptionAlert.delete).toHaveBeenCalledWith({
+        where: { publicId: "public-id" },
+      });
+      expect(result).toEqual(mockAlert);
+    });
+
+    it("should return null if the delete fails (MaintenanceAlert)", async () => {
+      jest.spyOn(prismaClient.maintenanceAlert, 'delete').mockRejectedValue(new Error("error"));
+
+      const result = await maintenanceAlertRepository.delete("public-id");
+
+      expect(prismaClient.maintenanceAlert.delete).toHaveBeenCalledWith({
+        where: { publicId: "public-id" },
+      });
+      expect(result).toBeNull();
+    });
+
+    it("should return null if the delete fails (UnusualConsumptionAlert)", async () => {
+      jest.spyOn(prismaClient.unusualConsumptionAlert, 'delete').mockRejectedValue(new Error("error"));
+
+      const result = await unusualConsumptionAlertRepository.delete("public-id");
+
+      expect(prismaClient.unusualConsumptionAlert.delete).toHaveBeenCalledWith({
+        where: { publicId: "public-id" },
       });
       expect(result).toBeNull();
     });
