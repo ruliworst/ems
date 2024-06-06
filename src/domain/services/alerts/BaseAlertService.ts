@@ -32,4 +32,18 @@ export class BaseAlertService {
 
     return alerts;
   }
+
+  async resolve(publicId: string): Promise<AlertViewDTO | null> {
+    const maintenanceAlert: MaintenanceAlertEntity | null =
+      await this.maintenanceAlertService.resolve(publicId);
+
+    if (maintenanceAlert) return maintenanceAlert.getView();
+
+    const unusualConsumptionAlert: UnusualConsumptionAlertEntity | null =
+      await this.unusualConsumptionAlertService.resolve(publicId);
+
+    if (unusualConsumptionAlert) return unusualConsumptionAlert.getView();
+
+    return null;
+  }
 }

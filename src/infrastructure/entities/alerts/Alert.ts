@@ -1,5 +1,5 @@
 import { Priority } from "@prisma/client";
-import { AlertViewDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
+import { AlertType, AlertViewDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
 
 export interface AlertAttributes {
   id: string;
@@ -37,11 +37,13 @@ export abstract class Alert {
     this.publicId = publicId;
   }
 
-  getView(): AlertViewDTO {
+  getView(type: AlertType): AlertViewDTO {
     return {
       message: this.message,
       resolved: this.resolved,
-      priority: this.priority
+      priority: this.priority,
+      publicId: this.publicId,
+      type
     };
   };
 }

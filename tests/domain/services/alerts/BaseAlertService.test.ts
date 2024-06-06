@@ -4,7 +4,7 @@ import { container } from "tsyringe";
 import { MaintenanceAlertService } from "@/src/domain/services/alerts/MaintenanceAlertService";
 import { UnusualConsumptionAlertService } from "@/src/domain/services/alerts/UnusualConsumptionAlertService";
 import { BaseAlertService } from "@/src/domain/services/alerts/BaseAlertService";
-import { AlertViewDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
+import { AlertType, AlertViewDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
 import { MaintenanceAlertEntity } from "@/src/infrastructure/entities/alerts/MaintenanceAlertEntity";
 import { UnusualConsumptionAlertEntity } from "@/src/infrastructure/entities/alerts/UnusualConsumptionAlertEntity";
 import { Priority } from "@prisma/client";
@@ -67,11 +67,15 @@ describe("BaseAlertService", () => {
         message: mockMaintenanceAlerts[0].message,
         resolved: mockMaintenanceAlerts[0].resolved,
         priority: mockMaintenanceAlerts[0].priority,
+        publicId: mockMaintenanceAlerts[0].publicId,
+        type: AlertType.MAINTENANCE
       },
       {
         message: mockUnusualConsumptionAlerts[0].message,
         resolved: mockUnusualConsumptionAlerts[0].resolved,
         priority: mockUnusualConsumptionAlerts[0].priority,
+        publicId: mockUnusualConsumptionAlerts[0].publicId,
+        type: AlertType.UNUSUAL_CONSUMPTION
       },
     ];
 
@@ -97,6 +101,8 @@ describe("BaseAlertService", () => {
         message: mockUnusualConsumptionAlerts[0].message,
         resolved: mockUnusualConsumptionAlerts[0].resolved,
         priority: mockUnusualConsumptionAlerts[0].priority,
+        publicId: mockUnusualConsumptionAlerts[0].publicId,
+        type: AlertType.UNUSUAL_CONSUMPTION
       },
     ];
 
@@ -120,6 +126,8 @@ describe("BaseAlertService", () => {
         message: mockMaintenanceAlerts[0].message,
         resolved: mockMaintenanceAlerts[0].resolved,
         priority: mockMaintenanceAlerts[0].priority,
+        publicId: mockMaintenanceAlerts[0].publicId,
+        type: AlertType.MAINTENANCE
       },
     ];
 
