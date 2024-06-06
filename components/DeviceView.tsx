@@ -289,7 +289,23 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
                   <TableCell>{alert.priority}</TableCell>
                   <TableCell>{alert.resolved ? "Yes" : "No"}</TableCell>
                   <TableCell>
-                    <Button variant="secondary" className="hover:bg-gray-300 bg-white" onClick={() => handleResolveAlert(alert.publicId)} disabled={alert.resolved}><i className="fa-solid fa-check text-md"></i></Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Button variant="secondary" className="hover:bg-gray-300 bg-white" disabled={alert.resolved}><i className="fa-solid fa-check text-md"></i></Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure to resolve the alert?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleResolveAlert(alert.publicId)}>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
                   </TableCell>
                 </TableRow>
               ))}
