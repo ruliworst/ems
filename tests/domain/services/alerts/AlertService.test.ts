@@ -45,6 +45,7 @@ describe("AlertService", () => {
     mockAlertRepository = {
       getAllByDeviceName: jest.fn(),
       resolve: jest.fn(),
+      delete: jest.fn(),
     } as unknown as jest.Mocked<AlertRepository<MockAlert>>;
 
     mockAlertService = new MockAlertService(mockAlertRepository);
@@ -146,6 +147,55 @@ describe("AlertService", () => {
       const result = await mockAlertService.resolve(mockPublicId);
 
       expect(mockAlertRepository.resolve).toHaveBeenCalledWith(mockPublicId);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("delete", () => {
+    it("should delete an alert by publicId and map to entity", async () => {
+      const mockPublicId = "public-1";
+      const mockAlert: MockAlert = {
+        id: "alert-1",
+        message: "Test Alert 1",
+        resolved: false,
+        priority: "HIGH",
+        deviceId: "device-1",
+        operatorId: "operator-1",
+        supervisorId: null,
+        publicId: "public-1",
+      };
+      const expectedEntity = {
+        ...mockAlert,
+        getView: expect.any(Function),
+      };
+
+      mockAlertRepository.delete.mockResolvedValue(mockAlert);
+
+      const result = await mockAlertService.delete(mockPublicId);
+
+      expect(mockAlertRepository.delete).toHaveBeenCalledWith(mockPublicId);
+      expect(result).toEqual(expectedEntity);
+    });
+
+    it("should return null if the alert is not found", async () => {
+      const mockPublicId = "public-1";
+
+      mockAlertRepository.delete.mockResolvedValue(null);
+
+      const result = await mockAlertService.delete(mockPublicId);
+
+      expect(mockAlertRepository.delete).toHaveBeenCalledWith(mockPublicId);
+      expect(result).toBeNull();
+    });
+
+    it("should handle errors and return null", async () => {
+      const mockPublicId = "public-1";
+
+      mockAlertRepository.delete.mockRejectedValue(new Error("Error"));
+
+      const result = await mockAlertService.delete(mockPublicId);
+
+      expect(mockAlertRepository.delete).toHaveBeenCalledWith(mockPublicId);
       expect(result).toBeNull();
     });
   });

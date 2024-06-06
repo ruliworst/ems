@@ -18,4 +18,14 @@ export class AlertApiService {
     }
     return response.json();
   }
+
+  static async delete(deviceName: string, publicId: string): Promise<AlertViewDTO> {
+    const response = await fetch(`/api/devices/${deviceName}/alerts/${publicId}`, {
+      method: "DELETE",
+    });
+    if (!response.ok) {
+      throw new Error('Failed to delete alert');
+    }
+    return response.json();
+  }
 }

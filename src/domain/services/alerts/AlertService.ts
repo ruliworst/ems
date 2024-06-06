@@ -32,4 +32,17 @@ export abstract class AlertService<T, E> {
         return null;
       });
   }
+
+  delete(publicId: string): Promise<E | null> {
+    return this.alertRepository
+      .delete(publicId)
+      .then(alert => {
+        if (!alert) return null;
+        return this.mapToEntity(alert);
+      })
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
+  }
 }

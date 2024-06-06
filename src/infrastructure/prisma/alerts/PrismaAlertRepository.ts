@@ -15,6 +15,7 @@ export default class PrismaAlertRepository<T> extends PrismaRepository implement
     super(prismaClient);
   }
 
+
   getAllByDeviceName(deviceName: string): Promise<T[] | null> {
     return this.deviceRepository
       .getByName(deviceName)
@@ -39,6 +40,18 @@ export default class PrismaAlertRepository<T> extends PrismaRepository implement
         data: { ...updatedAlert },
       })
       .then(updatedAlert)
+      .catch((error: any) => {
+        console.error(error.message);
+        return null;
+      });
+  }
+
+  delete(publicId: string): Promise<T | null> {
+    return this.entity
+      .delete({
+        where: { publicId },
+      })
+      .then((alert: any) => alert)
       .catch((error: any) => {
         console.error(error.message);
         return null;

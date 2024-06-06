@@ -46,4 +46,18 @@ export class BaseAlertService {
 
     return null;
   }
+
+  async delete(publicId: string): Promise<AlertViewDTO | null> {
+    const maintenanceAlert: MaintenanceAlertEntity | null =
+      await this.maintenanceAlertService.delete(publicId);
+
+    if (maintenanceAlert) return maintenanceAlert.getView();
+
+    const unusualConsumptionAlert: UnusualConsumptionAlertEntity | null =
+      await this.unusualConsumptionAlertService.delete(publicId);
+
+    if (unusualConsumptionAlert) return unusualConsumptionAlert.getView();
+
+    return null;
+  }
 }
