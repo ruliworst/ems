@@ -19,7 +19,7 @@ class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumption
   }
 
   protected checkAttributes(createTaskDTO: CreateTaskDTO): void {
-    if (createTaskDTO.threshold === (undefined || null)) {
+    if (createTaskDTO.threshold === undefined || createTaskDTO.threshold === null) {
       throw new Error("Some values are not valid.");
     }
   }
