@@ -1,0 +1,35 @@
+import { AlertRepository } from "../../persistence/alerts/AlertRepository";
+
+export abstract class AlertService<T, E> {
+  constructor(
+    protected alertRepository: AlertRepository<T>,
+  ) { }
+
+  protected abstract mapToEntity(alert: T): E;
+
+  async getAllByDeviceName(deviceName: string): Promise<E[] | null> {
+    return this.alertRepository
+      .getAllByDeviceName(deviceName)
+      .then(alerts => {
+        if (!alerts) return null;
+        return alerts.map(this.mapToEntity);
+      })
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
+  };
+
+  resolve(publicId: string): Promise<E | null> {
+    return this.alertRepository
+      .resolve(publicId)
+      .then(alert => {
+        if (!alert) return null;
+        return this.mapToEntity(alert);
+      })
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
+  }
+}

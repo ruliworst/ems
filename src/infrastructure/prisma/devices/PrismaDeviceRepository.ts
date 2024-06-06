@@ -1,20 +1,22 @@
+import "@/config/container";
 import { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
-import { PrismaClient, Device, Prisma } from "@prisma/client";
-import { injectable } from "tsyringe";
+import { Device, Prisma, PrismaClient } from "@prisma/client";
+import { inject, injectable } from "tsyringe";
 import { UpdateDeviceDTO } from "../../api/dtos/devices/device.dto";
+import PrismaRepository from "../PrismaRepository";
 
 @injectable()
-export default class PrismaDeviceRepository implements DeviceRepository {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
+export default class PrismaDeviceRepository extends PrismaRepository implements DeviceRepository {
+  constructor(
+    @inject(PrismaClient) protected prismaClient: PrismaClient,
+  ) {
+    super(prismaClient);
   }
 
   async delete(name: string): Promise<Device | null> {
     try {
       await this.connect();
-      return await this.prisma.device.delete({ where: { name } });
+      return await this.prismaClient.device.delete({ where: { name } });
     } catch (error) {
       return null;
     } finally {
@@ -25,7 +27,7 @@ export default class PrismaDeviceRepository implements DeviceRepository {
   async getAll(): Promise<Device[]> {
     try {
       await this.connect();
-      return this.prisma.device.findMany();
+      return this.prismaClient.device.findMany();
     } finally {
       this.disconnect();
     }
@@ -34,7 +36,7 @@ export default class PrismaDeviceRepository implements DeviceRepository {
   async getByName(name: string): Promise<Device | null> {
     try {
       await this.connect();
-      return this.prisma.device.findUnique({ where: { name } });
+      return this.prismaClient.device.findUnique({ where: { name } });
     } finally {
       this.disconnect();
     }
@@ -43,7 +45,7 @@ export default class PrismaDeviceRepository implements DeviceRepository {
   async create(device: Prisma.DeviceCreateInput): Promise<Device> {
     try {
       await this.connect();
-      return this.prisma.device.create({ data: device });
+      return this.prismaClient.device.create({ data: device });
     } finally {
       this.disconnect();
     }
@@ -63,7 +65,7 @@ export default class PrismaDeviceRepository implements DeviceRepository {
 
     try {
       await this.connect();
-      const device = this.prisma.device.update({
+      const device = this.prismaClient.device.update({
         where: { name: originalName },
         data: { ...updatedDevice },
       }).catch(error => {
@@ -78,10 +80,10 @@ export default class PrismaDeviceRepository implements DeviceRepository {
   }
 
   async connect(): Promise<void> {
-    await this.prisma.$connect();
+    await this.prismaClient.$connect();
   }
 
   async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
+    await this.prismaClient.$disconnect();
   }
 }

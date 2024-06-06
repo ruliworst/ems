@@ -2,54 +2,50 @@ import { injectable, inject } from "tsyringe";
 import "@/config/container";
 import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { GenerateConsumptionReportTask } from "@prisma/client";
+import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
+import { TaskService } from "./TaskService";
 import { GenerateConsumptionReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateConsumptionReportTaskEntity";
-import type { GenerateConsumptionReportTaskRepository } from "../../persistence/tasks/GenerateConsumptionReportTaskRepository";
 
 @injectable()
-class GenerateConsumptionReportTaskService {
+class GenerateConsumptionReportTaskService extends TaskService<GenerateConsumptionReportTask, GenerateConsumptionReportTaskEntity> {
   constructor(
-    @inject("GenerateConsumptionReportTaskRepository") private tasksRepository: GenerateConsumptionReportTaskRepository
-  ) { }
+    @inject("GenerateConsumptionReportTaskRepository") taskRepository: TaskRepository<GenerateConsumptionReportTask>
+  ) {
+    super(taskRepository);
+  }
 
-  async getAll(): Promise<GenerateConsumptionReportTaskEntity[]> {
-    const tasks: GenerateConsumptionReportTask[] = await this.tasksRepository.getAll();
+  protected mapToEntity(task: GenerateConsumptionReportTask): GenerateConsumptionReportTaskEntity {
+    return new GenerateConsumptionReportTaskEntity({ ...task });
+  }
 
-    return tasks.map<GenerateConsumptionReportTaskEntity>(task => new GenerateConsumptionReportTaskEntity(task));
-  };
-
-  async create(createTaskDTO: CreateTaskDTO): Promise<GenerateConsumptionReportTaskEntity> {
-    try {
-      const task: GenerateConsumptionReportTask = await this.tasksRepository.create(createTaskDTO);
-      return new GenerateConsumptionReportTaskEntity(task);
-    } catch (error) {
-      console.error("Error creating a task:", error);
-      throw error;
+  protected checkAttributes(createTaskDTO: CreateTaskDTO): void {
+    if (createTaskDTO.startReportDate === undefined ||
+      createTaskDTO.endReportDate === undefined ||
+      createTaskDTO.title === undefined) {
+      throw new Error("Some values are not valid.");
     }
-  };
+  }
 
-  async delete(publicId: string): Promise<GenerateConsumptionReportTaskEntity | null> {
-    try {
-      const task: GenerateConsumptionReportTask | null = await this.tasksRepository.delete(publicId);
-      if (!task) {
-        throw new Error("The task could not be deleted.");
-      }
-      return new GenerateConsumptionReportTaskEntity({ ...task });
-    } catch (error) {
-      console.error("Error deleting a task:", error);
-      return null;
-    }
-  };
+  protected getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<GenerateConsumptionReportTask> {
+    return {
+      startDate: new Date(createTaskDTO.startDate),
+      endDate: createTaskDTO.endDate ? new Date(createTaskDTO.endDate) : null,
+      startReportDate: new Date(createTaskDTO.startReportDate!),
+      endReportDate: new Date(createTaskDTO.endReportDate!),
+      title: createTaskDTO.title!,
+      frequency: createTaskDTO.frequency,
+    };
+  }
 
-  async update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateConsumptionReportTaskEntity> {
-    const task: GenerateConsumptionReportTask | null = await this.tasksRepository.update(updateTaskDTO);
-    if (!task) throw new Error("The task could not be updated.");
-    return new GenerateConsumptionReportTaskEntity(task);
-  };
-
-  async getTaskByPublicId(publicId: string): Promise<GenerateConsumptionReportTaskEntity | null> {
-    const task = await this.tasksRepository.getTaskByPublicId(publicId);
-    if (!task) return null;
-    return new GenerateConsumptionReportTaskEntity(task);
+  protected getTaskToUpdate(updateTaskDTO: UpdateTaskDTO): Partial<GenerateConsumptionReportTask> {
+    return {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+      startReportDate: updateTaskDTO.startReportDate ? new Date(updateTaskDTO.startReportDate) : undefined,
+      endReportDate: updateTaskDTO.endReportDate ? new Date(updateTaskDTO.endReportDate) : undefined,
+      title: updateTaskDTO.title ?? undefined,
+    };
   }
 }
 

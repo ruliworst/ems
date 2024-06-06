@@ -24,8 +24,18 @@ import {
 } from "@/components/ui/alert-dialog"
 import { DeviceDTO, UpdateDeviceDTO } from "@/src/infrastructure/api/dtos/devices/device.dto";
 import { DeviceApiService } from "@/src/infrastructure/api/services/devices/DeviceApiService";
+import { AlertType, AlertViewDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { AlertApiService } from "@/src/infrastructure/api/services/alerts/AlertApiService";
 
-export default function DeviceView({ device }: { device: DeviceDTO }) {
+export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDTO, fetchedAlerts: AlertViewDTO[] }) {
   const { toast } = useToast()
   const router = useRouter();
   const [installationDate, setInstallationDate] = useState<Date | undefined>(new Date(device.installationDate));
@@ -35,6 +45,7 @@ export default function DeviceView({ device }: { device: DeviceDTO }) {
   const [observations, setObservations] = useState(device.observations);
   const [deviceName, setDeviceName] = useState(device.name);
   const [isEditing, setIsEditing] = useState(false);
+  const [alerts, setAlerts] = useState<AlertViewDTO[]>(fetchedAlerts);
 
   useEffect(() => {
     setDeviceName(device.name);
@@ -104,6 +115,32 @@ export default function DeviceView({ device }: { device: DeviceDTO }) {
       installationDate?.toDateString() != device.installationDate ||
       ratedPower != device.ratedPower ||
       observations != device.observations;
+  }
+
+  const getTypeAsString = (type: AlertType): string => {
+    if (type == AlertType.MAINTENANCE) {
+      return "Maintenance alert";
+    } else if (type == AlertType.UNUSUAL_CONSUMPTION) {
+      return "Unusual consumption alert";
+    } else {
+      return "Not valid type";
+    };
+  }
+
+  const handleResolveAlert = async (publicId: string) => {
+    try {
+      await AlertApiService.resolve(deviceName, publicId).then(resolvedAlert => {
+        toast({
+          title: "The alert was resolved.",
+          description: `${new Date().toLocaleString()}`
+        });
+        setAlerts(prevAlerts => prevAlerts.map(alert =>
+          alert.publicId === publicId ? resolvedAlert : alert
+        ));
+      });
+    } catch (error: any) {
+      console.error(`Error resolving alert: ${error.message}`);
+    }
   }
 
   return (
@@ -234,6 +271,46 @@ export default function DeviceView({ device }: { device: DeviceDTO }) {
         </div>
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg mt-4">
           <h2 className="text-xl font-bold">Alerts</h2>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-3/12">Type</TableHead>
+                <TableHead>Message</TableHead>
+                <TableHead>Priority</TableHead>
+                <TableHead>Resolved</TableHead>
+                <TableHead></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {alerts.map(alert => (
+                <TableRow key={alert.publicId}>
+                  <TableCell>{getTypeAsString(alert.type)}</TableCell>
+                  <TableCell>{alert.message}</TableCell>
+                  <TableCell>{alert.priority}</TableCell>
+                  <TableCell>{alert.resolved ? "Yes" : "No"}</TableCell>
+                  <TableCell>
+                    <AlertDialog>
+                      <AlertDialogTrigger>
+                        <Button variant="secondary" className="hover:bg-gray-300 bg-white" disabled={alert.resolved}><i className="fa-solid fa-check text-md"></i></Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure to resolve the alert?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleResolveAlert(alert.publicId)}>Continue</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
       <Toaster />

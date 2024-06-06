@@ -3,52 +3,54 @@ import "@/config/container";
 import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { GenerateAnomaliesReportTask } from "@prisma/client";
 import { GenerateAnomaliesReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateAnomaliesReportTaskEntity";
-import type { GenerateAnomaliesReportTaskRepository } from "../../persistence/tasks/GenerateAnomaliesReportTaskRepository";
+import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
+import { TaskService } from "./TaskService";
 
 @injectable()
-class GenerateAnomaliesReportTaskService {
+class GenerateAnomaliesReportTaskService extends TaskService<GenerateAnomaliesReportTask, GenerateAnomaliesReportTaskEntity> {
   constructor(
-    @inject("GenerateAnomaliesReportTaskRepository") private tasksRepository: GenerateAnomaliesReportTaskRepository
-  ) { }
+    @inject("GenerateAnomaliesReportTaskRepository") taskRepository: TaskRepository<GenerateAnomaliesReportTask>
+  ) {
+    super(taskRepository);
+  }
 
-  async getAll(): Promise<GenerateAnomaliesReportTaskEntity[]> {
-    const tasks: GenerateAnomaliesReportTask[] = await this.tasksRepository.getAll();
-    return tasks.map<GenerateAnomaliesReportTaskEntity>(task => new GenerateAnomaliesReportTaskEntity(task));
-  };
+  protected mapToEntity(task: GenerateAnomaliesReportTask): GenerateAnomaliesReportTaskEntity {
+    return new GenerateAnomaliesReportTaskEntity({ ...task });
+  }
 
-  async create(createTaskDTO: CreateTaskDTO): Promise<GenerateAnomaliesReportTaskEntity> {
-    try {
-      const task: GenerateAnomaliesReportTask = await this.tasksRepository.create(createTaskDTO);
-      return new GenerateAnomaliesReportTaskEntity(task);
-    } catch (error) {
-      console.error("Error creating a task:", error);
-      throw error;
+  protected checkAttributes(createTaskDTO: CreateTaskDTO): void {
+    if (createTaskDTO.startReportDate === undefined ||
+      createTaskDTO.endReportDate === undefined ||
+      createTaskDTO.title === undefined ||
+      createTaskDTO.threshold === undefined ||
+      createTaskDTO.operatorEmail === undefined ||
+      createTaskDTO.deviceName === undefined) {
+      throw new Error("Some values are not valid.");
     }
-  };
+  }
 
-  async delete(publicId: string): Promise<GenerateAnomaliesReportTaskEntity | null> {
-    try {
-      const task: GenerateAnomaliesReportTask | null = await this.tasksRepository.delete(publicId);
-      if (!task) {
-        throw new Error("The task could not be deleted.");
-      }
-      return new GenerateAnomaliesReportTaskEntity({ ...task });
-    } catch (error) {
-      console.error("Error deleting a task:", error);
-      return null;
-    }
-  };
+  protected getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<GenerateAnomaliesReportTask> {
+    return {
+      startDate: new Date(createTaskDTO.startDate),
+      endDate: createTaskDTO.endDate ? new Date(createTaskDTO.endDate) : null,
+      startReportDate: new Date(createTaskDTO.startReportDate!),
+      endReportDate: new Date(createTaskDTO.endReportDate!),
+      title: createTaskDTO.title!,
+      threshold: createTaskDTO.threshold!,
+      frequency: createTaskDTO.frequency,
+    };
+  }
 
-  async update(updateTaskDTO: UpdateTaskDTO): Promise<GenerateAnomaliesReportTaskEntity> {
-    const task: GenerateAnomaliesReportTask | null = await this.tasksRepository.update(updateTaskDTO);
-    if (!task) throw new Error("The task could not be updated.");
-    return new GenerateAnomaliesReportTaskEntity(task);
-  };
-
-  async getTaskByPublicId(publicId: string): Promise<GenerateAnomaliesReportTaskEntity | null> {
-    const task = await this.tasksRepository.getTaskByPublicId(publicId);
-    if (!task) return null;
-    return new GenerateAnomaliesReportTaskEntity(task);
+  protected getTaskToUpdate(updateTaskDTO: UpdateTaskDTO): Partial<GenerateAnomaliesReportTask> {
+    return {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+      startReportDate: updateTaskDTO.startReportDate ? new Date(updateTaskDTO.startReportDate) : undefined,
+      endReportDate: updateTaskDTO.endReportDate ? new Date(updateTaskDTO.endReportDate) : undefined,
+      title: updateTaskDTO.title ?? undefined,
+      threshold: updateTaskDTO.threshold ?? undefined,
+    };
   }
 }
 
