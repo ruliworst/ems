@@ -25,7 +25,7 @@ export default abstract class PrismaTaskRepository<T> extends PrismaRepository i
 
   async create(task: Partial<T>, operatorEmail: string, deviceName: string): Promise<T> {
     try {
-      const { operator, supervisor } = await this.getOperatorAndSupervisor(operatorEmail!);
+      const { operator, supervisor } = await this.getOperatorAndSupervisor(operatorEmail);
       const device = await this.getDevice(deviceName);
 
       await this.connect();
