@@ -42,7 +42,7 @@ jobs:
           -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
           -Dsonar.login=${{ secrets.SONAR_TOKEN }}
           -Dsonar.typescript.lcov.reportPaths=./coverage/lcov.info
-          -Dsonar.exclusions=components/**,tests/**,app/**, prisma/**
+          -Dsonar.exclusions=components/**,tests/**,app/**,prisma/**
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
