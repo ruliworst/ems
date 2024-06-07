@@ -26,12 +26,14 @@ export default class PrismaOperatorRepository<T> extends PrismaRepository implem
   }
 
   async create(operator: CreateOperatorDTO): Promise<T> {
+    const { role, ...operatorData } = operator;
+
     try {
       await this.connect();
       const hashedPassword = await bcrypt.hash(operator.password, 10);
       const createdOperator = await this.entity.create({
         data: {
-          ...operator,
+          ...operatorData,
           password: hashedPassword,
         },
       });
