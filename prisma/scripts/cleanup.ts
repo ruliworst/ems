@@ -6,6 +6,8 @@ async function main() {
   await prisma.unusualConsumptionAlert.deleteMany({});
   await prisma.maintenanceAlert.deleteMany({});
   await prisma.operator.deleteMany({});
+  await prisma.anomaliesReport.deleteMany({});
+  await prisma.consumptionReport.deleteMany({});
   await prisma.device.deleteMany({});
 }
 

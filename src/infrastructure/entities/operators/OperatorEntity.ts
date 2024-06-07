@@ -1,3 +1,5 @@
+import { OperatorDTO, OperatorRole } from "../../api/dtos/operators/operator.dto";
+
 export interface OperatorAttributes {
   id: string;
   firstName: string,
@@ -33,5 +35,12 @@ export class OperatorEntity {
     this.email = email;
     this.password = password;
     this.phoneNumber = phoneNumber;
+  }
+
+  getDTO(): OperatorDTO {
+    return {
+      email: this.email,
+      role: OperatorRole.OPERATOR
+    }
   }
 }

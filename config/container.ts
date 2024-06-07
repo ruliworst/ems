@@ -15,13 +15,23 @@ import PrismaGenerateAnomaliesReportTaskRepository from "@/src/infrastructure/pr
 import PrismaGenerateConsumptionReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateConsumptionReportTaskRepository";
 import PrismaOperatorRepository from "@/src/infrastructure/prisma/operators/PrismaOperatorRepository";
 import { MaintenanceAlertService } from "@/src/domain/services/alerts/MaintenanceAlertService";
-import { GenerateAnomaliesReportTask, GenerateConsumptionReportTask, MaintenanceAlert, MaintenanceDeviceTask, MonitorizeConsumptionTask, PrismaClient, UnusualConsumptionAlert } from "@prisma/client";
+import { AnomaliesReport, ConsumptionReport, GenerateAnomaliesReportTask, GenerateConsumptionReportTask, MaintenanceAlert, MaintenanceDeviceTask, MonitorizeConsumptionTask, Operator, PrismaClient, Supervisor, UnusualConsumptionAlert } from "@prisma/client";
 import { UnusualConsumptionAlertService } from "@/src/domain/services/alerts/UnusualConsumptionAlertService";
 import { BaseAlertService } from "@/src/domain/services/alerts/BaseAlertService";
 import { AlertRepository } from "@/src/domain/persistence/alerts/AlertRepository";
 import { TaskRepository } from "@/src/domain/persistence/tasks/TaskRepository";
 import PrismaMaintenanceAlertRepository from "@/src/infrastructure/prisma/alerts/PrismaMaintenanceAlertRepository";
 import PrismaUnusualConsumptionAlertRepository from "@/src/infrastructure/prisma/alerts/PrismaUnusualConsumptionAlertRepository";
+import { OperatorRepository } from "@/src/domain/persistence/operators/OperatorRepository";
+import { ReportRepository } from "@/src/domain/persistence/reports/ReportRepository";
+import PrismaAnomaliesReportRepository from "@/src/infrastructure/prisma/reports/PrismaAnomaliesReportRepository";
+import PrismaConsumptionReportRepository from "@/src/infrastructure/prisma/reports/PrismaConsumptionReportRepository";
+import { BaseReportService } from "@/src/domain/services/reports/BaseReportService";
+import { ConsumptionReportService } from "@/src/domain/services/reports/ConsumptionReportService";
+import { AnomaliesReportService } from "@/src/domain/services/reports/AnomaliesReportService";
+import { BaseOperatorService } from "@/src/domain/services/operators/BaseOperatorService";
+import PrismaOperatorOperatorRepository from "@/src/infrastructure/prisma/operators/PrismaOperatorOperatorRepository";
+import PrismaSupervisorOperatorRepository from "@/src/infrastructure/prisma/operators/PrismaSupervisorOperatorRepository";
 
 const prisma = new PrismaClient();
 container.register<PrismaClient>(PrismaClient, { useValue: prisma });
@@ -56,9 +66,22 @@ container.registerSingleton<AlertRepository<UnusualConsumptionAlert>>(
   PrismaUnusualConsumptionAlertRepository
 );
 
+// Reports.
+container.registerSingleton<ReportRepository<AnomaliesReport>>(
+  "AnomaliesReportRepository",
+  PrismaAnomaliesReportRepository
+);
+container.registerSingleton<ReportRepository<ConsumptionReport>>(
+  "ConsumptionReportRepository",
+  PrismaConsumptionReportRepository
+);
+
+
 // Operators.
-container.registerSingleton<PrismaOperatorRepository>(
-  "OperatorRepository", PrismaOperatorRepository);
+container.registerSingleton<OperatorRepository<Operator>>(
+  "OperatorRepository", PrismaOperatorOperatorRepository);
+container.registerSingleton<OperatorRepository<Supervisor>>(
+  "SupervisorRepository", PrismaSupervisorOperatorRepository);
 
 // Register services.
 container.registerSingleton(DeviceService);
@@ -71,3 +94,7 @@ container.registerSingleton(OperatorService);
 container.registerSingleton(MaintenanceAlertService);
 container.registerSingleton(UnusualConsumptionAlertService);
 container.registerSingleton(BaseAlertService);
+container.registerSingleton(AnomaliesReportService);
+container.registerSingleton(ConsumptionReportService);
+container.registerSingleton(BaseReportService);
+container.registerSingleton(BaseOperatorService);

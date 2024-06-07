@@ -63,6 +63,17 @@ async function main() {
       }
     ],
   });
+  await prisma.consumptionReport.createMany({
+    data: [
+      {
+        publicId: uuidv4(),
+        startDate: new Date(),
+        endDate: new Date(),
+        title: "Consumption report",
+        operatorId: "2"
+      },
+    ]
+  });
 }
 
 main()
