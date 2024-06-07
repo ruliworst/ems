@@ -1,18 +1,28 @@
+import { mockDeep, mockReset } from 'jest-mock-extended';
+
 import "reflect-metadata";
 import "@/config/container";
-import { container } from "tsyringe";
-import { Frequency, PrismaClient } from "@prisma/client";
-import { CreateTaskDTO, TaskType, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { PrismaClient, GenerateAnomaliesReportTask, PrismaPromise } from "@prisma/client";
 import PrismaGenerateAnomaliesReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateAnomaliesReportTaskRepository";
 import { v4 as uuidv4 } from 'uuid';
+import { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
+
+
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn().mockImplementation(() => mockDeep<PrismaClient>()),
+}));
+
+
+jest.mock("@/src/domain/persistence/devices/DeviceRepository");
 
 describe("GenerateAnomaliesReportTaskRepository", () => {
   let anomaliesReportTaskRepository: PrismaGenerateAnomaliesReportTaskRepository;
-  let prisma: PrismaClient = new PrismaClient();
+  let prismaMock: jest.Mocked<PrismaClient>;
+  let deviceRepository: jest.Mocked<DeviceRepository>;
 
   const publicId = uuidv4();
 
-  const tasksToCreate = [
+  const tasksToCreate: GenerateAnomaliesReportTask[] = [
     {
       id: uuidv4(),
       startDate: new Date("2024-05-01T10:00:00.000Z"),
@@ -24,81 +34,112 @@ describe("GenerateAnomaliesReportTaskRepository", () => {
       deviceId: "1",
       operatorId: "2",
       supervisorId: null,
-      frequency: Frequency.DAILY,
-      publicId
+      frequency: "DAILY",
+      publicId,
     },
   ];
 
-  beforeAll(async () => {
-    anomaliesReportTaskRepository = container.resolve(PrismaGenerateAnomaliesReportTaskRepository);
-    await prisma.generateAnomaliesReportTask.createMany({ data: tasksToCreate });
+  beforeEach(() => {
+    prismaMock = new PrismaClient() as jest.Mocked<PrismaClient>;
+
+    (prismaMock.operator.findUnique as jest.MockedFunction<
+      typeof prismaMock.operator.findUnique
+    >).mockResolvedValue({
+      id: "2",
+      firstName: "Bob",
+      firstSurname: "Doe",
+      secondSurname: "Smith",
+      email: "bob.doe@example.com",
+      password: uuidv4(),
+      phoneNumber: "123456789",
+    });
+
+    (prismaMock.supervisor.findUnique as jest.MockedFunction<
+      typeof prismaMock.supervisor.findUnique
+    >).mockResolvedValue(null);
+
+    deviceRepository = {
+      getByName: jest.fn().mockResolvedValue({ id: "1" }),
+    } as unknown as jest.Mocked<DeviceRepository>;
+    anomaliesReportTaskRepository = new PrismaGenerateAnomaliesReportTaskRepository(prismaMock, deviceRepository);
+  });
+
+  afterEach(() => {
+    mockReset(prismaMock);
   });
 
   describe("getAll", () => {
     it("should fetch all generate anomalies report tasks", async () => {
-      // Act.
+      const generateAnomaliesReportTaskMock =
+        prismaMock.generateAnomaliesReportTask as jest.Mocked<PrismaClient["generateAnomaliesReportTask"]>;
+
+      generateAnomaliesReportTaskMock.findMany.mockImplementation(
+        () => Promise.resolve(tasksToCreate) as PrismaPromise<GenerateAnomaliesReportTask[]>
+      );
+
       const tasks = await anomaliesReportTaskRepository.getAll();
 
-      // Assert.
-      expect(tasks).toContainEqual(expect.objectContaining(tasksToCreate[0]));
+      expect(tasks).toEqual(tasksToCreate);
     });
   });
 
   describe("create", () => {
     it("should create a generate anomalies report task successfully", async () => {
-      // Arrange
-      const newTask: CreateTaskDTO = {
-        startDate: "2024-07-01T10:00:00.000Z",
-        endDate: "2024-07-10T10:00:00.000Z",
-        startReportDate: "2024-07-01T10:00:00.000Z",
-        endReportDate: "2024-07-10T10:00:00.000Z",
+      const newTask: Partial<GenerateAnomaliesReportTask> = {
+        startDate: new Date("2024-07-01T10:00:00.000Z"),
+        endDate: new Date("2024-07-10T10:00:00.000Z"),
+        startReportDate: new Date("2024-07-01T10:00:00.000Z"),
+        endReportDate: new Date("2024-07-10T10:00:00.000Z"),
         title: "Anomalies Report 2",
         threshold: 10,
-        frequency: Frequency.WEEKLY,
-        deviceName: "Device-Monitorize",
-        operatorEmail: "bob.doe@example.com",
-        type: TaskType.GENERATE_ANOMALIES_REPORT
+        frequency: "WEEKLY",
       };
+      const operatorEmail = "bob.doe@example.com";
+      const deviceName = "Device-Monitorize";
 
-      // Act
-      const createdTask = await anomaliesReportTaskRepository.create(newTask);
-
-      // Assert
-      expect(createdTask).toMatchObject({
-        startDate: new Date(newTask.startDate),
+      const createdTask: GenerateAnomaliesReportTask = {
+        ...newTask,
+        startDate: new Date(newTask.startDate!),
         endDate: new Date(newTask.endDate!),
         startReportDate: new Date(newTask.startReportDate!),
         endReportDate: new Date(newTask.endReportDate!),
-        title: newTask.title,
-        threshold: newTask.threshold,
-        frequency: newTask.frequency,
-      });
-    });
-
-    it("should throw an error when some values are missing", async () => {
-      // Arrange
-      const invalidTask: Partial<CreateTaskDTO> = {
-        startDate: "2024-07-01T10:00:00.000Z",
-        endDate: "2024-07-10T10:00:00.000Z",
-        // Missing required fields
+        id: uuidv4(),
+        deviceId: "1",
+        operatorId: "2",
+        supervisorId: null,
+        publicId: uuidv4(),
+        frequency: newTask.frequency!,
+        threshold: newTask.threshold!,
+        title: newTask.title!
       };
 
-      // Act & Assert
-      await expect(anomaliesReportTaskRepository.create(invalidTask as CreateTaskDTO))
-        .rejects.toThrow("Some values are not valid.");
-    });
+      const generateAnomaliesReportTaskMock =
+        prismaMock.generateAnomaliesReportTask as jest.Mocked<PrismaClient["generateAnomaliesReportTask"]>;
+
+      generateAnomaliesReportTaskMock.create.mockResolvedValue(createdTask);
+
+      const result = await anomaliesReportTaskRepository.create(newTask, operatorEmail, deviceName);
+
+      expect(result).toEqual(createdTask);
+    })
   });
 
   describe("getTaskByPublicId", () => {
     it("should fetch a task by public ID", async () => {
+      // Arrange
+      (prismaMock.generateAnomaliesReportTask.findUnique as jest.Mock).mockResolvedValueOnce(tasksToCreate[0]);
+
       // Act
       const task = await anomaliesReportTaskRepository.getTaskByPublicId(publicId);
 
       // Assert
-      expect(task).toMatchObject(tasksToCreate[0]);
+      expect(task).toEqual(tasksToCreate[0]);
     });
 
     it("should return null if task not found", async () => {
+      // Arrange
+      (prismaMock.generateAnomaliesReportTask.findUnique as jest.Mock).mockResolvedValueOnce(null);
+
       // Act
       const task = await anomaliesReportTaskRepository.getTaskByPublicId("non-existent-task");
 
@@ -110,48 +151,50 @@ describe("GenerateAnomaliesReportTaskRepository", () => {
   describe("update", () => {
     it("should update a generate anomalies report task successfully", async () => {
       // Arrange
-      const updatedTaskData: UpdateTaskDTO = {
+      const updatedTaskData: Partial<GenerateAnomaliesReportTask> = {
         publicId,
-        startDate: "2024-07-20T10:00:00.000Z",
-        endDate: "2024-07-30T10:00:00.000Z",
-        frequency: Frequency.MONTHLY,
-        startReportDate: "2024-07-20T10:00:00.000Z",
-        endReportDate: "2024-07-30T10:00:00.000Z",
+        startDate: new Date("2024-07-20T10:00:00.000Z"),
+        endDate: new Date("2024-07-30T10:00:00.000Z"),
+        frequency: "MONTHLY",
+        startReportDate: new Date("2024-07-20T10:00:00.000Z"),
+        endReportDate: new Date("2024-07-30T10:00:00.000Z"),
         title: "Updated Anomalies Report",
         threshold: 8,
-        type: TaskType.GENERATE_ANOMALIES_REPORT
       };
 
-      // Act
-      const updatedTask = await anomaliesReportTaskRepository.update(updatedTaskData);
-
-      // Assert
-      expect(updatedTask).toMatchObject({
+      const updatedTask: GenerateAnomaliesReportTask = {
+        ...tasksToCreate[0],
+        ...updatedTaskData,
         startDate: new Date(updatedTaskData.startDate!),
         endDate: new Date(updatedTaskData.endDate!),
-        frequency: updatedTaskData.frequency,
         startReportDate: new Date(updatedTaskData.startReportDate!),
         endReportDate: new Date(updatedTaskData.endReportDate!),
-        title: updatedTaskData.title,
-        threshold: updatedTaskData.threshold,
-      });
+      };
+
+      (prismaMock.generateAnomaliesReportTask.update as jest.Mock).mockResolvedValueOnce(updatedTask);
+
+      // Act
+      const result = await anomaliesReportTaskRepository.update(updatedTaskData.publicId!, updatedTaskData);
+
+      // Assert
+      expect(result).toEqual(updatedTask);
     });
 
     it("should return null if task not found", async () => {
       // Arrange
       const nonExistentPublicId = "non-existent-publicId";
+      (prismaMock.generateAnomaliesReportTask.update as jest.Mock).mockResolvedValueOnce(null);
 
       // Act
-      const updatedTask = await anomaliesReportTaskRepository.update({
+      const updatedTask = await anomaliesReportTaskRepository.update(nonExistentPublicId, {
         publicId: nonExistentPublicId,
-        startDate: "2024-07-20T10:00:00.000Z",
-        endDate: "2024-07-30T10:00:00.000Z",
-        frequency: Frequency.MONTHLY,
-        startReportDate: "2024-07-20T10:00:00.000Z",
-        endReportDate: "2024-07-30T10:00:00.000Z",
+        startDate: new Date("2024-07-20T10:00:00.000Z"),
+        endDate: new Date("2024-07-30T10:00:00.000Z"),
+        frequency: "MONTHLY",
+        startReportDate: new Date("2024-07-20T10:00:00.000Z"),
+        endReportDate: new Date("2024-07-30T10:00:00.000Z"),
         title: "Updated Anomalies Report",
         threshold: 8,
-        type: TaskType.GENERATE_ANOMALIES_REPORT
       });
 
       // Assert

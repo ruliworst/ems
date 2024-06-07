@@ -1,18 +1,27 @@
+import { mockDeep, mockReset } from 'jest-mock-extended';
+
 import "reflect-metadata";
 import "@/config/container";
-import { container } from "tsyringe";
-import { Frequency, PrismaClient } from "@prisma/client";
-import PrismaMaintenanceDeviceTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMaintenanceDeviceTaskRepository";
+import { MaintenanceDeviceTask, PrismaClient, PrismaPromise } from "@prisma/client";
 import { v4 as uuidv4 } from 'uuid';
-import { CreateTaskDTO, TaskType, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { DeviceRepository } from "@/src/domain/persistence/devices/DeviceRepository";
+import PrismaMaintenanceDeviceTaskRepository from '@/src/infrastructure/prisma/tasks/PrismaMaintenanceDeviceTaskRepository';
+
+
+jest.mock('@prisma/client', () => ({
+  PrismaClient: jest.fn().mockImplementation(() => mockDeep<PrismaClient>()),
+}));
+
+jest.mock("@/src/domain/persistence/devices/DeviceRepository");
 
 describe("MaintenanceDeviceTaskRepository", () => {
   let maintenanceDeviceTaskRepository: PrismaMaintenanceDeviceTaskRepository;
-  let prisma: PrismaClient = new PrismaClient();
+  let prismaMock: jest.Mocked<PrismaClient>;
+  let deviceRepository: jest.Mocked<DeviceRepository>;
 
   const publicId = uuidv4();
 
-  const tasksToCreate = [
+  const tasksToCreate: MaintenanceDeviceTask[] = [
     {
       id: uuidv4(),
       startDate: new Date("2024-05-01T10:00:00.000Z"),
@@ -20,115 +29,157 @@ describe("MaintenanceDeviceTaskRepository", () => {
       deviceId: "1",
       operatorId: "2",
       supervisorId: null,
-      frequency: Frequency.DAILY,
-      publicId
+      frequency: "DAILY",
+      publicId,
     },
   ];
 
-  beforeAll(async () => {
-    maintenanceDeviceTaskRepository = container.resolve(PrismaMaintenanceDeviceTaskRepository);
-    await prisma.maintenanceDeviceTask.createMany({ data: tasksToCreate });
+  beforeEach(() => {
+    prismaMock = new PrismaClient() as jest.Mocked<PrismaClient>;
+
+    (prismaMock.operator.findUnique as jest.MockedFunction<
+      typeof prismaMock.operator.findUnique
+    >).mockResolvedValue({
+      id: "2",
+      firstName: "Bob",
+      firstSurname: "Doe",
+      secondSurname: "Smith",
+      email: "bob.doe@example.com",
+      password: uuidv4(),
+      phoneNumber: "123456789",
+    });
+
+    (prismaMock.supervisor.findUnique as jest.MockedFunction<
+      typeof prismaMock.supervisor.findUnique
+    >).mockResolvedValue(null);
+
+    deviceRepository = {
+      getByName: jest.fn().mockResolvedValue({ id: "1" }),
+    } as unknown as jest.Mocked<DeviceRepository>;
+    maintenanceDeviceTaskRepository = new PrismaMaintenanceDeviceTaskRepository(prismaMock, deviceRepository);
+  });
+
+  afterEach(() => {
+    mockReset(prismaMock);
   });
 
   describe("getAll", () => {
     it("should fetch all maintenance device tasks", async () => {
-      // Act
+      const maintenanceDeviceTaskMock =
+        prismaMock.maintenanceDeviceTask as jest.Mocked<PrismaClient["maintenanceDeviceTask"]>;
+
+      maintenanceDeviceTaskMock.findMany.mockImplementation(
+        () => Promise.resolve(tasksToCreate) as PrismaPromise<MaintenanceDeviceTask[]>
+      );
+
       const tasks = await maintenanceDeviceTaskRepository.getAll();
 
-      // Assert
-      expect(tasks).toContainEqual(expect.objectContaining(tasksToCreate[0]));
+      expect(tasks).toEqual(tasksToCreate);
     });
   });
 
   describe("create", () => {
     it("should create a maintenance device task successfully", async () => {
-      // Arrange
-      const newTask: CreateTaskDTO = {
-        startDate: "2024-07-01T10:00:00.000Z",
-        endDate: "2024-07-10T10:00:00.000Z",
-        title: null,
-        threshold: null,
-        frequency: Frequency.WEEKLY,
-        deviceName: "Device-Monitorize",
-        operatorEmail: "bob.doe@example.com",
-        type: TaskType.MAINTENANCE_DEVICE,
-        startReportDate: null,
-        endReportDate: null
+      const newTask: Partial<MaintenanceDeviceTask> = {
+        startDate: new Date("2024-07-01T10:00:00.000Z"),
+        endDate: new Date("2024-07-10T10:00:00.000Z"),
+        frequency: "WEEKLY",
+      };
+      const operatorEmail = "bob.doe@example.com";
+      const deviceName = "Device-Monitorize";
+
+      const createdTask: MaintenanceDeviceTask = {
+        ...newTask,
+        startDate: new Date(newTask.startDate!),
+        endDate: new Date(newTask.endDate!),
+        id: uuidv4(),
+        deviceId: "1",
+        operatorId: "2",
+        supervisorId: null,
+        publicId: uuidv4(),
+        frequency: newTask.frequency!,
       };
 
-      // Act
-      const createdTask = await maintenanceDeviceTaskRepository.create(newTask);
+      const maintenanceDeviceTaskMock =
+        prismaMock.maintenanceDeviceTask as jest.Mocked<PrismaClient["maintenanceDeviceTask"]>;
 
-      // Assert
-      expect(createdTask).toMatchObject({
-        startDate: new Date(newTask.startDate),
-        endDate: new Date(newTask.endDate!),
-      });
-    });
+      maintenanceDeviceTaskMock.create.mockResolvedValue(createdTask);
+
+      const result = await maintenanceDeviceTaskRepository.create(newTask, operatorEmail, deviceName);
+
+      expect(result).toEqual(createdTask);
+    })
   });
-
   describe("getTaskByPublicId", () => {
     it("should fetch a task by public ID", async () => {
-      // Act
+      (prismaMock.maintenanceDeviceTask.findUnique as jest.MockedFunction<
+        typeof prismaMock.maintenanceDeviceTask.findUnique
+      >).mockResolvedValueOnce(tasksToCreate[0]);
+
       const task = await maintenanceDeviceTaskRepository.getTaskByPublicId(publicId);
 
-      // Assert
-      expect(task).toMatchObject(tasksToCreate[0]);
+      expect(task).toEqual(tasksToCreate[0]);
     });
 
     it("should return null if task not found", async () => {
-      // Act
+      (prismaMock.maintenanceDeviceTask.findUnique as jest.MockedFunction<
+        typeof prismaMock.maintenanceDeviceTask.findUnique
+      >).mockResolvedValueOnce(null);
+
       const task = await maintenanceDeviceTaskRepository.getTaskByPublicId("non-existent-task");
 
-      // Assert
       expect(task).toBeNull();
     });
   });
 
   describe("update", () => {
     it("should update a maintenance device task successfully", async () => {
-      // Arrange
-      const updatedTaskData: UpdateTaskDTO = {
+      const updatedTaskData: Partial<MaintenanceDeviceTask> = {
         publicId,
-        startDate: "2024-09-05T10:00:00.000Z",
-        endDate: "2024-09-20T10:00:00.000Z",
-        frequency: Frequency.WEEKLY,
-        type: TaskType.MAINTENANCE_DEVICE,
-        threshold: null,
-        startReportDate: null,
-        endReportDate: null,
-        title: null
+        startDate: new Date("2024-07-20T10:00:00.000Z"),
+        endDate: new Date("2024-07-30T10:00:00.000Z"),
+        frequency: "MONTHLY",
       };
 
-      // Act
-      const updatedTask = await maintenanceDeviceTaskRepository.update(updatedTaskData);
-
-      // Assert
-      expect(updatedTask).toMatchObject({
+      const updatedTask: MaintenanceDeviceTask = {
+        ...tasksToCreate[0],
+        ...updatedTaskData,
         startDate: new Date(updatedTaskData.startDate!),
         endDate: new Date(updatedTaskData.endDate!),
-        frequency: updatedTaskData.frequency,
-      });
+      };
+
+      (prismaMock.maintenanceDeviceTask.update as jest.MockedFunction<
+        typeof prismaMock.maintenanceDeviceTask.update
+      >).mockResolvedValueOnce(updatedTask);
+
+      const result = await maintenanceDeviceTaskRepository.update(
+        updatedTaskData.publicId!,
+        updatedTaskData
+      );
+
+      expect(result).toEqual(updatedTask);
     });
 
     it("should return null if task not found", async () => {
-      // Arrange
       const nonExistentPublicId = "non-existent-publicId";
 
-      // Act
-      const updatedTask = await maintenanceDeviceTaskRepository.update({
-        publicId: nonExistentPublicId,
-        startDate: "2024-09-05T10:00:00.000Z",
-        endDate: "2024-09-20T10:00:00.000Z",
-        frequency: Frequency.WEEKLY,
-        type: TaskType.MAINTENANCE_DEVICE,
-        threshold: null,
-        startReportDate: null,
-        endReportDate: null,
-        title: null
+      (prismaMock.maintenanceDeviceTask.update as jest.MockedFunction<
+        typeof prismaMock.maintenanceDeviceTask.update
+      >).mockRejectedValueOnce({
+        code: "P2025",
+        message: "An operation failed because it depends on one or more records that were required but not found. {cause}",
       });
 
-      // Assert
+      const updatedTask = await maintenanceDeviceTaskRepository.update(
+        nonExistentPublicId,
+        {
+          publicId: nonExistentPublicId,
+          startDate: new Date("2024-07-20T10:00:00.000Z"),
+          endDate: new Date("2024-07-30T10:00:00.000Z"),
+          frequency: "MONTHLY",
+        }
+      );
+
       expect(updatedTask).toBeNull();
     });
   });

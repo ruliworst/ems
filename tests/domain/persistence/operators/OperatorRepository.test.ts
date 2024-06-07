@@ -1,13 +1,13 @@
 import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
-import { PrismaClient } from "@prisma/client";
+import { Operator, PrismaClient } from "@prisma/client";
 import { OperatorRepository } from "@/src/domain/persistence/operators/OperatorRepository";
-import { CreateOperatorDTO } from "@/src/infrastructure/api/dtos/operators/operator.dto";
+import { CreateOperatorDTO, OperatorRole } from "@/src/infrastructure/api/dtos/operators/operator.dto";
 import bcrypt from "bcrypt";
 
 describe("OperatorRepository", () => {
-  let operatorRepository: OperatorRepository;
+  let operatorRepository: OperatorRepository<Operator>;
   let prisma: PrismaClient = new PrismaClient();
 
   const operatorsToCreate: CreateOperatorDTO[] = [
@@ -17,7 +17,8 @@ describe("OperatorRepository", () => {
       secondSurname: "Smith",
       email: "john.doe@example.com",
       password: "password123",
-      phoneNumber: "123456789"
+      phoneNumber: "123456789",
+      role: OperatorRole.OPERATOR
     },
     {
       firstName: "Jane",
@@ -25,13 +26,15 @@ describe("OperatorRepository", () => {
       secondSurname: "Johnson",
       email: "jane.doe@example.com",
       password: "password123",
-      phoneNumber: "987654321"
+      phoneNumber: "987654321",
+      role: OperatorRole.OPERATOR
     }
   ];
 
   beforeAll(async () => {
     operatorRepository = container.resolve("OperatorRepository");
-    await prisma.operator.createMany({ data: operatorsToCreate });
+    operatorRepository.create(operatorsToCreate[0])
+    operatorRepository.create(operatorsToCreate[1])
   });
 
   describe("create", () => {
@@ -43,8 +46,14 @@ describe("OperatorRepository", () => {
         secondSurname: "Davis",
         email: "alice.brown@example.com",
         password: "password123",
-        phoneNumber: "123123123"
+        phoneNumber: "123123123",
+        role: OperatorRole.OPERATOR
       };
+
+      let createOperatorWithRoleDTO = {
+        ...operatorToCreate,
+        role: OperatorRole.OPERATOR
+      }
 
       // Act.
       const createdOperator = await operatorRepository.create(operatorToCreate);
@@ -55,8 +64,10 @@ describe("OperatorRepository", () => {
 
       const foundOperator = await prisma.operator.findUnique({ where: { id: createdOperator.id } });
       expect(foundOperator).not.toBeNull();
+
+      const { role, ...operatorData } = operatorToCreate;
       expect(foundOperator).toMatchObject({
-        ...operatorToCreate,
+        ...operatorData,
         password: expect.any(String)
       });
       const isPasswordHashed = await bcrypt.compare(operatorToCreate.password, createdOperator.password);
@@ -71,7 +82,8 @@ describe("OperatorRepository", () => {
         secondSurname: "Test",
         email: operatorsToCreate[0].email,
         password: "password123",
-        phoneNumber: "321321321"
+        phoneNumber: "321321321",
+        role: OperatorRole.OPERATOR
       };
 
       // Act & Assert.

@@ -56,6 +56,18 @@ class BaseTaskService {
     }
   }
 
+  async delete(publicId: string): Promise<TaskDTO | null> {
+    const tasks = await Promise.all([
+      this.anomaliesReportTaskService.delete(publicId),
+      this.consumptionReportTaskService.delete(publicId),
+      this.maintenanceDeviceTaskService.delete(publicId),
+      this.monitorizeConsumptionTaskService.delete(publicId),
+    ]);
+
+    const task = tasks.find(task => task !== null);
+    return task ? task.getTaskDTO() : null;
+  }
+
   async create(createTaskDTO: CreateTaskDTO): Promise<TaskViewDTO> {
     let createdTask;
     try {

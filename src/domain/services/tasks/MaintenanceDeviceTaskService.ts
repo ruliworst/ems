@@ -1,42 +1,45 @@
 import { injectable, inject } from "tsyringe";
 import "@/config/container";
-import { MaintenanceDeviceTask } from "@prisma/client";
 import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
+import { MaintenanceDeviceTask } from "@prisma/client";
+import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
+import { TaskService } from "./TaskService";
 import { MaintenanceDeviceTaskEntity } from "@/src/infrastructure/entities/tasks/MaintenanceDeviceTaskEntity";
-import type { MaintenanceDeviceTaskRepository } from "../../persistence/tasks/MaintenanceDeviceTaskRepository";
 
 @injectable()
-class MaintenanceDeviceTaskService {
+class MaintenanceDeviceTaskService extends TaskService<MaintenanceDeviceTask, MaintenanceDeviceTaskEntity> {
   constructor(
-    @inject("MaintenanceDeviceTaskRepository") private tasksRepository: MaintenanceDeviceTaskRepository
-  ) { }
+    @inject("MaintenanceDeviceTaskRepository") taskRepository: TaskRepository<MaintenanceDeviceTask>
+  ) {
+    super(taskRepository);
+  }
 
-  async getAll(): Promise<MaintenanceDeviceTaskEntity[]> {
-    const tasks: MaintenanceDeviceTask[] = await this.tasksRepository.getAll();
+  protected mapToEntity(task: MaintenanceDeviceTask): MaintenanceDeviceTaskEntity {
+    return new MaintenanceDeviceTaskEntity({ ...task });
+  }
 
-    return tasks.map<MaintenanceDeviceTaskEntity>(task => new MaintenanceDeviceTaskEntity(task));
-  };
-
-  async create(createTaskDTO: CreateTaskDTO): Promise<MaintenanceDeviceTaskEntity> {
-    try {
-      const task: MaintenanceDeviceTask = await this.tasksRepository.create(createTaskDTO);
-      return new MaintenanceDeviceTaskEntity(task);
-    } catch (error) {
-      console.error("Error creating a task:", error);
-      throw error;
+  protected checkAttributes(createTaskDTO: CreateTaskDTO): void {
+    if (createTaskDTO.startReportDate === undefined ||
+      createTaskDTO.endReportDate === undefined ||
+      createTaskDTO.title === undefined) {
+      throw new Error("Some values are not valid.");
     }
-  };
+  }
 
-  async update(updateTaskDTO: UpdateTaskDTO): Promise<MaintenanceDeviceTaskEntity> {
-    const task: MaintenanceDeviceTask | null = await this.tasksRepository.update(updateTaskDTO);
-    if (!task) throw new Error("The task could not be updated.");
-    return new MaintenanceDeviceTaskEntity(task);
-  };
+  protected getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<MaintenanceDeviceTask> {
+    return {
+      startDate: new Date(createTaskDTO.startDate),
+      endDate: createTaskDTO.endDate ? new Date(createTaskDTO.endDate) : null,
+      frequency: createTaskDTO.frequency,
+    };
+  }
 
-  async getTaskByPublicId(publicId: string): Promise<MaintenanceDeviceTaskEntity | null> {
-    const task = await this.tasksRepository.getTaskByPublicId(publicId);
-    if (!task) return null;
-    return new MaintenanceDeviceTaskEntity(task);
+  protected getTaskToUpdate(updateTaskDTO: UpdateTaskDTO): Partial<MaintenanceDeviceTask> {
+    return {
+      startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
+      endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
+      frequency: updateTaskDTO.frequency ?? undefined,
+    };
   }
 }
 

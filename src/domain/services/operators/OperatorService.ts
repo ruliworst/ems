@@ -1,14 +1,27 @@
 import { injectable, inject } from "tsyringe";
-import type { OperatorRepository } from "../../persistence/operators/OperatorRepository";
 import { OperatorEntity } from "@/src/infrastructure/entities/operators/OperatorEntity";
 import { CreateOperatorDTO } from "@/src/infrastructure/api/dtos/operators/operator.dto";
 import { Operator } from "@prisma/client";
+import type { OperatorRepository } from "../../persistence/operators/OperatorRepository";
 
 @injectable()
 class OperatorService {
   constructor(
-    @inject("OperatorRepository") private operatorRepository: OperatorRepository
+    @inject("OperatorRepository") private operatorRepository: OperatorRepository<Operator>
   ) { }
+
+  async getByEmail(email: string): Promise<OperatorEntity | null> {
+    return this.operatorRepository
+      .getByEmail(email)
+      .then(operator => {
+        if (!operator) return null;
+        return new OperatorEntity({ ...operator });
+      })
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
+  }
 
   async create(createOperatorDTO: CreateOperatorDTO): Promise<OperatorEntity> {
     try {

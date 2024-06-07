@@ -1,24 +1,39 @@
+import "@/config/container";
 import { OperatorRepository } from "@/src/domain/persistence/operators/OperatorRepository";
-import { Operator, PrismaClient } from "@prisma/client";
-import { injectable } from "tsyringe";
+import { PrismaClient } from "@prisma/client";
+import { inject, injectable } from "tsyringe";
 import { CreateOperatorDTO } from "../../api/dtos/operators/operator.dto";
 import bcrypt from "bcrypt";
+import PrismaRepository from "../PrismaRepository";
 
 @injectable()
-export default class PrismaOperatorRepository implements OperatorRepository {
-  private prisma: PrismaClient;
-
-  constructor() {
-    this.prisma = new PrismaClient();
+export default class PrismaOperatorRepository<T> extends PrismaRepository implements OperatorRepository<T> {
+  constructor(
+    @inject(PrismaClient) prismaClient: PrismaClient,
+    protected entity: any,
+  ) {
+    super(prismaClient);
   }
 
-  async create(operator: CreateOperatorDTO): Promise<Operator> {
+  async getByEmail(email: string): Promise<T | null> {
+    try {
+      await this.connect();
+      return await this.entity.findUnique({ where: { email } });
+    }
+    finally {
+      this.disconnect();
+    }
+  }
+
+  async create(operator: CreateOperatorDTO): Promise<T> {
+    const { role, ...operatorData } = operator;
+
     try {
       await this.connect();
       const hashedPassword = await bcrypt.hash(operator.password, 10);
-      const createdOperator = await this.prisma.operator.create({
+      const createdOperator = await this.entity.create({
         data: {
-          ...operator,
+          ...operatorData,
           password: hashedPassword,
         },
       });
@@ -26,13 +41,5 @@ export default class PrismaOperatorRepository implements OperatorRepository {
     } finally {
       this.disconnect();
     }
-  }
-
-  async connect(): Promise<void> {
-    await this.prisma.$connect();
-  }
-
-  async disconnect(): Promise<void> {
-    await this.prisma.$disconnect();
   }
 }

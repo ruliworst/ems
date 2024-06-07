@@ -66,6 +66,7 @@ model Device {
 // Reports.
 model ConsumptionReport {
   id                       String                    @id @default(uuid())
+  publicId                 String   @unique @default(uuid())
   observations             String?
   startDate                DateTime
   endDate                  DateTime
@@ -81,6 +82,7 @@ model ConsumptionReport {
 
 model AnomaliesReport {
   id                       String                    @id @default(uuid())
+  publicId                 String   @unique @default(uuid())
   observations             String?
   startDate                DateTime
   endDate                  DateTime
@@ -179,6 +181,7 @@ model MaintenanceDeviceTask {
 // Alerts.
 model UnusualConsumptionAlert {
   id           String      @id @default(uuid())
+  publicId     String   @unique @default(uuid())
   message      String
   resolved     Boolean     @default(false)
   priority     Priority
@@ -193,6 +196,7 @@ model UnusualConsumptionAlert {
 
 model MaintenanceAlert {
   id           String      @id @default(uuid())
+  publicId     String   @unique @default(uuid())
   message      String
   resolved     Boolean     @default(false)
   priority     Priority
