@@ -1,4 +1,4 @@
-import { CreateOperatorDTO } from "@/src/infrastructure/api/dtos/operators/operator.dto";
+import { CreateOperatorDTO, OperatorRole } from "@/src/infrastructure/api/dtos/operators/operator.dto";
 import { OperatorApiService } from "@/src/infrastructure/api/services/operators/OperatorApiService";
 
 global.fetch = jest.fn();
@@ -16,7 +16,8 @@ describe("OperatorApiService", () => {
       secondSurname: "Davis",
       email: "alice.brown@example.com",
       password: "password123",
-      phoneNumber: "123123123"
+      phoneNumber: "123123123",
+      role: OperatorRole.OPERATOR
     };
 
     const createdOperator = { id: "1", ...operatorToCreate };
@@ -48,7 +49,8 @@ describe("OperatorApiService", () => {
       secondSurname: "Black",
       email: "bob.white@example.com",
       password: "password123",
-      phoneNumber: "321321321"
+      phoneNumber: "321321321",
+      role: OperatorRole.OPERATOR
     };
 
     (fetch as jest.Mock).mockResolvedValue({
