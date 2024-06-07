@@ -42,7 +42,7 @@ export default function DevicePage({ params }: { params: { name: string } }) {
     );
   }
 
-  if (device && alerts.length > 0) {
+  if (device) {
     return <DeviceView device={device} fetchedAlerts={alerts} />;
   }
 
