@@ -13,7 +13,6 @@ import BaseTaskService from "@/src/domain/services/tasks/BaseTaskService";
 import PrismaDeviceRepository from "@/src/infrastructure/prisma/devices/PrismaDeviceRepository";
 import PrismaGenerateAnomaliesReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateAnomaliesReportTaskRepository";
 import PrismaGenerateConsumptionReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateConsumptionReportTaskRepository";
-import PrismaOperatorRepository from "@/src/infrastructure/prisma/operators/PrismaOperatorRepository";
 import { MaintenanceAlertService } from "@/src/domain/services/alerts/MaintenanceAlertService";
 import { AnomaliesReport, ConsumptionReport, GenerateAnomaliesReportTask, GenerateConsumptionReportTask, MaintenanceAlert, MaintenanceDeviceTask, MonitorizeConsumptionTask, Operator, PrismaClient, Supervisor, UnusualConsumptionAlert } from "@prisma/client";
 import { UnusualConsumptionAlertService } from "@/src/domain/services/alerts/UnusualConsumptionAlertService";
