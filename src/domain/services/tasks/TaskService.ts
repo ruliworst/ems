@@ -53,20 +53,21 @@ export abstract class TaskService<T, E extends JobAttributesData> {
 
   async create(createTaskDTO: CreateTaskDTO): Promise<E> {
     this.checkAttributes(createTaskDTO);
-    try {
-      const createdTask: T = await this.taskRepository.create(
+    return await this.taskRepository
+      .create(
         this.getTaskToCreate(createTaskDTO),
         createTaskDTO.operatorEmail!,
-        createTaskDTO.deviceName);
+        createTaskDTO.deviceName)
+      .then(async task => {
+        const entity = this.mapToEntity(task);
+        await this.scheduleAgendaJob(entity);
 
-      const entity = this.mapToEntity(createdTask);
-      await this.scheduleAgendaJob(entity);
-
-      return entity;
-    } catch (error) {
-      console.error("Error creating a task:", error);
-      throw error;
-    }
+        return entity;
+      })
+      .catch(error => {
+        console.error(error);
+        throw error;
+      });
   };
 
   async delete(publicId: string): Promise<E | null> {
