@@ -32,7 +32,7 @@ export abstract class TaskService<T, E extends JobAttributesData> {
 
   async scheduleAgendaJob(entity: E): Promise<void> {
     const { startDate } = entity;
-    const jobAttributesData: JobAttributesData = { ...entity };
+    const jobAttributesData: JobAttributesData = { data: { ...entity } };
     const frequency: string = this.getIntervalFromFrequency(entity.frequency);
     const jobName: string = this.getAgendaJobName();
     console.log(`Scheduling a task with name: ${jobName} with frequency ${frequency} and data: ${jobAttributesData.data}...`);
