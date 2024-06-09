@@ -12,3 +12,13 @@ export type AlertViewDTO = {
   publicId: string
   type: AlertType
 }
+
+export type CreateAlertDTO = {
+  message: string
+  priority: Priority
+  type: AlertType
+  threshold?: number | null
+  operatorId?: string
+  supervisorId?: string
+  deviceId: string
+}

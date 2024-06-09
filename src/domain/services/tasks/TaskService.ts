@@ -1,20 +1,55 @@
 import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
-import { TaskRepository } from "../../persistence/tasks/TaskRepository";
+import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
+import Agenda, { Job, JobAttributesData } from "agenda";
+import { inject } from "tsyringe";
+import { Frequency } from "@prisma/client";
 
-export abstract class TaskService<T, E> {
+export abstract class TaskService<T, E extends JobAttributesData> {
   constructor(
     protected taskRepository: TaskRepository<T>,
-  ) { }
+    @inject("Agenda") protected agenda: Agenda
+  ) {
+    this.defineAgendaJob();
+  }
 
   protected abstract mapToEntity(task: T): E;
   protected abstract checkAttributes(createTaskDTO: CreateTaskDTO): void;
   protected abstract getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<T>;
   protected abstract getTaskToUpdate(updateTaskDTO: UpdateTaskDTO): Partial<T>;
+  protected abstract getAgendaJobName(): string;
+  protected abstract executeAgendaJob(job: Job): void;
 
   async getAll(): Promise<E[]> {
     const tasks: T[] = await this.taskRepository.getAll();
     return tasks.map(this.mapToEntity);
   };
+
+  protected defineAgendaJob(): void {
+    this.agenda.define(this.getAgendaJobName(), async (job: Job): Promise<void> => {
+      await this.executeAgendaJob(job);
+    });
+  }
+
+  async scheduleAgendaJob(entity: E): Promise<void> {
+    const { startDate } = entity;
+    const jobAttributesData: JobAttributesData = { ...entity };
+    await this.agenda
+      .every(this.getIntervalFromFrequency(entity.frequency), this.getAgendaJobName(), jobAttributesData)
+      .then(value => console.log(`Task scheduled: ${startDate}`));
+  }
+
+  private getIntervalFromFrequency(frequency: string): string {
+    switch (frequency) {
+      case Frequency.DAILY:
+        return '1 day';
+      case Frequency.WEEKLY:
+        return '1 week';
+      case Frequency.MONTHLY:
+        return '1 month';
+      default:
+        throw new Error("Invalid frequency");
+    }
+  }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<E> {
     this.checkAttributes(createTaskDTO);
@@ -23,7 +58,11 @@ export abstract class TaskService<T, E> {
         this.getTaskToCreate(createTaskDTO),
         createTaskDTO.operatorEmail!,
         createTaskDTO.deviceName);
-      return this.mapToEntity(createdTask);
+
+      const entity = this.mapToEntity(createdTask);
+      await this.scheduleAgendaJob(entity);
+
+      return entity;
     } catch (error) {
       console.error("Error creating a task:", error);
       throw error;

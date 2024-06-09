@@ -31,9 +31,18 @@ import { AnomaliesReportService } from "@/src/domain/services/reports/AnomaliesR
 import { BaseOperatorService } from "@/src/domain/services/operators/BaseOperatorService";
 import PrismaOperatorOperatorRepository from "@/src/infrastructure/prisma/operators/PrismaOperatorOperatorRepository";
 import PrismaSupervisorOperatorRepository from "@/src/infrastructure/prisma/operators/PrismaSupervisorOperatorRepository";
+import Agenda from "agenda";
 
 const prisma = new PrismaClient();
 container.register<PrismaClient>(PrismaClient, { useValue: prisma });
+
+const agenda = new Agenda({
+  db: { address: process.env.MONGODB_URL!, collection: 'AgendaJob' }
+});
+
+agenda.start();
+
+container.registerInstance("Agenda", agenda);
 
 // Register repositories.
 container.registerSingleton<DeviceRepository>("DeviceRepository", PrismaDeviceRepository);

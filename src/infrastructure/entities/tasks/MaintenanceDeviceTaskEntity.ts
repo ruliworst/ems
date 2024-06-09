@@ -22,7 +22,6 @@ export class MaintenanceDeviceTaskEntity extends Task {
     }
   }
 
-
   getTaskView(): TaskViewDTO {
     return super.getTaskView(TaskType.MAINTENANCE_DEVICE);
   }

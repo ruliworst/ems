@@ -1,5 +1,6 @@
 import { TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { Frequency } from "@prisma/client";
+import { JobAttributesData } from "agenda";
 
 export interface TaskAttributes {
   id: string;
@@ -12,7 +13,7 @@ export interface TaskAttributes {
   publicId: string;
 }
 
-export abstract class Task {
+export abstract class Task implements JobAttributesData {
   id: string;
   startDate: Date;
   endDate?: Date | null;

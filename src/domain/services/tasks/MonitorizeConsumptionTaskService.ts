@@ -5,13 +5,15 @@ import { MonitorizeConsumptionTask } from "@prisma/client";
 import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
 import { TaskService } from "./TaskService";
 import { MonitorizeConsumptionTaskEntity } from "@/src/infrastructure/entities/tasks/MonitorizeConsumptionTaskEntity";
+import Agenda, { Job } from "agenda";
 
 @injectable()
 class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumptionTask, MonitorizeConsumptionTaskEntity> {
   constructor(
-    @inject("MonitorizeConsumptionTaskRepository") taskRepository: TaskRepository<MonitorizeConsumptionTask>
+    @inject("MonitorizeConsumptionTaskRepository") taskRepository: TaskRepository<MonitorizeConsumptionTask>,
+    @inject("Agenda") protected agenda: Agenda
   ) {
-    super(taskRepository);
+    super(taskRepository, agenda);
   }
 
   protected mapToEntity(task: MonitorizeConsumptionTask): MonitorizeConsumptionTaskEntity {
@@ -39,6 +41,19 @@ class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumption
       endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
       frequency: updateTaskDTO.frequency ?? undefined,
     };
+  }
+
+  protected getAgendaJobName(): string {
+    return "MonitorizeConsumptionJob";
+  }
+
+  protected async executeAgendaJob(job: Job): Promise<void> {
+    const taskAttributes = job.attrs.data as MonitorizeConsumptionTaskEntity;
+    this.execute(taskAttributes);
+  }
+
+  async execute(task: MonitorizeConsumptionTaskEntity): Promise<void> {
+    console.log(`Ejecutando tarea de monitorización para el dispositivo ${task.deviceId}`);
   }
 }
 
