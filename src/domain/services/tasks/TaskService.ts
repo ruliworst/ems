@@ -33,9 +33,11 @@ export abstract class TaskService<T, E extends JobAttributesData> {
   async scheduleAgendaJob(entity: E): Promise<void> {
     const { startDate } = entity;
     const jobAttributesData: JobAttributesData = { ...entity };
-    console.log(`Scheduling a task with name: ${this.getAgendaJobName()}...`);
+    const frequency: string = this.getIntervalFromFrequency(entity.frequency);
+    const jobName: string = this.getAgendaJobName();
+    console.log(`Scheduling a task with name: ${jobName} with frequency ${frequency} and data: ${jobAttributesData.data}...`);
     await this.agenda
-      .every(this.getIntervalFromFrequency(entity.frequency), this.getAgendaJobName(), jobAttributesData)
+      .every(frequency, this.getAgendaJobName(), jobAttributesData)
       .then(value => console.log(`Task scheduled: ${startDate}`))
       .catch(error => console.error("Error when trying to schedule the task:", error));
   }
