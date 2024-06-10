@@ -34,7 +34,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AlertApiService } from "@/src/infrastructure/api/services/alerts/AlertApiService";
-import { AlertService } from "@/src/domain/services/alerts/AlertService";
 
 export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDTO, fetchedAlerts: AlertViewDTO[] }) {
   const { toast } = useToast()

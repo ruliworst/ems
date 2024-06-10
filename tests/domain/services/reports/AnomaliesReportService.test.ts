@@ -22,6 +22,7 @@ describe("AnomaliesReportService", () => {
     prismaMock = new PrismaClient() as jest.Mocked<PrismaClient>;
     reportRepositoryMock = {
       getAllByOperatorEmail: jest.fn(),
+      getByPublicId: jest.fn(),
     } as unknown as jest.Mocked<ReportRepository<AnomaliesReport>>;
     anomaliesReportService = new AnomaliesReportService(reportRepositoryMock);
   });
@@ -75,6 +76,55 @@ describe("AnomaliesReportService", () => {
       const result = await anomaliesReportService.getAllByOperatorEmail(email);
 
       expect(reportRepositoryMock.getAllByOperatorEmail).toHaveBeenCalledWith(email);
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("getByPublicId", () => {
+    it("should return the report mapped to entity when found", async () => {
+      const publicId = "12345";
+      const report: AnomaliesReport = {
+        id: "report1",
+        publicId: "12345",
+        observations: "",
+        startDate: new Date(),
+        endDate: new Date(),
+        title: "Test Report",
+        threshold: 0,
+        operatorId: "1",
+        supervisorId: null,
+        deviceId: null,
+      };
+
+      const expectedEntity = new AnomaliesReportEntity({ ...report });
+
+      reportRepositoryMock.getByPublicId.mockResolvedValue(report);
+
+      const result = await anomaliesReportService.getByPublicId(publicId);
+
+      expect(reportRepositoryMock.getByPublicId).toHaveBeenCalledWith(publicId);
+      expect(result).toEqual(expectedEntity);
+    });
+
+    it("should return null when report is not found", async () => {
+      const publicId = "12345";
+
+      reportRepositoryMock.getByPublicId.mockResolvedValue(null);
+
+      const result = await anomaliesReportService.getByPublicId(publicId);
+
+      expect(reportRepositoryMock.getByPublicId).toHaveBeenCalledWith(publicId);
+      expect(result).toBeNull();
+    });
+
+    it("should handle errors and return null", async () => {
+      const publicId = "12345";
+
+      reportRepositoryMock.getByPublicId.mockRejectedValue(new Error("Error"));
+
+      const result = await anomaliesReportService.getByPublicId(publicId);
+
+      expect(reportRepositoryMock.getByPublicId).toHaveBeenCalledWith(publicId);
       expect(result).toBeNull();
     });
   });

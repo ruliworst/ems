@@ -15,6 +15,22 @@ export default class PrismaReportRepository<T> extends PrismaRepository implemen
     super(prismaClient);
   }
 
+  async getByPublicId(publicId: string): Promise<T | null> {
+    try {
+      await this.connect();
+      const report = await this.entity.findUnique({
+        where: {
+          publicId,
+        },
+      });
+      return report;
+    } catch (error) {
+      return null;
+    } finally {
+      this.disconnect();
+    }
+  }
+
   async getAllByOperatorEmail(email: string): Promise<T[] | null> {
     const operator: Operator | null = await this.operatorRepository.getByEmail(email);
     console.log(operator)

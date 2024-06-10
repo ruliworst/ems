@@ -19,4 +19,17 @@ export abstract class ReportService<T, E> {
         return null;
       });
   };
+
+  async getByPublicId(publicId: string): Promise<E | null> {
+    return this.reportRepository
+      .getByPublicId(publicId)
+      .then(report => {
+        if (!report) return null;
+        return this.mapToEntity(report);
+      })
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
+  };
 }

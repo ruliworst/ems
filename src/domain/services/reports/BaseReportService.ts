@@ -4,7 +4,7 @@ import { inject, injectable } from "tsyringe";
 import { AnomaliesReportService } from "./AnomaliesReportService";
 import { ConsumptionReportService } from "./ConsumptionReportService";
 import { AnomaliesReportEntity } from "@/src/infrastructure/entities/reports/AnomaliesReportEntity";
-import { ReportViewDTO } from "@/src/infrastructure/api/dtos/reports/report.dto";
+import { ReportDTO, ReportViewDTO } from "@/src/infrastructure/api/dtos/reports/report.dto";
 import { ConsumptionReportEntity } from "@/src/infrastructure/entities/reports/ConsumptionReportEntity";
 
 @injectable()
@@ -31,5 +31,15 @@ export class BaseReportService {
     }
 
     return reports;
+  }
+
+  async getByPublicId(publicId: string): Promise<ReportDTO | null> {
+    const reports = await Promise.all([
+      this.anomaliesReportService.getByPublicId(publicId),
+      this.consumptionReportService.getByPublicId(publicId),
+    ]);
+
+    const report = reports.find(report => report !== null);
+    return report ? report.getReportDTO() : null;
   }
 }
