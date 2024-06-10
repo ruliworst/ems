@@ -5,6 +5,7 @@ import { ConsumptionReport } from "@prisma/client";
 import { ConsumptionReportEntity } from "@/src/infrastructure/entities/reports/ConsumptionReportEntity";
 import { ReportService } from "./ReportService";
 import type { ReportRepository } from "../../persistence/reports/ReportRepository";
+import { UpdateReportDTO } from "@/src/infrastructure/api/dtos/reports/report.dto";
 
 @injectable()
 export class ConsumptionReportService extends ReportService<ConsumptionReport, ConsumptionReportEntity> {
@@ -17,4 +18,10 @@ export class ConsumptionReportService extends ReportService<ConsumptionReport, C
   protected mapToEntity(report: ConsumptionReport): ConsumptionReportEntity {
     return new ConsumptionReportEntity({ ...report });
   };
+
+  protected getReportToUpdate(updateReportDTO: UpdateReportDTO): Partial<ConsumptionReport> {
+    return {
+      observations: updateReportDTO.observations ?? undefined,
+    };
+  }
 }

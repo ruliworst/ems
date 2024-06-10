@@ -1,4 +1,4 @@
-import { ReportType, ReportViewDTO, ReportDTO } from "@/src/infrastructure/api/dtos/reports/report.dto";
+import { ReportType, ReportViewDTO, ReportDTO, UpdateReportDTO } from "@/src/infrastructure/api/dtos/reports/report.dto";
 import { ReportApiService } from "@/src/infrastructure/api/services/reports/ReportApiService";
 
 global.fetch = jest.fn();
@@ -94,6 +94,67 @@ describe("ReportApiService", () => {
       // Act & Assert
       await expect(ReportApiService.fetchByPublicId(publicId)).rejects.toThrow(`Failed to fetch the report with public identifier: ${publicId}`);
       expect(fetch).toHaveBeenCalledWith(`/api/reports/${publicId}`);
+    });
+  });
+
+  describe("patch", () => {
+    it("should update the report successfully", async () => {
+      // Arrange
+      const updateReportDTO: UpdateReportDTO = {
+        publicId: "12345",
+        observations: "Updated observations",
+        type: ReportType.ANOMALIES
+      };
+      const updatedReport: ReportDTO = {
+        publicId: "12345",
+        startDate: new Date().toDateString(),
+        endDate: new Date().toDateString(),
+        title: "Title",
+        type: ReportType.ANOMALIES,
+        observations: "Updated observations",
+        threshold: 20,
+      };
+
+      (fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => updatedReport,
+      });
+
+      // Act
+      const result = await ReportApiService.patch(updateReportDTO);
+
+      // Assert
+      expect(result).toEqual(updatedReport);
+      expect(fetch).toHaveBeenCalledWith(`/api/reports/${updateReportDTO.publicId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateReportDTO),
+      });
+    });
+
+    it("should throw an error when updating the report fails", async () => {
+      // Arrange
+      const updateReportDTO: UpdateReportDTO = {
+        publicId: "12345",
+        observations: "Updated observations",
+        type: ReportType.CONSUMPTION
+      };
+
+      (fetch as jest.Mock).mockResolvedValue({
+        ok: false,
+      });
+
+      // Act & Assert
+      await expect(ReportApiService.patch(updateReportDTO)).rejects.toThrow(`Failed to update report`);
+      expect(fetch).toHaveBeenCalledWith(`/api/reports/${updateReportDTO.publicId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updateReportDTO),
+      });
     });
   });
 });

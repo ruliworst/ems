@@ -20,3 +20,19 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     return NextResponse.json({ error: 'Failed to fetch report' }, { status: 500 });
   }
 }
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const updateReportDTO = await req.json();
+    const updatedReport: ReportDTO | null = await reportService.update(updateReportDTO);
+
+    if (!updatedReport) {
+      return NextResponse.json({ error: 'Report not found or update failed' }, { status: 404 });
+    }
+
+    return NextResponse.json(updatedReport, { status: 200 });
+  } catch (error) {
+    console.error("Error updating report:", error);
+    return NextResponse.json({ error: 'Failed to update report' }, { status: 500 });
+  }
+}

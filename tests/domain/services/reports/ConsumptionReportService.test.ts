@@ -6,6 +6,7 @@ import { PrismaClient, ConsumptionReport } from "@prisma/client";
 import { ConsumptionReportService } from "@/src/domain/services/reports/ConsumptionReportService";
 import { ConsumptionReportEntity } from "@/src/infrastructure/entities/reports/ConsumptionReportEntity";
 import { ReportRepository } from "@/src/domain/persistence/reports/ReportRepository";
+import { ReportType, UpdateReportDTO } from '@/src/infrastructure/api/dtos/reports/report.dto';
 
 jest.mock('@prisma/client', () => ({
   PrismaClient: jest.fn().mockImplementation(() => mockDeep<PrismaClient>()),
@@ -23,6 +24,7 @@ describe("ConsumptionReportService", () => {
     reportRepositoryMock = {
       getAllByOperatorEmail: jest.fn(),
       getByPublicId: jest.fn(),
+      update: jest.fn()
     } as unknown as jest.Mocked<ReportRepository<ConsumptionReport>>;
     consumptionReportService = new ConsumptionReportService(reportRepositoryMock);
   });
@@ -124,6 +126,62 @@ describe("ConsumptionReportService", () => {
 
       expect(result).toBeNull();
       expect(reportRepositoryMock.getByPublicId).toHaveBeenCalledWith(publicId);
+    });
+  });
+
+  describe("update", () => {
+    it("should update the report and return the updated entity", async () => {
+      const updateReportDTO: UpdateReportDTO = {
+        publicId: "12345",
+        observations: "Updated observations",
+        type: ReportType.CONSUMPTION
+      };
+      const updatedReport: ConsumptionReport = {
+        id: "report1",
+        publicId: "12345",
+        observations: "Updated observations",
+        startDate: new Date(),
+        endDate: new Date(),
+        title: "Updated Report Title",
+        operatorId: "1",
+        supervisorId: null,
+        deviceId: null,
+      };
+
+      const expectedEntity = new ConsumptionReportEntity({ ...updatedReport });
+
+      reportRepositoryMock.update.mockResolvedValue(updatedReport);
+
+      const result = await consumptionReportService.update(updateReportDTO);
+
+      expect(reportRepositoryMock.update).toHaveBeenCalledWith(updateReportDTO.publicId, {
+        observations: updateReportDTO.observations,
+      });
+      expect(result).toEqual(expectedEntity);
+    });
+
+    it("should throw an error when the report cannot be updated", async () => {
+      const updateReportDTO: UpdateReportDTO = {
+        publicId: "12345",
+        observations: "Updated observations",
+        type: ReportType.CONSUMPTION
+      };
+
+      reportRepositoryMock.update.mockResolvedValue(null);
+
+      await expect(consumptionReportService.update(updateReportDTO)).rejects.toThrow("The report could not be updated.");
+    });
+
+    it("should handle errors and throw an error", async () => {
+      const updateReportDTO: UpdateReportDTO = {
+        publicId: "12345",
+        observations: "Updated observations",
+        type: ReportType.CONSUMPTION
+      };
+
+      reportRepositoryMock.update.mockRejectedValue(new Error("The report could not be updated."));
+
+      await expect(consumptionReportService.update(updateReportDTO)).rejects.toThrow("The report could not be updated.");
     });
   });
 });
