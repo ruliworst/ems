@@ -74,6 +74,18 @@ async function main() {
       },
     ]
   });
+  await prisma.anomaliesReport.createMany({
+    data: [
+      {
+        publicId: uuidv4(),
+        startDate: new Date(),
+        endDate: new Date(),
+        title: "Anomalies report",
+        operatorId: "2",
+        threshold: 10
+      },
+    ]
+  });
 }
 
 main()

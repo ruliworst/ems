@@ -1,4 +1,4 @@
-import { ReportType, ReportViewDTO } from "../../api/dtos/reports/report.dto";
+import { ReportDTO, ReportType, ReportViewDTO } from "../../api/dtos/reports/report.dto";
 import { ReportAttributes } from "./Report";
 import { Report } from "@/src/infrastructure/entities/reports/Report";
 
@@ -15,5 +15,13 @@ export class ConsumptionReportEntity extends Report {
 
   getView(): ReportViewDTO {
     return super.getView(ReportType.CONSUMPTION);
+  }
+
+  getReportDTO(): ReportDTO {
+    return {
+      ...super.getReportDTO(),
+      cost: this.cost,
+      type: ReportType.CONSUMPTION
+    }
   }
 }
