@@ -21,3 +21,9 @@ export type ReportDTO = {
   cost?: number | null
   type?: ReportType
 }
+
+export type UpdateReportDTO = {
+  publicId: string,
+  observations: string,
+  type: ReportType
+}

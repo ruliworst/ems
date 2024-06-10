@@ -22,7 +22,7 @@ export class AnomaliesReportEntity extends Report {
     return {
       ...super.getReportDTO(),
       threshold: this.threshold,
-      type: ReportType.CONSUMPTION
+      type: ReportType.ANOMALIES
     }
   }
 }

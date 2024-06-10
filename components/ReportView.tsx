@@ -5,18 +5,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-import { ReportDTO } from "@/src/infrastructure/api/dtos/reports/report.dto";
+import { ReportDTO, ReportType, UpdateReportDTO } from "@/src/infrastructure/api/dtos/reports/report.dto";
 import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
+import { ReportApiService } from "@/src/infrastructure/api/services/reports/ReportApiService";
 
-export default function ReportView({ report }: { report: ReportDTO }) {
-  console.log(report)
+export default function ReportView({ report, type }: { report: ReportDTO, type: ReportType }) {
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [observations, setObservations] = useState(report.observations);
 
   const handleAddObservations = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    const updateReportDTO: UpdateReportDTO = {
+      publicId: report.publicId,
+      observations: observations ?? "",
+      type,
+    };
+
+    await ReportApiService.patch(updateReportDTO)
+      .then((updatedReport) => {
+        const description = `${new Date().toLocaleString()}`;
+        toast({
+          title: "Report updated.",
+          description
+        });
+        setObservations(updatedReport.observations);
+        setIsEditing(false);
+      });
   };
 
   return (
@@ -69,7 +85,7 @@ export default function ReportView({ report }: { report: ReportDTO }) {
               <Label htmlFor="observations" className="text-left">Observations</Label>
               <Textarea
                 id="observations"
-                value={report.observations || ""}
+                value={observations || ""}
                 onChange={(e) => setObservations(e.target.value)}
                 className={cn("w-1/2 resize-none", isEditing ? "bg-white" : "")}
                 readOnly={!isEditing}

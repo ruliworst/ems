@@ -10,7 +10,7 @@ export default function ReportPage({ params }: { params: { id: string } }) {
   const [report, setReport] = useState<ReportDTO>();
 
   useEffect(() => {
-    async function getDevice() {
+    async function getReport() {
       try {
         const fetchedReport = await ReportApiService.fetchByPublicId(id!);
         setReport(fetchedReport);
@@ -19,11 +19,11 @@ export default function ReportPage({ params }: { params: { id: string } }) {
       }
     }
 
-    getDevice();
+    getReport();
   }, []);
 
   if (report) {
-    return <ReportView report={report!} />
+    return <ReportView report={report!} type={report.type!} />
   }
 
   return <></>;

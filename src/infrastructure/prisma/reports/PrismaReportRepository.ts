@@ -15,6 +15,23 @@ export default class PrismaReportRepository<T> extends PrismaRepository implemen
     super(prismaClient);
   }
 
+  async update(publicId: string, updatedReport: Partial<T>): Promise<T | null> {
+    try {
+      await this.connect();
+      const report = await this.entity.update({
+        where: { publicId },
+        data: { ...updatedReport },
+      }).catch((error: any) => {
+        console.error(error);
+        return null;
+      });
+
+      return report;
+    } finally {
+      this.disconnect();
+    }
+  }
+
   async getByPublicId(publicId: string): Promise<T | null> {
     try {
       await this.connect();
