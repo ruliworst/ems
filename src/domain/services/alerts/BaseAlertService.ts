@@ -3,7 +3,7 @@ import "@/config/container";
 import { inject, injectable } from "tsyringe";
 import { MaintenanceAlertService } from "./MaintenanceAlertService";
 import { UnusualConsumptionAlertService } from "./UnusualConsumptionAlertService";
-import { AlertViewDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
+import { AlertType, AlertViewDTO, CreateAlertDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
 import { MaintenanceAlertEntity } from "@/src/infrastructure/entities/alerts/MaintenanceAlertEntity";
 import { UnusualConsumptionAlertEntity } from "@/src/infrastructure/entities/alerts/UnusualConsumptionAlertEntity";
 
@@ -59,5 +59,15 @@ export class BaseAlertService {
     if (unusualConsumptionAlert) return unusualConsumptionAlert.getView();
 
     return null;
+  }
+
+  async create(createAlertDTO: CreateAlertDTO): Promise<void> {
+    if (createAlertDTO.type === AlertType.MAINTENANCE) {
+      await this.maintenanceAlertService.create(createAlertDTO);
+    } else if (createAlertDTO.type === AlertType.UNUSUAL_CONSUMPTION) {
+      await this.unusualConsumptionAlertService.create(createAlertDTO);
+    } else {
+      throw new Error("It was not possible to create the alert.");
+    }
   }
 }

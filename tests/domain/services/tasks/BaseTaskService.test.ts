@@ -2,15 +2,15 @@ import "reflect-metadata";
 import "@/config/container";
 import { container } from "tsyringe";
 import BaseTaskService from "@/src/domain/services/tasks/BaseTaskService";
-import { $Enums, Frequency, GenerateAnomaliesReportTask, GenerateConsumptionReportTask, MaintenanceDeviceTask, MonitorizeConsumptionTask } from "@prisma/client";
+import { $Enums, Frequency, GenerateAnomaliesReportTask, GenerateConsumptionReportTask, MaintenanceDeviceTask, MonitorizeConsumptionTask, PrismaClient } from "@prisma/client";
 import { TaskType, CreateTaskDTO, TaskViewDTO, UpdateTaskDTO, TaskDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { v4 as uuidv4 } from 'uuid';
 import PrismaGenerateAnomaliesReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateAnomaliesReportTaskRepository";
 import PrismaMaintenanceDeviceTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMaintenanceDeviceTaskRepository";
 import PrismaMonitorizeConsumptionTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMonitorizeConsumptionTaskRepository";
 import PrismaGenerateConsumptionReportTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaGenerateConsumptionReportTaskRepository";
-import { TaskRepository } from "@/src/domain/persistence/tasks/TaskRepository";
-import { any } from "jest-mock-extended";
+import Agenda from "agenda";
+import { DeepMockProxy, mockDeep } from "jest-mock-extended";
 
 describe("BaseTaskService", () => {
   let baseTaskService: BaseTaskService;
@@ -111,6 +111,7 @@ describe("BaseTaskService", () => {
   let consumptionReportTaskRepository: jest.Mocked<PrismaGenerateConsumptionReportTaskRepository>;
   let maintenanceDeviceTaskRepository: jest.Mocked<PrismaMaintenanceDeviceTaskRepository>;
   let monitorizeConsumptionTaskRepository: jest.Mocked<PrismaMonitorizeConsumptionTaskRepository>;
+  let agenda: jest.Mocked<Agenda>;
 
   anomaliesReportTaskRepository = {
     getAll: jest.fn().mockResolvedValue(mockAnomaliesReportTasks),
@@ -132,7 +133,32 @@ describe("BaseTaskService", () => {
     create: jest.fn().mockResolvedValue(mockMonitorizeConsumptionTasks[0]),
   } as unknown as jest.Mocked<PrismaMonitorizeConsumptionTaskRepository>;
 
+  const job = {
+    attrs: {},
+    schedule: jest.fn().mockReturnThis(),
+    repeatEvery: jest.fn().mockReturnThis(),
+    save: jest.fn().mockResolvedValue(undefined),
+  };
+
+  agenda = {
+    start: jest.fn().mockResolvedValue(undefined),
+    define: jest.fn(),
+    every: jest.fn().mockResolvedValue(job),
+    create: jest.fn().mockReturnValue(job),
+    schedule: jest.fn().mockReturnValue(job),
+    save: jest.fn().mockResolvedValue(undefined),
+    on: jest.fn(),
+    job
+  } as unknown as jest.Mocked<Agenda>;
+
+  let prismaMock: DeepMockProxy<PrismaClient>;
+
   beforeEach(() => {
+    container.clearInstances();
+
+    prismaMock = mockDeep<PrismaClient>();
+    container.registerInstance(PrismaClient, prismaMock);
+    container.registerInstance("Agenda", agenda);
     container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
     container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
     container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
@@ -274,6 +300,9 @@ describe("BaseTaskService", () => {
     } as unknown as jest.Mocked<PrismaGenerateAnomaliesReportTaskRepository>;
 
     container.clearInstances();
+    prismaMock = mockDeep<PrismaClient>();
+    container.registerInstance(PrismaClient, prismaMock);
+    container.registerInstance("Agenda", agenda);
     container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
     container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
     container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
@@ -319,6 +348,9 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
@@ -371,6 +403,9 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
@@ -424,6 +459,9 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
@@ -475,6 +513,9 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
@@ -518,6 +559,9 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
@@ -550,6 +594,9 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
@@ -583,11 +630,13 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
       container.registerInstance("MonitorizeConsumptionTaskRepository", monitorizeConsumptionTaskRepository);
-
       const baseTaskService = container.resolve(BaseTaskService);
 
       const result = await baseTaskService.delete(existingTask.publicId);
@@ -611,11 +660,13 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
       container.registerInstance("MonitorizeConsumptionTaskRepository", monitorizeConsumptionTaskRepository);
-
       const baseTaskService = container.resolve(BaseTaskService);
 
       const result: TaskDTO | null = await baseTaskService.delete(existingTask.publicId);
@@ -640,11 +691,13 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
       container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
       container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
       container.registerInstance("MonitorizeConsumptionTaskRepository", monitorizeConsumptionTaskRepository);
-
       const baseTaskService = container.resolve(BaseTaskService);
 
       const result = await baseTaskService.delete(existingTask.publicId);
@@ -669,11 +722,13 @@ describe("BaseTaskService", () => {
       };
 
       container.clearInstances();
-      container.registerInstance("GenerateAnomaliesReportTaskRepository", generateAnomaliesReportTaskRepository);
-      container.registerInstance("GenerateConsumptionReportTaskRepository", generateConsumptionReportTaskRepository);
+      prismaMock = mockDeep<PrismaClient>();
+      container.registerInstance(PrismaClient, prismaMock);
+      container.registerInstance("Agenda", agenda);
+      container.registerInstance("GenerateAnomaliesReportTaskRepository", anomaliesReportTaskRepository);
+      container.registerInstance("GenerateConsumptionReportTaskRepository", consumptionReportTaskRepository);
       container.registerInstance("MaintenanceDeviceTaskRepository", maintenanceDeviceTaskRepository);
       container.registerInstance("MonitorizeConsumptionTaskRepository", monitorizeConsumptionTaskRepository);
-
       const baseTaskService = container.resolve(BaseTaskService);
 
       const result = await baseTaskService.delete(nonExistentPublicId);

@@ -5,13 +5,15 @@ import { GenerateAnomaliesReportTask } from "@prisma/client";
 import { GenerateAnomaliesReportTaskEntity } from "@/src/infrastructure/entities/tasks/GenerateAnomaliesReportTaskEntity";
 import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
 import { TaskService } from "./TaskService";
+import Agenda, { Job } from "agenda";
 
 @injectable()
 class GenerateAnomaliesReportTaskService extends TaskService<GenerateAnomaliesReportTask, GenerateAnomaliesReportTaskEntity> {
   constructor(
-    @inject("GenerateAnomaliesReportTaskRepository") taskRepository: TaskRepository<GenerateAnomaliesReportTask>
+    @inject("GenerateAnomaliesReportTaskRepository") taskRepository: TaskRepository<GenerateAnomaliesReportTask>,
+    @inject("Agenda") protected agenda: Agenda
   ) {
-    super(taskRepository);
+    super(taskRepository, agenda);
   }
 
   protected mapToEntity(task: GenerateAnomaliesReportTask): GenerateAnomaliesReportTaskEntity {
@@ -51,6 +53,19 @@ class GenerateAnomaliesReportTaskService extends TaskService<GenerateAnomaliesRe
       title: updateTaskDTO.title ?? undefined,
       threshold: updateTaskDTO.threshold ?? undefined,
     };
+  }
+
+  protected getAgendaJobName(): string {
+    return "GenerateAnomaliesReportJob";
+  }
+
+  protected async executeAgendaJob(job: Job): Promise<void> {
+    const taskAttributes = job.attrs.data as GenerateAnomaliesReportTaskEntity;
+    this.execute(taskAttributes);
+  }
+
+  async execute(task: GenerateAnomaliesReportTaskEntity): Promise<void> {
+    console.log(`Ejecutando tarea de generación de reporte de anomalías para el dispositivo ${task.deviceId}`);
   }
 }
 

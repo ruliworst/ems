@@ -1,4 +1,4 @@
-import { ReportType, ReportViewDTO } from "../../api/dtos/reports/report.dto";
+import { ReportDTO, ReportType, ReportViewDTO } from "../../api/dtos/reports/report.dto";
 
 export interface ReportAttributes {
   id: string;
@@ -45,4 +45,15 @@ export abstract class Report {
       publicId: this.publicId
     };
   };
+
+  getReportDTO(): ReportDTO {
+    return {
+      publicId: this.publicId,
+      observations: this.observations || undefined,
+      startDate: this.startDate.toDateString(),
+      endDate: this.endDate?.toDateString(),
+      title: this.title,
+    };
+  }
+
 }

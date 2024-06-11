@@ -1,4 +1,5 @@
-import { AlertRepository } from "../../persistence/alerts/AlertRepository";
+import { CreateAlertDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
+import type { AlertRepository } from "../../persistence/alerts/AlertRepository";
 
 export abstract class AlertService<T, E> {
   constructor(
@@ -45,4 +46,23 @@ export abstract class AlertService<T, E> {
         return null;
       });
   }
+
+  async create(createAlertDTO: CreateAlertDTO): Promise<E> {
+    const properties = this.getPropertiesToCreateAlert(createAlertDTO);
+
+    return this.alertRepository
+      .create(properties)
+      .then(alert => {
+        return this.mapToEntity(alert);
+      })
+      .catch(error => {
+        console.error(error);
+        throw error;
+      });
+  }
+
+  protected getPropertiesToCreateAlert(createAlertDTO: CreateAlertDTO): any {
+    const { type, ...alertBaseProperties } = createAlertDTO;
+    return alertBaseProperties;
+  };
 }

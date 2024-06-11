@@ -29,18 +29,11 @@ import { TaskApiService } from "@/src/infrastructure/api/services/tasks/TaskApiS
 
 export default function TaskView({ task, type }: { task: TaskDTO, type: TaskType }) {
   const frequencies = [
-    {
-      value: Frequency.DAILY,
-      label: "Daily",
-    },
-    {
-      value: Frequency.WEEKLY,
-      label: "Weekly",
-    },
-    {
-      value: Frequency.MONTHLY,
-      label: "Monthly",
-    },
+    { value: Frequency.EVERY_MINUTE, label: "Every minute" },
+    { value: Frequency.HOURLY, label: "Hourly" },
+    { value: Frequency.DAILY, label: "Daily" },
+    { value: Frequency.WEEKLY, label: "Weekly" },
+    { value: Frequency.MONTHLY, label: "Monthly" },
   ];
 
   const { toast } = useToast();
@@ -113,7 +106,7 @@ export default function TaskView({ task, type }: { task: TaskDTO, type: TaskType
 
   return (
     <>
-      <div className="w-10/12 p-6">
+      <div className="p-6 h-screen">
         <h2 className="text-xl font-bold">Task</h2>
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
           <form id="updateTaskForm" onSubmit={handleUpdate}>

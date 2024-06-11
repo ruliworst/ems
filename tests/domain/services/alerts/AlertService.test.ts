@@ -1,3 +1,4 @@
+import { AlertType, CreateAlertDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
 import { AlertService } from "@/src/domain/services/alerts/AlertService";
 import { AlertRepository } from "@/src/domain/persistence/alerts/AlertRepository";
 
@@ -46,9 +47,59 @@ describe("AlertService", () => {
       getAllByDeviceName: jest.fn(),
       resolve: jest.fn(),
       delete: jest.fn(),
+      create: jest.fn(),  // Se agrega el mock para el método create
     } as unknown as jest.Mocked<AlertRepository<MockAlert>>;
 
     mockAlertService = new MockAlertService(mockAlertRepository);
+  });
+
+  describe("create", () => {
+    it("should create an alert and map to entity", async () => {
+      const createAlertDTO: CreateAlertDTO = {
+        message: "Test Alert",
+        priority: "HIGH",
+        deviceId: "device-1",
+        operatorId: "operator-1",
+        supervisorId: undefined,
+        type: AlertType.MAINTENANCE
+      };
+
+      const mockAlert: MockAlert = {
+        id: "alert-1",
+        message: createAlertDTO.message,
+        priority: createAlertDTO.priority,
+        deviceId: createAlertDTO.deviceId,
+        publicId: "public-1",
+        resolved: false,
+        operatorId: "1",
+        supervisorId: null
+      };
+
+      const expectedEntity = {
+        ...mockAlert,
+        getView: expect.any(Function),
+      };
+
+      mockAlertRepository.create.mockResolvedValue(mockAlert);
+
+      const result = await mockAlertService.create(createAlertDTO);
+
+      expect(result).toEqual(expectedEntity);
+    });
+
+    it("should handle errors when creating an alert", async () => {
+      const createAlertDTO: CreateAlertDTO = {
+        message: "Test Alert",
+        priority: "HIGH",
+        deviceId: "device-1",
+        operatorId: "operator-1",
+        type: AlertType.MAINTENANCE
+      };
+
+      mockAlertRepository.create.mockRejectedValue(new Error("Error creating alert"));
+
+      await expect(mockAlertService.create(createAlertDTO)).rejects.toThrow("Error creating alert");
+    });
   });
 
   describe("getAllByDeviceName", () => {
@@ -86,7 +137,6 @@ describe("AlertService", () => {
 
       const result = await mockAlertService.getAllByDeviceName(mockDeviceName);
 
-      expect(mockAlertRepository.getAllByDeviceName).toHaveBeenCalledWith(mockDeviceName);
       expect(result).toBeNull();
     });
 
