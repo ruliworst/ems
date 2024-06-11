@@ -2,7 +2,6 @@ import { CreateTaskDTO, UpdateTaskDTO } from "@/src/infrastructure/api/dtos/task
 import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
 import Agenda, { Job, JobAttributesData } from "agenda";
 import { inject } from "tsyringe";
-import { Frequency } from "@prisma/client";
 
 export abstract class TaskService<T, E extends JobAttributesData> {
   constructor(
@@ -32,27 +31,17 @@ export abstract class TaskService<T, E extends JobAttributesData> {
 
   async scheduleAgendaJob(entity: E): Promise<void> {
     const { startDate } = entity;
-    const jobAttributesData: JobAttributesData = { data: { ...entity } };
-    const frequency: string = this.getIntervalFromFrequency(entity.frequency);
+    const jobAttributesData: JobAttributesData = { ...entity };
     const jobName: string = this.getAgendaJobName();
-    console.log(`Scheduling a task with name: ${jobName} with frequency ${frequency} and data: ${jobAttributesData.data}...`);
-    await this.agenda
-      .every(frequency, this.getAgendaJobName(), jobAttributesData)
-      .then(value => console.log(`Task scheduled: ${startDate}`))
-      .catch(error => console.error("Error when trying to schedule the task:", error));
-  }
+    console.log(`Scheduling a task with name: ${jobName} with frequency ${entity.frequency}...`);
 
-  private getIntervalFromFrequency(frequency: string): string {
-    switch (frequency) {
-      case Frequency.DAILY:
-        return '1 day';
-      case Frequency.WEEKLY:
-        return '1 week';
-      case Frequency.MONTHLY:
-        return '1 month';
-      default:
-        throw new Error("Invalid frequency");
-    }
+    const job = this.agenda.create(jobName, jobAttributesData);
+
+    job.schedule(new Date(startDate)).repeatEvery(entity.intervalInMilliseconds, { skipImmediate: true });
+
+    await job.save()
+      .then(() => console.log(`Task scheduled: ${startDate}`))
+      .catch(error => console.error("Error when trying to schedule the task:", error));
   }
 
   async create(createTaskDTO: CreateTaskDTO): Promise<E> {

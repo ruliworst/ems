@@ -207,6 +207,8 @@ model MaintenanceAlert {
 }
 
 enum Frequency {
+  EVERY_MINUTE
+  HOURLY
   DAILY
   WEEKLY
   MONTHLY

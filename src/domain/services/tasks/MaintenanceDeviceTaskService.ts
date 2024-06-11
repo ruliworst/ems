@@ -53,6 +53,14 @@ class MaintenanceDeviceTaskService extends TaskService<MaintenanceDeviceTask, Ma
 
   protected async executeAgendaJob(job: Job): Promise<void> {
     const task = job.attrs.data as MaintenanceDeviceTaskEntity
+    const { endDate } = task;
+
+    if (endDate && new Date() >= new Date(endDate)) {
+      console.log(`Task ${job.attrs.name} has reached its end date. Cancelling job...`);
+      await job.remove();
+      return;
+    }
+
     this.execute(task);
   }
 

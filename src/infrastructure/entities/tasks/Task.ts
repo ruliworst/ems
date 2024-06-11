@@ -61,7 +61,11 @@ export abstract class Task implements JobAttributesData {
   };
 
   private getIntervalInMilliseconds(frequency: Frequency): number {
-    if (frequency === Frequency.DAILY) {
+    if (frequency === Frequency.EVERY_MINUTE) {
+      return 60 * 1000;
+    } else if (frequency === Frequency.HOURLY) {
+      return 60 * 60 * 1000;
+    } else if (frequency === Frequency.DAILY) {
       return 24 * 60 * 60 * 1000;
     } else if (frequency === Frequency.WEEKLY) {
       return 7 * 24 * 60 * 60 * 1000;
