@@ -30,14 +30,16 @@ export abstract class TaskService<T, E extends JobAttributesData> {
   }
 
   async scheduleAgendaJob(entity: E): Promise<void> {
-    const { startDate } = entity;
+    const { startDate, endDate } = entity;
     const jobAttributesData: JobAttributesData = { ...entity };
     const jobName: string = this.getAgendaJobName();
     console.log(`Scheduling a task with name: ${jobName} with frequency ${entity.frequency}...`);
 
     const job = this.agenda.create(jobName, jobAttributesData);
-
     job.schedule(new Date(startDate)).repeatEvery(entity.intervalInMilliseconds, { skipImmediate: true });
+
+    job.attrs.startDate = new Date(startDate);
+    job.attrs.endDate = new Date(endDate);
 
     await job.save()
       .then(() => console.log(`Task scheduled: ${startDate}`))
