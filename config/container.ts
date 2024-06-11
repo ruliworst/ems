@@ -37,6 +37,11 @@ import PrismaMonitorizeConsumptionTaskRepository from "@/src/infrastructure/pris
 
 import Agenda from "agenda";
 
+if (process.env.NODE_ENV === 'test') {
+  console.log = () => { };
+  console.error = () => { };
+}
+
 const prisma = new PrismaClient();
 container.registerInstance(PrismaClient, prisma);
 
@@ -53,7 +58,9 @@ const agenda = new Agenda({
 
 agenda.on('ready', () => {
   console.log('Agenda started successfully');
-}).on('error', (error) => {
+});
+
+agenda.on('error', (error) => {
   console.error('Error starting Agenda:', error);
 });
 

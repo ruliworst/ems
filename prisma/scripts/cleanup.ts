@@ -12,6 +12,7 @@ async function main() {
   await prisma.monitorizeConsumptionTask.deleteMany({});
   await prisma.generateAnomaliesReportTask.deleteMany({});
   await prisma.generateConsumptionReportTask.deleteMany({});
+  await prisma.energyConsumptionRecord.deleteMany();
   await prisma.device.deleteMany({});
 }
 
