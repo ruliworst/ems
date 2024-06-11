@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "npx prisma generate && next build",
+    "build": "npx prisma generate && next build && npm run migrate",
+    "migrate": "prisma migrate deploy",
     "start": "next start",
     "test": "jest --coverage",
     "lint": "next lint",
