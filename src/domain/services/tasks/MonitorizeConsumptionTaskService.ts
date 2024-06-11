@@ -8,6 +8,7 @@ import { MonitorizeConsumptionTaskEntity } from "@/src/infrastructure/entities/t
 import Agenda, { Job } from "agenda";
 import { EnergyConsumptionRecordService } from "../energy-consumption-records/EnergyConsumptionRecordService";
 import { CreateEnergyConsumptionRecordDTO } from "@/src/infrastructure/api/dtos/energy-consumption-records/energy-consumption-record.dto";
+import * as crypto from "crypto";
 
 @injectable()
 class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumptionTask, MonitorizeConsumptionTaskEntity> {
@@ -67,8 +68,8 @@ class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumption
     const createEnergyConsumptionRecordDTO: CreateEnergyConsumptionRecordDTO = {
       recordDate: new Date().toISOString(),
       // TODO: Remove random values.
-      quantity: Math.floor(Math.random() * 100) + 1,
-      price: Math.random() * (1.5 - 0.1) + 0.1,
+      quantity: crypto.randomInt(1, 101),
+      price: (crypto.randomInt(1, 150) + 1) / 100,
       deviceId: task.deviceId
     }
 
