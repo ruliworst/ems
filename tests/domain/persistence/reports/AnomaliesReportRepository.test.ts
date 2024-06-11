@@ -133,4 +133,121 @@ describe("PrismaAnomaliesReportRepository", () => {
       expect(supervisorRepositoryMock.getByEmail).toHaveBeenCalledWith(email);
     });
   });
+
+  describe("getByPublicId", () => {
+    it("should return the report when found", async () => {
+      const publicId = "12345";
+      const report: AnomaliesReport = {
+        id: "report1",
+        publicId: "12345",
+        observations: "",
+        startDate: new Date(),
+        endDate: new Date(),
+        title: "Test Report",
+        threshold: 0,
+        operatorId: "1",
+        supervisorId: null,
+        deviceId: null,
+      };
+
+      const anomaliesReportMock =
+        prismaMock.anomaliesReport as jest.Mocked<PrismaClient["anomaliesReport"]>;
+
+      anomaliesReportMock.findUnique.mockResolvedValue(report);
+
+      const result = await anomaliesReportRepository.getByPublicId(publicId);
+
+      expect(result).toEqual(report);
+      expect(prismaMock.anomaliesReport.findUnique).toHaveBeenCalledWith({
+        where: { publicId },
+      });
+    });
+
+    it("should return null when report is not found", async () => {
+      const publicId = "12345";
+
+      const anomaliesReportMock =
+        prismaMock.anomaliesReport as jest.Mocked<PrismaClient["anomaliesReport"]>;
+
+      anomaliesReportMock.findUnique.mockResolvedValue(null);
+
+      const result = await anomaliesReportRepository.getByPublicId(publicId);
+
+      expect(result).toBeNull();
+      expect(prismaMock.anomaliesReport.findUnique).toHaveBeenCalledWith({
+        where: { publicId },
+      });
+    });
+
+    it("should handle errors and return null", async () => {
+      const publicId = "12345";
+
+      const anomaliesReportMock =
+        prismaMock.anomaliesReport as jest.Mocked<PrismaClient["anomaliesReport"]>;
+      anomaliesReportMock.findUnique.mockRejectedValue(new Error("Database error"));
+
+      const result = await anomaliesReportRepository.getByPublicId(publicId);
+
+      expect(result).toBeNull();
+      expect(prismaMock.anomaliesReport.findUnique).toHaveBeenCalledWith({
+        where: { publicId },
+      });
+    });
+  });
+
+  describe("update", () => {
+    it("should update the report when found", async () => {
+      const publicId = "12345";
+      const updatedReport: Partial<AnomaliesReport> = {
+        title: "Updated Report Title",
+        observations: "Updated observations"
+      };
+      const report: AnomaliesReport = {
+        id: "report1",
+        publicId: "12345",
+        observations: "Updated observations",
+        startDate: new Date(),
+        endDate: new Date(),
+        title: "Updated Report Title",
+        threshold: 0,
+        operatorId: "1",
+        supervisorId: null,
+        deviceId: null,
+      };
+
+      const anomaliesReportMock =
+        prismaMock.anomaliesReport as jest.Mocked<PrismaClient["anomaliesReport"]>;
+
+      anomaliesReportMock.update.mockResolvedValue(report);
+
+      const result = await anomaliesReportRepository.update(publicId, updatedReport);
+
+      expect(result).toEqual(report);
+      expect(prismaMock.anomaliesReport.update).toHaveBeenCalledWith({
+        where: { publicId },
+        data: { ...updatedReport },
+      });
+    });
+
+    it("should handle errors and return null", async () => {
+      const publicId = "12345";
+      const updatedReport: Partial<AnomaliesReport> = {
+        title: "Updated Report Title",
+        observations: "Updated observations"
+      };
+
+      const anomaliesReportMock =
+        prismaMock.anomaliesReport as jest.Mocked<PrismaClient["anomaliesReport"]>;
+
+      anomaliesReportMock.update.mockRejectedValue(new Error("Database error"));
+
+      const result = await anomaliesReportRepository.update(publicId, updatedReport);
+
+      expect(result).toBeNull();
+      expect(prismaMock.anomaliesReport.update).toHaveBeenCalledWith({
+        where: { publicId },
+        data: { ...updatedReport },
+      });
+    });
+  });
 });

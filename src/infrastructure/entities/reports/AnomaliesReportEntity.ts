@@ -1,4 +1,4 @@
-import { ReportType, ReportViewDTO } from "../../api/dtos/reports/report.dto";
+import { ReportDTO, ReportType, ReportViewDTO } from "../../api/dtos/reports/report.dto";
 import { ReportAttributes } from "./Report";
 import { Report } from "@/src/infrastructure/entities/reports/Report";
 
@@ -16,5 +16,13 @@ export class AnomaliesReportEntity extends Report {
 
   getView(): ReportViewDTO {
     return super.getView(ReportType.ANOMALIES);
+  }
+
+  getReportDTO(): ReportDTO {
+    return {
+      ...super.getReportDTO(),
+      threshold: this.threshold,
+      type: ReportType.ANOMALIES
+    }
   }
 }

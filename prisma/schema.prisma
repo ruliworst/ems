@@ -101,12 +101,10 @@ model AnomaliesReport {
 model EnergyConsumptionRecord {
   id                  String             @id @default(uuid())
   recordDate          DateTime
-  startDate           DateTime
-  endDate             DateTime
   quantity            Float
   price               Float
-  Device              Device?            @relation(fields: [deviceId], references: [id])
-  deviceId            String?
+  Device              Device            @relation(fields: [deviceId], references: [id])
+  deviceId            String
   ConsumptionReport   ConsumptionReport? @relation(fields: [consumptionReportId], references: [id])
   consumptionReportId String?
   AnomaliesReport     AnomaliesReport?   @relation(fields: [anomaliesReportId], references: [id])
