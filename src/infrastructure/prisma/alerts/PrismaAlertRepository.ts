@@ -5,6 +5,7 @@ import PrismaRepository from "../PrismaRepository";
 import { Alert } from "../../entities/alerts/Alert";
 import { AlertRepository } from "@/src/domain/persistence/alerts/AlertRepository";
 import { PrismaClient } from "@prisma/client";
+import { CreateAlertDTO } from "../../api/dtos/alerts/alert.dto";
 
 export default class PrismaAlertRepository<T> extends PrismaRepository implements AlertRepository<T> {
   constructor(
@@ -15,6 +16,16 @@ export default class PrismaAlertRepository<T> extends PrismaRepository implement
     super(prismaClient);
   }
 
+  create(createAlertDTO: CreateAlertDTO): Promise<T> {
+    const { type, ...alertProperties } = createAlertDTO;
+
+    return this.entity
+      .create({ data: { ...alertProperties } })
+      .then((alert: any) => alert)
+      .catch((error: any) => {
+        console.error(error.message);
+      });
+  }
 
   getAllByDeviceName(deviceName: string): Promise<T[] | null> {
     return this.deviceRepository

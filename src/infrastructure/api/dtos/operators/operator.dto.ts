@@ -16,4 +16,5 @@ export enum OperatorRole {
 export type OperatorDTO = {
   email: string
   role: OperatorRole
+  id: string
 }

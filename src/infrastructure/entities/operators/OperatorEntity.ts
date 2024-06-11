@@ -39,8 +39,9 @@ export class OperatorEntity {
 
   getDTO(): OperatorDTO {
     return {
+      id: this.id,
       email: this.email,
-      role: OperatorRole.OPERATOR
+      role: OperatorRole.OPERATOR,
     }
   }
 }

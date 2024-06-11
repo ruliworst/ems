@@ -35,9 +35,31 @@ import PrismaGenerateConsumptionReportTaskRepository from "@/src/infrastructure/
 import PrismaMaintenanceDeviceTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMaintenanceDeviceTaskRepository";
 import PrismaMonitorizeConsumptionTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMonitorizeConsumptionTaskRepository";
 
+import Agenda from "agenda";
 
 const prisma = new PrismaClient();
 container.registerInstance(PrismaClient, prisma);
+
+const agenda = new Agenda({
+  db: {
+    address: process.env.MONGODB_URL!,
+    collection: 'AgendaJob',
+    options: {
+      tls: true,
+      tlsAllowInvalidCertificates: true,
+    }
+  }
+});
+
+agenda.on('ready', () => {
+  console.log('Agenda started successfully');
+}).on('error', (error) => {
+  console.error('Error starting Agenda:', error);
+});
+
+agenda.start();
+
+container.registerInstance("Agenda", agenda);
 
 // Register repositories.
 container.registerSingleton<DeviceRepository>(

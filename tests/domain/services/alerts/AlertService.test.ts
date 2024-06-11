@@ -1,5 +1,6 @@
 import { AlertService } from "@/src/domain/services/alerts/AlertService";
 import { AlertRepository } from "@/src/domain/persistence/alerts/AlertRepository";
+import { CreateAlertDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
 
 interface MockAlert {
   id: string;
@@ -25,6 +26,9 @@ interface MockAlertEntity {
 }
 
 class MockAlertService extends AlertService<MockAlert, MockAlertEntity> {
+  protected destructurePropertiesToCreate(createAlertDTO: CreateAlertDTO, operatorId: string) {
+    throw new Error("Method not implemented.");
+  }
   protected mapToEntity(alert: MockAlert): MockAlertEntity {
     return {
       ...alert,

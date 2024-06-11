@@ -1,5 +1,6 @@
 import { TaskDTO, TaskType, TaskViewDTO } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { Frequency } from "@prisma/client";
+import { JobAttributesData } from "agenda";
 
 export interface TaskAttributes {
   id: string;
@@ -12,7 +13,7 @@ export interface TaskAttributes {
   publicId: string;
 }
 
-export abstract class Task {
+export abstract class Task implements JobAttributesData {
   id: string;
   startDate: Date;
   endDate?: Date | null;
@@ -60,7 +61,11 @@ export abstract class Task {
   };
 
   private getIntervalInMilliseconds(frequency: Frequency): number {
-    if (frequency === Frequency.DAILY) {
+    if (frequency === Frequency.EVERY_MINUTE) {
+      return 60 * 1000;
+    } else if (frequency === Frequency.HOURLY) {
+      return 60 * 60 * 1000;
+    } else if (frequency === Frequency.DAILY) {
       return 24 * 60 * 60 * 1000;
     } else if (frequency === Frequency.WEEKLY) {
       return 7 * 24 * 60 * 60 * 1000;

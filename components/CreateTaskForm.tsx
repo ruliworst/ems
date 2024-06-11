@@ -40,18 +40,11 @@ export default function CreateTaskForm({ type, onTaskCreated }: CreateTaskFormPr
   }, []);
 
   const frequencies = [
-    {
-      value: Frequency.DAILY,
-      label: "Daily",
-    },
-    {
-      value: Frequency.WEEKLY,
-      label: "Weekly",
-    },
-    {
-      value: Frequency.MONTHLY,
-      label: "Monthly",
-    },
+    { value: Frequency.EVERY_MINUTE, label: "Every minute" },
+    { value: Frequency.HOURLY, label: "Hourly" },
+    { value: Frequency.DAILY, label: "Daily" },
+    { value: Frequency.WEEKLY, label: "Weekly" },
+    { value: Frequency.MONTHLY, label: "Monthly" },
   ];
 
   const [startDate, setStartDate] = useState<Date | undefined>();
