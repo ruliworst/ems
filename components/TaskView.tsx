@@ -106,7 +106,7 @@ export default function TaskView({ task, type }: { task: TaskDTO, type: TaskType
 
   return (
     <>
-      <div className="w-10/12 p-6">
+      <div className="p-6 h-screen">
         <h2 className="text-xl font-bold">Task</h2>
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
           <form id="updateTaskForm" onSubmit={handleUpdate}>

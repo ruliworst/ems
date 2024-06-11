@@ -9,7 +9,7 @@ import MonitorizeConsumptionTaskService from "@/src/domain/services/tasks/Monito
 import { CreateTaskDTO, TaskType } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 import { MonitorizeConsumptionTaskEntity } from "@/src/infrastructure/entities/tasks/MonitorizeConsumptionTaskEntity";
 import Agenda, { Job } from "agenda";
-import { EnergyConsumptionRecord } from "@prisma/client"; // Asegúrate de importar EnergyConsumptionRecord
+import { EnergyConsumptionRecordEntity } from "@/src/infrastructure/entities/energy-consumption-records/EnergyConsumptionRecordEntity";
 
 describe("MonitorizeConsumptionTaskService", () => {
   let service: MonitorizeConsumptionTaskService;
@@ -121,7 +121,7 @@ describe("MonitorizeConsumptionTaskService", () => {
         remove: jest.fn(),
       } as unknown as Job;
 
-      const mockRecord: EnergyConsumptionRecord = {
+      const mockRecord: EnergyConsumptionRecordEntity = new EnergyConsumptionRecordEntity({
         id: "recordId",
         recordDate: new Date(),
         quantity: 10,
@@ -129,7 +129,7 @@ describe("MonitorizeConsumptionTaskService", () => {
         deviceId: taskEntity.deviceId,
         consumptionReportId: null,
         anomaliesReportId: null
-      }
+      });
       recordServiceMock.create.mockResolvedValueOnce(mockRecord);
 
       await service.executeAgendaJob(job);
@@ -155,7 +155,7 @@ describe("MonitorizeConsumptionTaskService", () => {
         remove: jest.fn(),
       } as unknown as Job;
 
-      const mockRecord: EnergyConsumptionRecord = {
+      const mockRecord: EnergyConsumptionRecordEntity = new EnergyConsumptionRecordEntity({
         id: "recordId",
         recordDate: new Date(),
         quantity: 10,
@@ -163,7 +163,7 @@ describe("MonitorizeConsumptionTaskService", () => {
         deviceId: taskEntity.deviceId,
         consumptionReportId: null,
         anomaliesReportId: null
-      }
+      });
       recordServiceMock.create.mockResolvedValueOnce(mockRecord);
 
       await service.executeAgendaJob(job);
@@ -186,7 +186,7 @@ describe("MonitorizeConsumptionTaskService", () => {
         threshold: 50,
       });
 
-      const mockRecord: EnergyConsumptionRecord = {
+      const mockRecord: EnergyConsumptionRecordEntity = new EnergyConsumptionRecordEntity({
         id: "recordId",
         recordDate: new Date(),
         quantity: 10,
@@ -194,7 +194,7 @@ describe("MonitorizeConsumptionTaskService", () => {
         deviceId: taskEntity.deviceId,
         consumptionReportId: null,
         anomaliesReportId: null
-      }
+      });
       recordServiceMock.create.mockResolvedValueOnce(mockRecord);
 
       await service.execute(taskEntity);

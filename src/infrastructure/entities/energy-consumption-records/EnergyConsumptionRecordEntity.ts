@@ -1,3 +1,5 @@
+import { EnergyConsumptionRecordDTO } from "../../api/dtos/energy-consumption-records/energy-consumption-record.dto";
+
 export interface EnergyConsumptionRecordAttributes {
   id: string;
   recordDate: Date;
@@ -33,5 +35,13 @@ export class EnergyConsumptionRecordEntity {
     this.deviceId = deviceId;
     this.anomaliesReportId = anomaliesReportId;
     this.consumptionReportId = consumptionReportId;
+  }
+
+  getDTO(): EnergyConsumptionRecordDTO {
+    return {
+      recordDate: this.recordDate.toISOString(),
+      price: this.price,
+      quantity: this.quantity
+    }
   }
 }

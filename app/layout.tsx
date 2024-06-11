@@ -18,11 +18,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={montserrat.className}>
-      <body className="flex">
+      <body className="flex h-screen">
         <Sidebar />
-        {children}
+        <main className="flex-1 overflow-y-auto">
+          {children}
+        </main>
+        <Analytics />
       </body>
-      <Analytics />
     </html>
   );
 }

@@ -37,7 +37,7 @@ export default function ReportView({ report, type }: { report: ReportDTO, type: 
 
   return (
     <>
-      <div className="w-10/12 p-6">
+      <div className="p-6 h-screen">
         <h2 className="text-xl font-bold">Report</h2>
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
           <div className="flex justify-between">
