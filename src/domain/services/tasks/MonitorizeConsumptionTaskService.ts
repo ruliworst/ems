@@ -6,12 +6,15 @@ import type { TaskRepository } from "../../persistence/tasks/TaskRepository";
 import { TaskService } from "./TaskService";
 import { MonitorizeConsumptionTaskEntity } from "@/src/infrastructure/entities/tasks/MonitorizeConsumptionTaskEntity";
 import Agenda, { Job } from "agenda";
+import { EnergyConsumptionRecordService } from "../energy-consumption-records/EnergyConsumptionRecordService";
+import { CreateEnergyConsumptionRecordDTO } from "@/src/infrastructure/api/dtos/energy-consumption-records/energy-consumption-record.dto";
 
 @injectable()
 class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumptionTask, MonitorizeConsumptionTaskEntity> {
   constructor(
     @inject("MonitorizeConsumptionTaskRepository") taskRepository: TaskRepository<MonitorizeConsumptionTask>,
-    @inject("Agenda") protected agenda: Agenda
+    @inject("Agenda") protected agenda: Agenda,
+    @inject(EnergyConsumptionRecordService) private recordService: EnergyConsumptionRecordService
   ) {
     super(taskRepository, agenda);
   }
@@ -48,12 +51,31 @@ class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumption
   }
 
   protected async executeAgendaJob(job: Job): Promise<void> {
-    const taskAttributes = job.attrs.data as MonitorizeConsumptionTaskEntity;
-    this.execute(taskAttributes);
+    const task = job.attrs.data as MonitorizeConsumptionTaskEntity
+    const { endDate } = task;
+
+    if (endDate && new Date() >= new Date(endDate)) {
+      console.log(`Task ${job.attrs.name} has reached its end date. Cancelling job...`);
+      await job.remove();
+      return;
+    }
+
+    this.execute(task);
   }
 
   async execute(task: MonitorizeConsumptionTaskEntity): Promise<void> {
-    console.log(`Ejecutando tarea de monitorización para el dispositivo ${task.deviceId}`);
+    const createEnergyConsumptionRecordDTO: CreateEnergyConsumptionRecordDTO = {
+      recordDate: new Date().toISOString(),
+      // TODO: Remove random values.
+      quantity: Math.floor(Math.random() * 100) + 1,
+      price: Math.random() * (1.5 - 0.1) + 0.1,
+      deviceId: task.deviceId
+    }
+
+
+    await this.recordService
+      .create(createEnergyConsumptionRecordDTO)
+      .then(record => console.log(`[${new Date().toISOString()}]: An energy consumption record was created as a result of MonitorizeConsumptionTask execution.`));
   }
 }
 
