@@ -19,17 +19,17 @@ class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumption
     super(taskRepository, agenda);
   }
 
-  protected mapToEntity(task: MonitorizeConsumptionTask): MonitorizeConsumptionTaskEntity {
+  mapToEntity(task: MonitorizeConsumptionTask): MonitorizeConsumptionTaskEntity {
     return new MonitorizeConsumptionTaskEntity({ ...task });
   }
 
-  protected checkAttributes(createTaskDTO: CreateTaskDTO): void {
+  checkAttributes(createTaskDTO: CreateTaskDTO): void {
     if (createTaskDTO.threshold === undefined || createTaskDTO.threshold === null) {
       throw new Error("Some values are not valid.");
     }
   }
 
-  protected getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<MonitorizeConsumptionTask> {
+  getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<MonitorizeConsumptionTask> {
     return {
       startDate: new Date(createTaskDTO.startDate),
       endDate: createTaskDTO.endDate ? new Date(createTaskDTO.endDate) : null,
@@ -50,7 +50,7 @@ class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumption
     return "MonitorizeConsumptionJob";
   }
 
-  protected async executeAgendaJob(job: Job): Promise<void> {
+  async executeAgendaJob(job: Job): Promise<void> {
     const task = job.attrs.data as MonitorizeConsumptionTaskEntity
     const { endDate } = task;
 

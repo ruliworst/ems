@@ -19,11 +19,11 @@ class MaintenanceDeviceTaskService extends TaskService<MaintenanceDeviceTask, Ma
     super(taskRepository, agenda);
   }
 
-  protected mapToEntity(task: MaintenanceDeviceTask): MaintenanceDeviceTaskEntity {
+  mapToEntity(task: MaintenanceDeviceTask): MaintenanceDeviceTaskEntity {
     return new MaintenanceDeviceTaskEntity({ ...task });
   }
 
-  protected checkAttributes(createTaskDTO: CreateTaskDTO): void {
+  checkAttributes(createTaskDTO: CreateTaskDTO): void {
     if (createTaskDTO.startReportDate === undefined ||
       createTaskDTO.endReportDate === undefined ||
       createTaskDTO.title === undefined) {
@@ -31,7 +31,7 @@ class MaintenanceDeviceTaskService extends TaskService<MaintenanceDeviceTask, Ma
     }
   }
 
-  protected getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<MaintenanceDeviceTask> {
+  getTaskToCreate(createTaskDTO: CreateTaskDTO): Partial<MaintenanceDeviceTask> {
     return {
       startDate: new Date(createTaskDTO.startDate),
       endDate: createTaskDTO.endDate ? new Date(createTaskDTO.endDate) : null,
@@ -39,7 +39,7 @@ class MaintenanceDeviceTaskService extends TaskService<MaintenanceDeviceTask, Ma
     };
   }
 
-  protected getTaskToUpdate(updateTaskDTO: UpdateTaskDTO): Partial<MaintenanceDeviceTask> {
+  getTaskToUpdate(updateTaskDTO: UpdateTaskDTO): Partial<MaintenanceDeviceTask> {
     return {
       startDate: updateTaskDTO.startDate ? new Date(updateTaskDTO.startDate) : undefined,
       endDate: updateTaskDTO.endDate ? new Date(updateTaskDTO.endDate) : undefined,
@@ -51,7 +51,7 @@ class MaintenanceDeviceTaskService extends TaskService<MaintenanceDeviceTask, Ma
     return "MaintenanceDeviceJob";
   }
 
-  protected async executeAgendaJob(job: Job): Promise<void> {
+  async executeAgendaJob(job: Job): Promise<void> {
     const task = job.attrs.data as MaintenanceDeviceTaskEntity
     const { endDate } = task;
 
