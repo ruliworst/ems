@@ -34,6 +34,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AlertApiService } from "@/src/infrastructure/api/services/alerts/AlertApiService";
+import MonitorizeConsumptionChart from "./MonitorizeConsumptionChart";
 
 export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDTO, fetchedAlerts: AlertViewDTO[] }) {
   const { toast } = useToast()
@@ -46,6 +47,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
   const [deviceName, setDeviceName] = useState(device.name);
   const [isEditing, setIsEditing] = useState(false);
   const [alerts, setAlerts] = useState<AlertViewDTO[]>(fetchedAlerts);
+  const [showChart, setShowChart] = useState(false);
 
   useEffect(() => {
     setDeviceName(device.name);
@@ -159,7 +161,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
 
   return (
     <>
-      <div className="w-10/12 p-6">
+      <div className="p-6 h-screen">
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
           <form id="updateTaskForm" onSubmit={handleUpdate}>
             <div className="flex justify-between items-center mb-6">
@@ -201,7 +203,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
                   </AlertDialogContent>
                 </AlertDialog>
 
-                <Button variant="outline" type="button">
+                <Button variant="outline" type="button" onClick={() => setShowChart(!showChart)}>
                   <i className="fa-solid fa-chart-line"></i>
                 </Button>
               </div>
@@ -346,6 +348,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
             </TableBody>
           </Table>
         </div>
+        {showChart && <MonitorizeConsumptionChart deviceName={device.name} />}
       </div>
       <Toaster />
     </>

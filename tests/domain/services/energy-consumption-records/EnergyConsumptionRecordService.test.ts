@@ -1,20 +1,25 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { EnergyConsumptionRecord } from "@prisma/client";
+import { Device, EnergyConsumptionRecord, Status } from "@prisma/client";
 import { mockDeep, mockReset } from 'jest-mock-extended';
 import { EnergyConsumptionRecordService } from '@/src/domain/services/energy-consumption-records/EnergyConsumptionRecordService';
 import { EnergyConsumptionRecordRepository } from '@/src/domain/persistence/energy-consumption-records/EnergyConsumptionRecordRepository';
 import { CreateEnergyConsumptionRecordDTO, GetEnergyConsumptionRecordBetweenDatesDTO } from '@/src/infrastructure/api/dtos/energy-consumption-records/energy-consumption-record.dto';
 import { EnergyConsumptionRecordEntity } from '@/src/infrastructure/entities/energy-consumption-records/EnergyConsumptionRecordEntity';
+import DeviceService from "@/src/domain/services/devices/DeviceService";
+import { DeviceEntity } from "@/src/infrastructure/entities/devices/DeviceEntity";
 
 const mockRepository = mockDeep<EnergyConsumptionRecordRepository>();
+const mockDeviceService = mockDeep<DeviceService>()
 
 describe('EnergyConsumptionRecordService', () => {
   let service: EnergyConsumptionRecordService;
 
   beforeEach(() => {
     mockReset(mockRepository);
+    mockReset(mockDeviceService);
     container.registerInstance("EnergyConsumptionRecordRepository", mockRepository);
+    container.registerInstance(DeviceService, mockDeviceService);
     service = container.resolve(EnergyConsumptionRecordService);
   });
 
@@ -93,6 +98,55 @@ describe('EnergyConsumptionRecordService', () => {
       mockRepository.getBetweenDates.mockRejectedValue(new Error('Database error'));
 
       await expect(service.getBetweenDates(dto)).rejects.toThrow('Database error');
+    });
+  });
+
+
+  describe('getRecordByDeviceName', () => {
+    it('should return a record for a given device name', async () => {
+      const deviceName = 'device-test';
+      const mockDevice: Device = {
+        id: 'device-id-123',
+        name: deviceName,
+        lastMaintenance: null,
+        installationDate: new Date(),
+        observations: "",
+        ratedPower: 100,
+        status: Status.RUNNING
+      };
+
+      const createdRecord: EnergyConsumptionRecord = {
+        id: 'record-1',
+        recordDate: new Date(),
+        quantity: 50,
+        price: 1.25,
+        deviceId: mockDevice.id,
+        consumptionReportId: null,
+        anomaliesReportId: null
+      };
+
+      mockDeviceService.getByName.mockResolvedValueOnce(new DeviceEntity(mockDevice));
+      mockRepository.create.mockResolvedValueOnce(createdRecord);
+
+      const result = await service.getRecordByDeviceName(deviceName);
+
+      expect(result).toEqual(new EnergyConsumptionRecordEntity(createdRecord));
+      expect(mockDeviceService.getByName).toHaveBeenCalledWith(deviceName);
+      expect(mockRepository.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          deviceId: mockDevice.id,
+        })
+      );
+    });
+
+    it('should throw an error if device is not found', async () => {
+      const deviceName = 'non-existent-device';
+
+      mockDeviceService.getByName.mockResolvedValueOnce(null);
+
+      await expect(service.getRecordByDeviceName(deviceName)).rejects.toThrowError(
+        `It was not possible to get a record from device with name: ${deviceName}`
+      );
     });
   });
 });

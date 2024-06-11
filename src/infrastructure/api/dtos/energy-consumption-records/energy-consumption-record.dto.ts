@@ -10,3 +10,9 @@ export type GetEnergyConsumptionRecordBetweenDatesDTO = {
   startDate: string;
   endDate: string;
 }
+
+export type EnergyConsumptionRecordDTO = {
+  recordDate: string;
+  quantity: number,
+  price: number;
+}

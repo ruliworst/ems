@@ -84,7 +84,7 @@ export default function RegisterOperatorView() {
 
   return (
     <>
-      <div className="bg-gray-100 p-6 w-10/12">
+      <div className="bg-gray-100 p-6 h-screen">
         <header className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Register Operator</h1>
           <div className="flex items-center space-x-4">

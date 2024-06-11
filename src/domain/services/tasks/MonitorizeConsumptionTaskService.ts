@@ -73,7 +73,6 @@ class MonitorizeConsumptionTaskService extends TaskService<MonitorizeConsumption
       deviceId: task.deviceId
     }
 
-
     await this.recordService
       .create(createEnergyConsumptionRecordDTO)
       .then(record => console.log(`[${new Date().toISOString()}]: An energy consumption record was created as a result of MonitorizeConsumptionTask execution.`));
