@@ -9,5 +9,6 @@ module.exports = async () => {
   await prisma.maintenanceDeviceTask.deleteMany();
   await prisma.operator.deleteMany();
   await prisma.supervisor.deleteMany();
+  await prisma.energyConsumptionRecord.deleteMany();
   await prisma.device.deleteMany();
 };
