@@ -1,9 +1,12 @@
 import { Priority, PrismaClient, Status } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const pwd = await bcrypt.hash("1234", 10);
+
   await prisma.device.createMany({
     data: [
       {
@@ -25,7 +28,7 @@ async function main() {
         firstSurname: "Doe",
         secondSurname: "Smith",
         email: "bob.doe@example.com",
-        password: uuidv4(),
+        password: pwd,
         phoneNumber: "123456789",
       },
     ],

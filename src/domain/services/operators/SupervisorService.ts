@@ -10,6 +10,18 @@ class OperatorService {
     @inject("SupervisorRepository") private supervisorRepository: OperatorRepository<Supervisor>
   ) { }
 
+  async login(email: string, password: string): Promise<SupervisorEntity | null> {
+    return this.supervisorRepository.login(email, password)
+      .then(supervisor => {
+        if (!supervisor) return null;
+        return new SupervisorEntity({ ...supervisor });
+      })
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
+  }
+
   async getByEmail(email: string): Promise<SupervisorEntity | null> {
     return this.supervisorRepository
       .getByEmail(email)

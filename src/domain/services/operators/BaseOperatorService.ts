@@ -14,6 +14,16 @@ export class BaseOperatorService {
     @inject(SupervisorService) private supervisorService: SupervisorService,
   ) { }
 
+  async login(email: string, password: string): Promise<OperatorDTO | null> {
+    const operator: OperatorEntity | null = await this.operatorService.login(email, password);
+    if (operator) return operator.getDTO();
+
+    const supervisor: SupervisorEntity | null = await this.supervisorService.login(email, password);
+    if (supervisor) return supervisor.getDTO();
+
+    return null;
+  }
+
   async getOperatorOrSupervisorByEmail(email: string): Promise<OperatorDTO | null> {
     const operator: OperatorEntity | null = await this.operatorService.getByEmail(email);
     if (operator) return operator.getDTO();
