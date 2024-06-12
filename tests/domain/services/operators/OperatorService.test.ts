@@ -35,7 +35,9 @@ describe("OperatorService", () => {
   beforeEach(() => {
     operatorRepository = {
       create: jest.fn().mockResolvedValue(mockOperators[0]),
-      getByName: jest.fn().mockImplementation((email: string) =>
+      login: jest.fn().mockImplementation(async (email: string, password: string) =>
+        mockOperators.find(operator => operator.email === email && operator.password === password) || null),
+      getByEmail: jest.fn().mockImplementation(async (email: string) =>
         mockOperators.find(operator => operator.email === email) || null),
     } as unknown as jest.Mocked<OperatorRepository<Operator>>;
 
@@ -47,42 +49,70 @@ describe("OperatorService", () => {
     jest.clearAllMocks();
   });
 
-  describe("create", () => {
-    it("should create a new operator", async () => {
-      const { id, ...createOperatorDTO } = mockOperators[0];
+  describe("login", () => {
+    it("should return an operator entity if the credentials are correct", async () => {
+      const email = "john.doe@example.com";
+      const password = "hashedPassword123";
 
-      let createOperatorWithRoleDTO = {
-        ...createOperatorDTO,
-        role: OperatorRole.OPERATOR
-      }
+      const result = await operatorService.login(email, password);
 
-      const operatorEntity: OperatorEntity = await operatorService.create(createOperatorWithRoleDTO);
-
-      expect(operatorEntity).toMatchObject({
-        firstName: createOperatorDTO.firstName,
-        firstSurname: createOperatorDTO.firstSurname,
-        secondSurname: createOperatorDTO.secondSurname,
-        email: createOperatorDTO.email,
-        phoneNumber: createOperatorDTO.phoneNumber,
-      });
-      expect(operatorEntity).toHaveProperty("id");
-      expect(operatorEntity).toBeInstanceOf(OperatorEntity);
+      expect(result).toBeInstanceOf(OperatorEntity);
+      expect(result?.email).toBe(email);
+      expect(operatorRepository.login).toHaveBeenCalledWith(email, password);
     });
 
-    it("should throw an error when the repository throws an error", async () => {
-      const createOperatorDTO: CreateOperatorDTO = {
-        firstName: "Bob",
-        firstSurname: "White",
-        secondSurname: "Black",
-        email: "bob.white@example.com",
-        password: "password123",
-        phoneNumber: "321321321",
-        role: OperatorRole.OPERATOR
-      };
+    it("should return null if the credentials are incorrect", async () => {
+      const email = "john.doe@example.com";
+      const password = "wrongPassword";
 
-      operatorRepository.create.mockRejectedValue(new Error("Repository error"));
+      const result = await operatorService.login(email, password);
 
-      await expect(operatorService.create(createOperatorDTO)).rejects.toThrow("Repository error");
+      expect(result).toBeNull();
+      expect(operatorRepository.login).toHaveBeenCalledWith(email, password);
+    });
+
+    it("should handle errors gracefully and return null", async () => {
+      const email = "john.doe@example.com";
+      const password = "hashedPassword123";
+
+      operatorRepository.login.mockRejectedValue(new Error("Repository error"));
+
+      const result = await operatorService.login(email, password);
+
+      expect(result).toBeNull();
+      expect(operatorRepository.login).toHaveBeenCalledWith(email, password);
+    });
+  });
+
+  describe("getByEmail", () => {
+    it("should return an operator entity if the email exists", async () => {
+      const email = "john.doe@example.com";
+
+      const result = await operatorService.getByEmail(email);
+
+      expect(result).toBeInstanceOf(OperatorEntity);
+      expect(result?.email).toBe(email);
+      expect(operatorRepository.getByEmail).toHaveBeenCalledWith(email);
+    });
+
+    it("should return null if the email does not exist", async () => {
+      const email = "nonexistent@example.com";
+
+      const result = await operatorService.getByEmail(email);
+
+      expect(result).toBeNull();
+      expect(operatorRepository.getByEmail).toHaveBeenCalledWith(email);
+    });
+
+    it("should handle errors gracefully and return null", async () => {
+      const email = "john.doe@example.com";
+
+      operatorRepository.getByEmail.mockRejectedValue(new Error("Repository error"));
+
+      const result = await operatorService.getByEmail(email);
+
+      expect(result).toBeNull();
+      expect(operatorRepository.getByEmail).toHaveBeenCalledWith(email);
     });
   });
 });

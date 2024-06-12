@@ -33,6 +33,8 @@ export default class PrismaOperatorRepository<T extends Operator> extends Prisma
     try {
       await this.connect();
       return await this.entity.findUnique({ where: { email } });
+    } catch (error) {
+      return null;
     }
     finally {
       this.disconnect();

@@ -5,7 +5,7 @@ import type { OperatorRepository } from "../../persistence/operators/OperatorRep
 import { SupervisorEntity } from "@/src/infrastructure/entities/operators/SupervisorEntity";
 
 @injectable()
-class OperatorService {
+class SupervisorService {
   constructor(
     @inject("SupervisorRepository") private supervisorRepository: OperatorRepository<Supervisor>
   ) { }
@@ -46,4 +46,4 @@ class OperatorService {
   }
 }
 
-export default OperatorService;
+export default SupervisorService;

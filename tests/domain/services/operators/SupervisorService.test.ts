@@ -1,11 +1,10 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { Supervisor, PrismaClient } from "@prisma/client";
-import OperatorService from "@/src/domain/services/operators/OperatorService";
+import { Supervisor } from "@prisma/client";
+import SupervisorService from "@/src/domain/services/operators/SupervisorService";
 import { CreateOperatorDTO, OperatorRole } from "@/src/infrastructure/api/dtos/operators/operator.dto";
 import { SupervisorEntity } from "@/src/infrastructure/entities/operators/SupervisorEntity";
 import type { OperatorRepository } from "@/src/domain/persistence/operators/OperatorRepository";
-import SupervisorService from "@/src/domain/services/operators/SupervisorService";
 
 describe("SupervisorService", () => {
   let supervisorService: SupervisorService;
@@ -35,8 +34,10 @@ describe("SupervisorService", () => {
   beforeEach(() => {
     supervisorRepository = {
       create: jest.fn().mockResolvedValue(mockSupervisors[0]),
-      getByEmail: jest.fn().mockImplementation((email: string) =>
-        Promise.resolve(mockSupervisors.find(supervisor => supervisor.email === email) || null)),
+      login: jest.fn().mockImplementation(async (email: string, password: string) =>
+        mockSupervisors.find(supervisor => supervisor.email === email && supervisor.password === password) || null),
+      getByEmail: jest.fn().mockImplementation(async (email: string) =>
+        mockSupervisors.find(supervisor => supervisor.email === email) || null),
     } as unknown as jest.Mocked<OperatorRepository<Supervisor>>;
 
     container.registerInstance("SupervisorRepository", supervisorRepository);
@@ -45,6 +46,41 @@ describe("SupervisorService", () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+  });
+
+  describe("login", () => {
+    it("should return a supervisor entity if the credentials are correct", async () => {
+      const email = "john.doe@example.com";
+      const password = "hashedPassword123";
+
+      const result = await supervisorService.login(email, password);
+
+      expect(result).toBeInstanceOf(SupervisorEntity);
+      expect(result?.email).toBe(email);
+      expect(supervisorRepository.login).toHaveBeenCalledWith(email, password);
+    });
+
+    it("should return null if the credentials are incorrect", async () => {
+      const email = "john.doe@example.com";
+      const password = "wrongPassword";
+
+      const result = await supervisorService.login(email, password);
+
+      expect(result).toBeNull();
+      expect(supervisorRepository.login).toHaveBeenCalledWith(email, password);
+    });
+
+    it("should handle errors gracefully and return null", async () => {
+      const email = "john.doe@example.com";
+      const password = "hashedPassword123";
+
+      supervisorRepository.login.mockRejectedValue(new Error("Repository error"));
+
+      const result = await supervisorService.login(email, password);
+
+      expect(result).toBeNull();
+      expect(supervisorRepository.login).toHaveBeenCalledWith(email, password);
+    });
   });
 
   describe("getByEmail", () => {
