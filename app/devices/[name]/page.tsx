@@ -19,11 +19,10 @@ export default function DevicePage({ params }: { params: { name: string } }) {
       try {
         const device = await DeviceApiService.fetchByName(name!);
         setDevice(device);
-        setProgress(50);
-
+        setProgress(30);
         const fetchedAlerts = await AlertApiService.fetchAllByDeviceName(name);
         setAlerts(fetchedAlerts);
-        setProgress(90);
+        setProgress(80);
       } catch (err: any) {
         console.error(err.message);
       } finally {
@@ -36,7 +35,7 @@ export default function DevicePage({ params }: { params: { name: string } }) {
 
   if (progress < 100) {
     return (
-      <div className="w-screen h-screen flex justify-center p-12">
+      <div className="h-screen flex justify-center p-3">
         <Progress value={progress} />
       </div>
     );

@@ -1,11 +1,14 @@
 import Link from "next/link";
+import Image from "next/image";
+import energyManagementIcon from "@/public/logo-without-bg.png";
 
 export default function Sidebar() {
   return (
     <section className="h-screen bg-gray-900 text-gray-300 flex flex-col justify-between w-2/12">
       <div>
-        <div className="p-6">
-          <h1 className="text-white text-2xl font-bold">Energy Management System</h1>
+        <div className="p-6 flex flex-col justify-center gap-2 m-auto items-center">
+          <Image src={energyManagementIcon} alt="Energy Management System Icon" width={100} height={100} />
+          <h1 className="font-bold text-xl">EMS</h1>
         </div>
         <nav className="mt-6">
           <ul>
