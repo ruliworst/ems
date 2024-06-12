@@ -5,10 +5,22 @@ import type { OperatorRepository } from "../../persistence/operators/OperatorRep
 import { SupervisorEntity } from "@/src/infrastructure/entities/operators/SupervisorEntity";
 
 @injectable()
-class OperatorService {
+class SupervisorService {
   constructor(
     @inject("SupervisorRepository") private supervisorRepository: OperatorRepository<Supervisor>
   ) { }
+
+  async login(email: string, password: string): Promise<SupervisorEntity | null> {
+    return this.supervisorRepository.login(email, password)
+      .then(supervisor => {
+        if (!supervisor) return null;
+        return new SupervisorEntity({ ...supervisor });
+      })
+      .catch(error => {
+        console.error(error);
+        return null;
+      });
+  }
 
   async getByEmail(email: string): Promise<SupervisorEntity | null> {
     return this.supervisorRepository
@@ -34,4 +46,4 @@ class OperatorService {
   }
 }
 
-export default OperatorService;
+export default SupervisorService;

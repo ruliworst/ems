@@ -50,7 +50,7 @@ export default class PrismaReportRepository<T> extends PrismaRepository implemen
 
   async getAllByOperatorEmail(email: string): Promise<T[] | null> {
     const operator: Operator | null = await this.operatorRepository.getByEmail(email);
-    console.log(operator)
+
     if (operator) {
       return this.entity.findMany({ where: { operatorId: operator.id } })
     }

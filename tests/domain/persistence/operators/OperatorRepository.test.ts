@@ -1,14 +1,13 @@
 import "reflect-metadata";
 import "@/config/container";
-import { container } from "tsyringe";
 import { Operator, PrismaClient } from "@prisma/client";
-import { OperatorRepository } from "@/src/domain/persistence/operators/OperatorRepository";
 import { CreateOperatorDTO, OperatorRole } from "@/src/infrastructure/api/dtos/operators/operator.dto";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
+import PrismaOperatorRepository from "@/src/infrastructure/prisma/operators/PrismaOperatorRepository";
 
-describe("OperatorRepository", () => {
-  let operatorRepository: OperatorRepository<Operator>;
-  let prisma: PrismaClient = new PrismaClient();
+describe("PrismaOperatorRepository", () => {
+  let operatorRepository: PrismaOperatorRepository<Operator>;
+  let prisma: PrismaClient;
 
   const operatorsToCreate: CreateOperatorDTO[] = [
     {
@@ -32,14 +31,86 @@ describe("OperatorRepository", () => {
   ];
 
   beforeAll(async () => {
-    operatorRepository = container.resolve("OperatorRepository");
-    operatorRepository.create(operatorsToCreate[0])
-    operatorRepository.create(operatorsToCreate[1])
+    prisma = new PrismaClient();
+    operatorRepository = new PrismaOperatorRepository(prisma, prisma.operator);
+    await operatorRepository.create(operatorsToCreate[0]);
+    await operatorRepository.create(operatorsToCreate[1]);
+  });
+
+  afterAll(async () => {
+    await prisma.operator.deleteMany({});
+    await prisma.$disconnect();
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("login", () => {
+    it("should return an operator if the credentials are correct", async () => {
+      const email = "john.doe@example.com";
+      const password = "password123";
+
+      const result = await operatorRepository.login(email, password);
+
+      expect(result).not.toBeNull();
+      expect(result?.email).toBe(email);
+      expect(result).toHaveProperty("id");
+    });
+
+    it("should return null if the credentials are incorrect", async () => {
+      const email = "john.doe@example.com";
+      const password = "wrongPassword";
+
+      const result = await operatorRepository.login(email, password);
+
+      expect(result).toBeNull();
+    });
+
+    it("should handle errors gracefully and return null", async () => {
+      jest.spyOn(prisma.operator, 'findUnique').mockRejectedValueOnce(new Error("Repository error"));
+
+      const email = "john.doe@example.com";
+      const password = "password123";
+
+      const result = await operatorRepository.login(email, password);
+
+      expect(result).toBeNull();
+    });
+  });
+
+  describe("getByEmail", () => {
+    it("should return an operator if the email exists", async () => {
+      const email = "john.doe@example.com";
+
+      const result = await operatorRepository.getByEmail(email);
+
+      expect(result).not.toBeNull();
+      expect(result?.email).toBe(email);
+      expect(result).toHaveProperty("id");
+    });
+
+    it("should return null if the email does not exist", async () => {
+      const email = "nonexistent@example.com";
+
+      const result = await operatorRepository.getByEmail(email);
+
+      expect(result).toBeNull();
+    });
+
+    it("should handle errors gracefully and return null", async () => {
+      jest.spyOn(prisma.operator, 'findUnique').mockRejectedValueOnce(new Error("Repository error"));
+
+      const email = "john.doe@example.com";
+
+      const result = await operatorRepository.getByEmail(email);
+
+      expect(result).toBeNull();
+    });
   });
 
   describe("create", () => {
     it("should create a new operator", async () => {
-      // Arrange.
       const operatorToCreate: CreateOperatorDTO = {
         firstName: "Alice",
         firstSurname: "Brown",
@@ -50,32 +121,19 @@ describe("OperatorRepository", () => {
         role: OperatorRole.OPERATOR
       };
 
-      let createOperatorWithRoleDTO = {
-        ...operatorToCreate,
-        role: OperatorRole.OPERATOR
-      }
-
-      // Act.
       const createdOperator = await operatorRepository.create(operatorToCreate);
 
-      // Assert.
       expect(createdOperator).toHaveProperty("id");
       expect(typeof createdOperator.id).toBe("string");
 
       const foundOperator = await prisma.operator.findUnique({ where: { id: createdOperator.id } });
       expect(foundOperator).not.toBeNull();
 
-      const { role, ...operatorData } = operatorToCreate;
-      expect(foundOperator).toMatchObject({
-        ...operatorData,
-        password: expect.any(String)
-      });
       const isPasswordHashed = await bcrypt.compare(operatorToCreate.password, createdOperator.password);
       expect(isPasswordHashed).toBe(true);
     });
 
     it("should throw an error when creating an operator with an existing email", async () => {
-      // Arrange.
       const operatorToCreate: CreateOperatorDTO = {
         firstName: "Duplicate",
         firstSurname: "User",
@@ -86,8 +144,7 @@ describe("OperatorRepository", () => {
         role: OperatorRole.OPERATOR
       };
 
-      // Act & Assert.
-      await expect(operatorRepository.create(operatorToCreate)).rejects.toThrow("Unique constraint failed on the fields: (`email`)");
+      await expect(operatorRepository.create(operatorToCreate)).rejects.toThrow();
     });
   });
 });

@@ -36,6 +36,7 @@ import PrismaMaintenanceDeviceTaskRepository from "@/src/infrastructure/prisma/t
 import PrismaMonitorizeConsumptionTaskRepository from "@/src/infrastructure/prisma/tasks/PrismaMonitorizeConsumptionTaskRepository";
 
 import Agenda from "agenda";
+import SupervisorService from "@/src/domain/services/operators/SupervisorService";
 
 if (process.env.NODE_ENV === 'test') {
   console.log = () => { };
@@ -129,6 +130,7 @@ container.registerSingleton(UnusualConsumptionAlertService);
 container.registerSingleton(AnomaliesReportService);
 container.registerSingleton(ConsumptionReportService);
 container.registerSingleton(OperatorService);
+container.registerSingleton(SupervisorService);
 container.registerSingleton(EnergyConsumptionRecordService);
 container.registerSingleton(BaseTaskService);
 container.registerSingleton(BaseAlertService);
