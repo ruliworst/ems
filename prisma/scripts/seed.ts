@@ -1,14 +1,26 @@
 import { Priority, PrismaClient, Status } from '@prisma/client';
 import { v4 as uuidv4 } from 'uuid';
+import bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const pwd = await bcrypt.hash("1234", 10);
+
   await prisma.device.createMany({
     data: [
       {
         id: "1",
         name: "MKAS-123",
+        ratedPower: 100,
+        installationDate: new Date(),
+        lastMaintenance: new Date(),
+        observations: "Observation 1",
+        status: Status.IDLE,
+      },
+      {
+        id: "123456",
+        name: "MKAS-12334",
         ratedPower: 100,
         installationDate: new Date(),
         lastMaintenance: new Date(),
@@ -25,7 +37,7 @@ async function main() {
         firstSurname: "Doe",
         secondSurname: "Smith",
         email: "bob.doe@example.com",
-        password: uuidv4(),
+        password: pwd,
         phoneNumber: "123456789",
       },
     ],
@@ -83,6 +95,58 @@ async function main() {
         title: "Anomalies report",
         operatorId: "2",
         threshold: 10
+      },
+    ]
+  });
+  await prisma.energyConsumptionRecord.createMany({
+    data: [
+      {
+        deviceId: "1",
+        recordDate: new Date(),
+        quantity: 30,
+        price: 0.32
+      },
+      {
+        deviceId: "1",
+        recordDate: new Date(),
+        quantity: 34,
+        price: 0.23
+      },
+      {
+        deviceId: "1",
+        recordDate: new Date(),
+        quantity: 36,
+        price: 0.37
+      },
+      {
+        deviceId: "1",
+        recordDate: new Date(),
+        quantity: 16,
+        price: 0.33
+      },
+      {
+        deviceId: "123456",
+        recordDate: new Date(),
+        quantity: 12,
+        price: 0.32
+      },
+      {
+        deviceId: "123456",
+        recordDate: new Date(),
+        quantity: 65,
+        price: 0.23
+      },
+      {
+        deviceId: "123456",
+        recordDate: new Date(),
+        quantity: 34,
+        price: 0.37
+      },
+      {
+        deviceId: "123456",
+        recordDate: new Date(),
+        quantity: 67,
+        price: 0.33
       },
     ]
   });
