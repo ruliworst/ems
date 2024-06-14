@@ -341,7 +341,6 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
                         </AlertDialogContent>
                       </AlertDialog>
                     </div>
-
                   </TableCell>
                 </TableRow>
               ))}
