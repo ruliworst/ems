@@ -18,6 +18,7 @@ export default class PrismaDeviceRepository extends PrismaRepository implements 
       await this.connect();
       return await this.prismaClient.device.delete({ where: { name } });
     } catch (error) {
+      console.error(error)
       return null;
     } finally {
       this.disconnect();
