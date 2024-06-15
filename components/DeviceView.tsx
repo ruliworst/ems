@@ -69,17 +69,12 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
   const router = useRouter();
   const [installationDate, setInstallationDate] = useState<Date | undefined>(new Date(device.installationDate));
   const [lastMaintenanceDate, setLastMaintenanceDate] = useState<Date | undefined>();
-  const [ratedPower, setRatedPower] = useState(device.ratedPower);
   const [currentPower, setCurrentPower] = useState(device.currentPower);
-  const [observations, setObservations] = useState(device.observations);
-  const [deviceName, setDeviceName] = useState(device.name);
   const [isEditing, setIsEditing] = useState(false);
   const [alerts, setAlerts] = useState<AlertViewDTO[]>(fetchedAlerts);
   const [showChart, setShowChart] = useState(false);
 
   useEffect(() => {
-    setDeviceName(device.name);
-
     if (device.installationDate) {
       setInstallationDate(new Date(device.installationDate));
     }
@@ -108,17 +103,15 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
             description
           });
           setInstallationDate(new Date(updatedDevice.installationDate));
-          setRatedPower(updatedDevice.ratedPower);
-          setObservations(updatedDevice.observations);
           setCurrentPower(updatedDevice.currentPower);
           setIsEditing(false);
         }
       });
   };
 
-  const handleDelete = async (deviceName: string) => {
+  const handleDelete = async (name: string) => {
     try {
-      await DeviceApiService.delete(deviceName).then(device => {
+      await DeviceApiService.delete(name).then(device => {
         toast({
           title: `${device.name} deleted successfully`,
           description: `${new Date().toLocaleString()}`
@@ -128,13 +121,6 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
     } catch (error: any) {
       console.error(`Error deleting device: ${error.message}`);
     }
-  }
-
-  const checkChanges = (): boolean => {
-    return deviceName != device.name ||
-      installationDate?.toDateString() != device.installationDate ||
-      ratedPower != device.ratedPower ||
-      observations != device.observations;
   }
 
   const getTypeAsString = (type: AlertType): string => {
@@ -149,7 +135,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
 
   const handleResolveAlert = async (publicId: string) => {
     try {
-      await AlertApiService.resolve(deviceName, publicId).then(resolvedAlert => {
+      await AlertApiService.resolve(device.name, publicId).then(resolvedAlert => {
         toast({
           title: "The alert was resolved.",
           description: `${new Date().toLocaleString()}`
@@ -165,7 +151,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
 
   const handleDeleteAlert = async (publicId: string) => {
     try {
-      await AlertApiService.delete(deviceName, publicId).then(alert => {
+      await AlertApiService.delete(device.name, publicId).then(alert => {
         toast({
           title: "Alert deleted successfully",
           description: `${new Date().toLocaleString()}`
