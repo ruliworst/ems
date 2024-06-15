@@ -143,6 +143,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
         setAlerts(prevAlerts => prevAlerts.map(alert =>
           alert.publicId === publicId ? resolvedAlert : alert
         ));
+        if (resolvedAlert.lastMaintenance) setLastMaintenanceDate(new Date(resolvedAlert.lastMaintenance))
       });
     } catch (error: any) {
       console.error(`Error resolving alert: ${error.message}`);

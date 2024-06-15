@@ -11,6 +11,7 @@ export type AlertViewDTO = {
   priority: Priority
   publicId: string
   type: AlertType
+  lastMaintenance: string | null
 }
 
 export type CreateAlertDTO = {

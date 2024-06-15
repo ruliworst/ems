@@ -54,6 +54,7 @@ class DeviceService {
         ratedPower: updateDeviceDTO.ratedPower,
         installationDate: updateDeviceDTO.installationDate,
         observations: updateDeviceDTO.observations,
+        lastMaintenance: updateDeviceDTO.lastMaintenance
       });
       if (!updatedDevice) {
         throw new Error("The device could not be updated.");
