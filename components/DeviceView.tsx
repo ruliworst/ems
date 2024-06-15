@@ -35,9 +35,37 @@ import {
 } from "@/components/ui/table";
 import { AlertApiService } from "@/src/infrastructure/api/services/alerts/AlertApiService";
 import MonitorizeConsumptionChart from "./MonitorizeConsumptionChart";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, FormProvider, Controller } from "react-hook-form";
+import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "./ui/form";
+
+const updateDeviceFormSchema = z.object({
+  name: z.string()
+    .min(2, { message: "The name must contain at least 2 characters." })
+    .max(50)
+    .optional(),
+  installationDate: z.date().optional(),
+  ratedPower: z.number()
+    .min(1, { message: "The device must have at least 1 kWh of rated power." })
+    .optional(),
+  observations: z.string().optional(),
+});
 
 export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDTO, fetchedAlerts: AlertViewDTO[] }) {
-  const { toast } = useToast()
+  const { toast } = useToast();
+
+  const formMethods = useForm({
+    resolver: zodResolver(updateDeviceFormSchema),
+    mode: "onChange",
+    defaultValues: {
+      name: device.name,
+      installationDate: new Date(device.installationDate),
+      ratedPower: device.ratedPower,
+      observations: device.observations ?? ""
+    },
+  });
+
   const router = useRouter();
   const [installationDate, setInstallationDate] = useState<Date | undefined>(new Date(device.installationDate));
   const [lastMaintenanceDate, setLastMaintenanceDate] = useState<Date | undefined>();
@@ -61,17 +89,8 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
     }
   }, [device]);
 
-  const handleUpdate = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const updateDeviceDTO: UpdateDeviceDTO = {
-      originalName: device.name,
-      name: device.name !== deviceName ? deviceName : null,
-      installationDate: device.installationDate !== installationDate?.toDateString()
-        ? (installationDate?.toISOString() ?? null)
-        : null,
-      ratedPower: device.ratedPower !== ratedPower ? ratedPower : null,
-      observations: device.observations !== observations ? (observations ?? null) : null,
-    };
+  const onSubmit = async (values: any) => {
+    const updateDeviceDTO: UpdateDeviceDTO = { ...values, originalName: device.name };
 
     await DeviceApiService.patch(updateDeviceDTO)
       .then((updatedDevice) => {
@@ -88,7 +107,6 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
             title: `${device.name} updated.`,
             description
           });
-          setDeviceName(updatedDevice.name);
           setInstallationDate(new Date(updatedDevice.installationDate));
           setRatedPower(updatedDevice.ratedPower);
           setObservations(updatedDevice.observations);
@@ -96,7 +114,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
           setIsEditing(false);
         }
       });
-  }
+  };
 
   const handleDelete = async (deviceName: string) => {
     try {
@@ -163,127 +181,170 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
     <>
       <div className="p-6 h-screen">
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg">
-          <form id="updateTaskForm" onSubmit={handleUpdate}>
-            <div className="flex justify-between items-center mb-6">
-              {isEditing ? (
-                <div className="w-1/2">
-                  <Label htmlFor="deviceName"></Label>
-                  <Input
-                    id="deviceName"
-                    value={deviceName}
-                    className="text-xl font-bold bg-white"
-                    onChange={(e) => setDeviceName(e.target.value)}
-                  />
-                </div>
-              ) : (
-                <h2 className="text-xl font-bold">{device.name}</h2>
-              )}
-              <div className="flex space-x-4">
-                <Button variant="outline" onClick={() => setIsEditing(!isEditing)} type="button">
-                  <i className="fa-solid fa-pen"></i>
-                </Button>
-                <AlertDialog>
-                  <AlertDialogTrigger>
-                    <Button variant="outline" type="button">
-                      <i className="fa-solid fa-trash"></i>
-                    </Button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Are you sure to delete the device with name {device.name}?</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        This action cannot be undone. This will permanently delete the device
-                        and remove the data from our servers.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={() => handleDelete(device.name)}>Continue</AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog>
-
-                <Button variant="outline" type="button" onClick={() => setShowChart(!showChart)}>
-                  <i className="fa-solid fa-chart-line"></i>
-                </Button>
-              </div>
-            </div>
-            <div className="grid grid-cols-3 gap-12">
-              <div className="grid grid-cols-2 items-center gap-4">
-                <Label htmlFor="installationDate" className="text-right">Installation date</Label>
+          <FormProvider {...formMethods}>
+            <form id="updateTaskForm" onSubmit={formMethods.handleSubmit(onSubmit)}>
+              <div className="flex justify-between items-center mb-6">
                 {isEditing ? (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={cn("justify-start text-left font-normal", !installationDate && "text-muted-foreground")}
-                        type="button"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {installationDate ? installationDate.toDateString() : <span>Pick a date</span>}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" id="installationDate">
-                      <Calendar
-                        mode="single"
-                        selected={installationDate}
-                        onSelect={setInstallationDate}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
+                  <div className="w-1/2">
+                    <FormField
+                      control={formMethods.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel></FormLabel>
+                          <FormControl>
+                            <Input {...field} className="text-xl font-bold bg-white" value={formMethods.watch("name")} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
                 ) : (
-                  <Input id="installationDate" value={installationDate?.toDateString()} readOnly />
+                  <h2 className="text-xl font-bold">{device.name}</h2>
                 )}
-                <Label htmlFor="lastMaintenanceDate" className="text-right">Last maintenance date</Label>
-                <Input id="lastMaintenanceDate" value={lastMaintenanceDate?.toDateString()} readOnly />
+                <div className="flex space-x-4">
+                  <Button variant="outline" onClick={() => setIsEditing(!isEditing)} type="button">
+                    <i className="fa-solid fa-pen"></i>
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger>
+                      <Button variant="outline" type="button">
+                        <i className="fa-solid fa-trash"></i>
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure to delete the device with name {device.name}?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently delete the device
+                          and remove the data from our servers.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => handleDelete(device.name)}>Continue</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+
+                  <Button variant="outline" type="button" onClick={() => setShowChart(!showChart)}>
+                    <i className="fa-solid fa-chart-line"></i>
+                  </Button>
+                </div>
               </div>
-              <div className="grid grid-cols-2 items-center gap-4">
-                <Label htmlFor="ratedPower" className="text-right">Rated power</Label>
-                <div className="flex items-center">
-                  <Input
-                    id="ratedPower"
-                    type="number"
-                    value={ratedPower}
-                    onChange={(e) => setRatedPower(Number(e.target.value))}
-                    className={cn("mr-2", isEditing ? "bg-white" : "")}
-                    readOnly={!isEditing}
+              <div className="grid grid-cols-3 gap-12">
+                <div className={cn(isEditing ? "grid grid-cols-1 items-center gap-4" : "grid grid-cols-2 items-center gap-4")}>
+                  {isEditing ? (
+                    <FormField
+                      control={formMethods.control}
+                      name="installationDate"
+                      render={({ field }) => (
+                        <FormItem className="col-span-2 grid grid-cols-2 items-center gap-4">
+                          <FormLabel className="text-right">Installation date</FormLabel>
+                          <FormControl>
+                            <Controller
+                              name="installationDate"
+                              control={formMethods.control}
+                              render={({ field }) => (
+                                <Popover>
+                                  <PopoverTrigger asChild className="flex justify-start">
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      className="m-0 flex items-center"
+                                    >
+                                      <CalendarIcon className="mr-2 h-4 w-4" />
+                                      {field.value ? (field.value as Date).toDateString() : <span>Pick a date</span>}
+                                    </Button>
+                                  </PopoverTrigger>
+                                  <PopoverContent className="w-auto p-0" id="installationDate">
+                                    <Calendar
+                                      mode="single"
+                                      selected={field.value!}
+                                      onSelect={field.onChange}
+                                      initialFocus
+                                    />
+                                  </PopoverContent>
+                                </Popover>
+                              )}
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+
+                  ) : (
+                    <>
+                      <Label htmlFor="installationDate" className="text-right">Installation date</Label>
+                      <Input id="installationDate" value={installationDate?.toDateString()} readOnly />
+                    </>
+                  )}
+                  <div className="col-span-2 grid grid-cols-2 items-center gap-4">
+                    <Label htmlFor="lastMaintenanceDate" className="text-right">Last maintenance date</Label>
+                    <Input id="lastMaintenanceDate" value={lastMaintenanceDate?.toDateString()} readOnly />
+                  </div>
+                </div>
+                <div className="grid grid-cols-1 items-center gap-4">
+                  <FormField
+                    control={formMethods.control}
+                    name="ratedPower"
+                    render={({ field }) => (
+                      <FormItem className="grid grid-cols-2 items-center gap-4">
+                        <FormLabel className="text-right">Rated power (kWh)</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            required
+                            className={cn("mr-2", isEditing ? "bg-white" : "")}
+                            type="number"
+                            min={1}
+                            onChange={(e) => field.onChange(Number(e.target.value))}
+                            readOnly={!isEditing}
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
-                  <span>kWh</span>
+                  <div className="grid grid-cols-2 items-center gap-4">
+                    <Label htmlFor="currentPower" className="text-right">Current power (kWh)</Label>
+                    <div className="flex items-center">
+                      <Input
+                        id="currentPower"
+                        type="number"
+                        value={currentPower}
+                        readOnly
+                      />
+                    </div>
+                  </div>
                 </div>
-                <Label htmlFor="currentPower" className="text-right">Current power</Label>
-                <div className="flex items-center">
-                  <Input
-                    id="currentPower"
-                    type="number"
-                    value={currentPower}
-                    className="mr-2"
-                    readOnly
+                <div className="grid grid-cols-2 items-center gap-4">
+                  <Label htmlFor="status" className="text-right">Status</Label>
+                  <p>{device.status}</p>
+                </div>
+                <div className="grid grid-cols-1 items-start gap-4 col-span-2">
+                  <FormField
+                    control={formMethods.control}
+                    name="observations"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-right">Observations</FormLabel>
+                        <FormControl>
+                          <Textarea {...field} className={cn("w-full max-h-[100px]", isEditing ? "bg-white" : "")} />
+                        </FormControl>
+                        <FormMessage className="col-span-3" />
+                      </FormItem>
+                    )}
                   />
-                  <span>kWh</span>
                 </div>
+                {isEditing && (
+                  <div className="flex justify-center mt-6">
+                    <Button form="updateTaskForm" type="submit" disabled={!formMethods.formState.isDirty || !formMethods.formState.isValid}>Save</Button>
+                  </div>
+                )}
               </div>
-              <div className="grid grid-cols-2 items-center gap-4">
-                <Label htmlFor="status" className="text-right">Status</Label>
-                <p>{device.status}</p>
-              </div>
-              <div className="grid grid-cols-1 items-start gap-4 col-span-2">
-                <Label htmlFor="observations" className="text-left">Observations</Label>
-                <Textarea
-                  id="observations"
-                  value={observations || ""}
-                  onChange={(e) => setObservations(e.target.value)}
-                  className={cn("w-full resize-none", isEditing ? "bg-white" : "")}
-                  readOnly={!isEditing}
-                />
-              </div>
-              {isEditing && checkChanges() && (
-                <div className="flex justify-center mt-6">
-                  <Button form="updateTaskForm" type="submit">Save</Button>
-                </div>
-              )}
-            </div>
-          </form>
+            </form>
+          </FormProvider>
         </div>
         <div className="bg-gray-100 p-6 rounded-lg shadow-lg mt-4">
           <h2 className="text-xl font-bold">Alerts</h2>
@@ -341,6 +402,7 @@ export default function DeviceView({ device, fetchedAlerts }: { device: DeviceDT
                         </AlertDialogContent>
                       </AlertDialog>
                     </div>
+
                   </TableCell>
                 </TableRow>
               ))}
