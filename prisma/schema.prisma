@@ -54,7 +54,7 @@ model Device {
   status                        Status                          @default(value: RUNNING)
   consumptionReports            ConsumptionReport[]
   anomaliesReports              AnomaliesReport[]
-  energyConsumptionRecords      EnergyConsumptionRecord[]
+  energyConsumptionRecords      EnergyConsumptionRecord[]       
   monitorizeConsumptionTasks    MonitorizeConsumptionTask[]
   generateConsumptionReportTask GenerateConsumptionReportTask[]
   generateAnomaliesReportTask   GenerateAnomaliesReportTask[]
@@ -76,7 +76,7 @@ model ConsumptionReport {
   operatorId               String?
   Supervisor               Supervisor?               @relation(fields: [supervisorId], references: [id])
   supervisorId             String?
-  Device                   Device?                   @relation(fields: [deviceId], references: [id])
+  Device                   Device?                   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId                 String?
 }
 
@@ -93,7 +93,7 @@ model AnomaliesReport {
   operatorId               String?
   Supervisor               Supervisor?               @relation(fields: [supervisorId], references: [id])
   supervisorId             String?
-  Device                   Device?                   @relation(fields: [deviceId], references: [id])
+  Device                   Device?                   @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId                 String?
 }
 
@@ -103,7 +103,7 @@ model EnergyConsumptionRecord {
   recordDate          DateTime
   quantity            Float
   price               Float
-  Device              Device            @relation(fields: [deviceId], references: [id])
+  Device              Device            @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId            String
   ConsumptionReport   ConsumptionReport? @relation(fields: [consumptionReportId], references: [id])
   consumptionReportId String?
@@ -119,7 +119,7 @@ model MonitorizeConsumptionTask {
   endDate      DateTime?
   frequency    Frequency
   threshold    Float
-  Device       Device     @relation(fields: [deviceId], references: [id])
+  Device       Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId     String
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
   operatorId   String?
@@ -136,7 +136,7 @@ model GenerateConsumptionReportTask {
   startReportDate DateTime
   endReportDate   DateTime
   title           String
-  Device          Device     @relation(fields: [deviceId], references: [id])
+  Device          Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId        String
   Operator        Operator?   @relation(fields: [operatorId], references: [id])
   operatorId      String?
@@ -154,7 +154,7 @@ model GenerateAnomaliesReportTask {
   endReportDate   DateTime
   title           String
   threshold       Float
-  Device          Device     @relation(fields: [deviceId], references: [id])
+  Device          Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId        String
   Operator        Operator?   @relation(fields: [operatorId], references: [id])
   operatorId      String?
@@ -168,7 +168,7 @@ model MaintenanceDeviceTask {
   startDate    DateTime
   endDate      DateTime?
   frequency    Frequency
-  Device       Device     @relation(fields: [deviceId], references: [id])
+  Device       Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId     String
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
   operatorId   String?
@@ -184,7 +184,7 @@ model UnusualConsumptionAlert {
   resolved     Boolean     @default(false)
   priority     Priority
   threshold    Float
-  Device       Device     @relation(fields: [deviceId], references: [id])
+  Device       Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId     String
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
   operatorId   String?
@@ -198,7 +198,7 @@ model MaintenanceAlert {
   message      String
   resolved     Boolean     @default(false)
   priority     Priority
-  Device       Device     @relation(fields: [deviceId], references: [id])
+  Device       Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
   deviceId     String
   Operator     Operator?   @relation(fields: [operatorId], references: [id])
   operatorId   String?

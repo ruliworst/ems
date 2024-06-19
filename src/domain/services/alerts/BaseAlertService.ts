@@ -33,9 +33,9 @@ export class BaseAlertService {
     return alerts;
   }
 
-  async resolve(publicId: string): Promise<AlertViewDTO | null> {
+  async resolve(publicId: string, deviceName: string): Promise<AlertViewDTO | null> {
     const maintenanceAlert: MaintenanceAlertEntity | null =
-      await this.maintenanceAlertService.resolve(publicId);
+      await this.maintenanceAlertService.resolveMaintenanceAlert(publicId, deviceName);
 
     if (maintenanceAlert) return maintenanceAlert.getView();
 

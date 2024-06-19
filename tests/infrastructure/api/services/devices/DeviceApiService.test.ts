@@ -211,6 +211,7 @@ describe("DeviceApiService", () => {
       ratedPower: 150,
       installationDate: '2024-05-01T10:00:00.000Z',
       observations: 'Updated observations',
+      lastMaintenance: '2024-05-01T10:00:00.000Z',
     };
 
     const updatedDevice: DeviceDTO = {
@@ -250,6 +251,7 @@ describe("DeviceApiService", () => {
       ratedPower: 150,
       installationDate: '2024-05-01T10:00:00.000Z',
       observations: 'Updated observations',
+      lastMaintenance: '2024-05-01T10:00:00.000Z',
     };
 
     (fetch as jest.Mock).mockResolvedValue({

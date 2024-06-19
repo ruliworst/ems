@@ -7,11 +7,11 @@ import { AlertViewDTO } from "@/src/infrastructure/api/dtos/alerts/alert.dto";
 
 const alertService = container.resolve(BaseAlertService);
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const { id } = params;
+export async function PATCH(req: NextRequest, { params }: { params: { name: string, id: string } }) {
+  const { name, id } = params;
 
   try {
-    const resolvedAlert: AlertViewDTO | null = await alertService.resolve(id);
+    const resolvedAlert: AlertViewDTO | null = await alertService.resolve(id, name);
 
     if (!resolvedAlert) {
       return NextResponse.json({ error: 'Alert not found or resolution failed' }, { status: 404 });
