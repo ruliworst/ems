@@ -33,4 +33,5 @@ export type UpdateDeviceDTO = {
   ratedPower: number | null;
   installationDate: string | null;
   observations: string | null;
+  lastMaintenance: string | null;
 }

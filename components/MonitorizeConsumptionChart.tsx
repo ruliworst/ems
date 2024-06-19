@@ -32,7 +32,7 @@ export default function MonitorizeConsumptionChart({ deviceName }: { deviceName:
         const record: EnergyConsumptionRecordDTO = await AnalysisApiService.getRecordByDeviceName(deviceName);
         setRecords(prevRecords => {
           const updatedRecords = [...prevRecords, record];
-          if (updatedRecords.length > 15) {
+          if (updatedRecords.length > 25) {
             updatedRecords.shift();
           }
           return updatedRecords;
@@ -42,7 +42,7 @@ export default function MonitorizeConsumptionChart({ deviceName }: { deviceName:
       }
     }
 
-    const intervalId = setInterval(getConsumptionRecord, 3000);
+    const intervalId = setInterval(getConsumptionRecord, 1000);
 
     return () => clearInterval(intervalId);
   }, [deviceName]);

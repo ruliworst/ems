@@ -147,6 +147,7 @@ describe("DeviceRepository", () => {
         ratedPower: 150,
         installationDate: "2024-06-01T10:00:00.000Z",
         observations: "Updated Observation",
+        lastMaintenance: "2024-06-01T10:00:00.000Z",
       };
 
       const updatedDevice: Device | null = await deviceRepository.update(updateDeviceDTO.originalName, updateDeviceDTO);
@@ -161,6 +162,7 @@ describe("DeviceRepository", () => {
         ratedPower: 150,
         installationDate: "2024-06-01T10:00:00.000Z",
         observations: "Updated Observation",
+        lastMaintenance: "2024-05-01T10:00:00.000Z",
       };
 
       const updatedDevice = await deviceRepository.update(updateDeviceDTO.originalName, updateDeviceDTO);
@@ -174,6 +176,7 @@ describe("DeviceRepository", () => {
         ratedPower: 150,
         installationDate: "2024-06-01T10:00:00.000Z",
         observations: "Updated Observation",
+        lastMaintenance: "2024-06-01T10:00:00.000Z",
       };
 
       await expect(deviceRepository.update(updateDeviceDTO.originalName, updateDeviceDTO)).rejects.toThrow("It was not possible to update the Device because the name cannot be empty.");

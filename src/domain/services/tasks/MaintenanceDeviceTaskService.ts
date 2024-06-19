@@ -61,7 +61,14 @@ class MaintenanceDeviceTaskService extends TaskService<MaintenanceDeviceTask, Ma
       return;
     }
 
-    this.execute(task);
+    this.execute(task)
+      .catch(error => async () => {
+        await job
+          .remove()
+          .then(() => {
+            console.log(`[${new Date().toISOString()}]: The job associated was removed because an error was raised.`)
+          });
+      });
   }
 
   async execute(task: MaintenanceDeviceTaskEntity): Promise<void> {

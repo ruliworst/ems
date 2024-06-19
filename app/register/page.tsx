@@ -117,7 +117,6 @@ export default function RegisterOperatorView() {
                     )}
                   />
                 </div>
-
                 <div className="w-1/2">
                   <FormField
                     control={form.control}

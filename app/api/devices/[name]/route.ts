@@ -49,6 +49,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { name: stri
       ratedPower: updateDeviceDTO.ratedPower,
       installationDate: updateDeviceDTO.installationDate,
       observations: updateDeviceDTO.observations,
+      lastMaintenance: updateDeviceDTO.lastMaintenance
     });
 
     if (!updatedDevice) {

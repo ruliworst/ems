@@ -18,6 +18,7 @@ export default class PrismaDeviceRepository extends PrismaRepository implements 
       await this.connect();
       return await this.prismaClient.device.delete({ where: { name } });
     } catch (error) {
+      console.error(error)
       return null;
     } finally {
       this.disconnect();
@@ -61,6 +62,7 @@ export default class PrismaDeviceRepository extends PrismaRepository implements 
       ratedPower: updateData.ratedPower ? updateData.ratedPower : undefined,
       installationDate: updateData.installationDate ? new Date(updateData.installationDate) : undefined,
       observations: updateData.observations ? updateData.observations : undefined,
+      lastMaintenance: updateData.lastMaintenance ? new Date(updateData.lastMaintenance) : undefined
     }
 
     try {

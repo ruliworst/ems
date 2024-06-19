@@ -56,7 +56,6 @@ export abstract class AlertService<T, E> {
         return this.mapToEntity(alert);
       })
       .catch(error => {
-        console.error(error);
         throw error;
       });
   }
