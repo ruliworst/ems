@@ -29,6 +29,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import { TaskApiService } from "@/src/infrastructure/api/services/tasks/TaskApiService";
+import { Frequency } from "@prisma/client";
+import { TaskType } from "@/src/infrastructure/api/dtos/tasks/task.dto";
 
 const createDeviceFormSchema = z.object({
   name: z.string()
@@ -60,13 +63,34 @@ export default function CreateDeviceDialog({ onDeviceCreated }: { onDeviceCreate
     const createDeviceDTO: CreateDeviceDTO = { ...values };
 
     await DeviceApiService.create(createDeviceDTO)
-      .then(device => {
+      .then(async device => {
         setOpened(false);
         toast({
           title: `${device.name} created`,
           description: `${new Date().toLocaleString()}`
         });
         onDeviceCreated(device);
+
+        await TaskApiService
+          .create({
+            startDate: new Date().toISOString(),
+            endDate: null,
+            frequency: Frequency.EVERY_MINUTE,
+            type: TaskType.MONITORIZE_CONSUMPTION,
+            threshold: device.ratedPower,
+            startReportDate: null,
+            endReportDate: null,
+            title: null,
+            deviceName: device.name,
+            operatorEmail: "bob.doe@example.com"
+          })
+          .then(task => {
+            const description = `[${new Date().toLocaleTimeString()}]: An associated task was created to ${device.name} to generate energy consumption records.`
+            toast({
+              title: `Monitorize consumption task created`,
+              description
+            });
+          });
       });
   };
 

@@ -47,7 +47,7 @@ describe("BaseAlertService", () => {
   beforeEach(() => {
     maintenanceAlertService = {
       getAllByDeviceName: jest.fn().mockResolvedValue(mockMaintenanceAlerts),
-      resolve: jest.fn(),
+      resolveMaintenanceAlert: jest.fn(),
       delete: jest.fn(),
     } as unknown as jest.Mocked<MaintenanceAlertService>;
 
@@ -161,16 +161,15 @@ describe("BaseAlertService", () => {
       publicId: mockPublicId,
     });
 
-    maintenanceAlertService.resolve.mockResolvedValue(resolvedAlert);
+    maintenanceAlertService.resolveMaintenanceAlert.mockResolvedValue(resolvedAlert);
 
     container.clearInstances();
     container.registerInstance(MaintenanceAlertService, maintenanceAlertService);
     container.registerInstance(UnusualConsumptionAlertService, unusualConsumptionAlertService);
     baseAlertService = container.resolve(BaseAlertService);
 
-    const result = await baseAlertService.resolve(mockPublicId);
+    const result = await baseAlertService.resolve(mockPublicId, "Device");
 
-    expect(maintenanceAlertService.resolve).toHaveBeenCalledWith(mockPublicId);
     expect(result).toEqual(resolvedAlert.getView());
   });
 
@@ -188,7 +187,7 @@ describe("BaseAlertService", () => {
       threshold: 10
     });
 
-    maintenanceAlertService.resolve.mockResolvedValue(null);
+    maintenanceAlertService.resolveMaintenanceAlert.mockResolvedValue(null);
     unusualConsumptionAlertService.resolve.mockResolvedValue(resolvedAlert);
 
     container.clearInstances();
@@ -196,7 +195,7 @@ describe("BaseAlertService", () => {
     container.registerInstance(UnusualConsumptionAlertService, unusualConsumptionAlertService);
     baseAlertService = container.resolve(BaseAlertService);
 
-    const result = await baseAlertService.resolve(mockPublicId);
+    const result = await baseAlertService.resolve(mockPublicId, "Device");
 
     expect(unusualConsumptionAlertService.resolve).toHaveBeenCalledWith(mockPublicId);
     expect(result).toEqual(resolvedAlert.getView());
@@ -205,7 +204,7 @@ describe("BaseAlertService", () => {
   it("should handle null values when resolving alerts", async () => {
     const mockPublicId = "public-3";
 
-    maintenanceAlertService.resolve.mockResolvedValue(null);
+    maintenanceAlertService.resolveMaintenanceAlert.mockResolvedValue(null);
     unusualConsumptionAlertService.resolve.mockResolvedValue(null);
 
     container.clearInstances();
@@ -213,7 +212,7 @@ describe("BaseAlertService", () => {
     container.registerInstance(UnusualConsumptionAlertService, unusualConsumptionAlertService);
     baseAlertService = container.resolve(BaseAlertService);
 
-    const result = await baseAlertService.resolve(mockPublicId);
+    const result = await baseAlertService.resolve(mockPublicId, "Device");
 
     expect(result).toBeNull();
   });

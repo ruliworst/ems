@@ -146,6 +146,7 @@ describe("DeviceService", () => {
         ratedPower: 150,
         installationDate: "2024-06-01T10:00:00.000Z",
         observations: "Updated Observation 1",
+        lastMaintenance: "2024-06-01T10:00:00.000Z",
       };
 
       const updatedDevice: DeviceEntity | null = await deviceService.update(updateDeviceDTO);
