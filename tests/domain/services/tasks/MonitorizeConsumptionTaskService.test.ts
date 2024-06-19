@@ -98,7 +98,7 @@ describe("MonitorizeConsumptionTaskService", () => {
       ];
 
       invalidDTOs.forEach(dto => {
-        expect(() => service.checkAttributes(dto)).toThrowError("Some values are not valid.");
+        expect(() => service.checkAttributes(dto)).toThrowError("Threshold must be defined.");
       });
     });
   });
