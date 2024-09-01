@@ -49,14 +49,10 @@ export abstract class TaskService<T, E extends JobAttributesData> {
   async create(createTaskDTO: CreateTaskDTO): Promise<E> {
     this.checkAttributes(createTaskDTO);
     return await this.taskRepository
-      .create(
-        this.getTaskToCreate(createTaskDTO),
-        createTaskDTO.operatorEmail!,
-        createTaskDTO.deviceName)
+      .create(this.getTaskToCreate(createTaskDTO), createTaskDTO.operatorEmail!, createTaskDTO.deviceName)
       .then(async task => {
         const entity = this.mapToEntity(task);
         await this.scheduleAgendaJob(entity);
-
         return entity;
       })
       .catch(error => {

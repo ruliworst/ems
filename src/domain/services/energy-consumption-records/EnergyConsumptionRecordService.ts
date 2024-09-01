@@ -21,8 +21,7 @@ export class EnergyConsumptionRecordService {
 
     const createEnergyConsumptionRecordDTO: CreateEnergyConsumptionRecordDTO = {
       recordDate: new Date().toISOString(),
-      // TODO: Remove random values.
-      quantity: crypto.randomInt(1, 101),
+      quantity: crypto.randomInt(1, device.getCurrentPower()),
       price: (crypto.randomInt(1, 150) + 1) / 100,
       deviceId: device.id
     };
